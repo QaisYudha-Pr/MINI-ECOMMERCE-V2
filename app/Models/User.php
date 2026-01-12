@@ -12,6 +12,11 @@ class User extends Authenticatable
 {
     use HasRoles;
 
+    public function itemShops()
+    {
+        return $this->hasMany(ItemShop::class);
+    }
+
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable;
 

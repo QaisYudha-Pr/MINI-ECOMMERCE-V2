@@ -10,29 +10,52 @@ use Spatie\Permission\PermissionRegistrar;
 
 class RolePermissionSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
     public function run(): void
     {
-        //
         app(PermissionRegistrar::class)->forgetCachedPermissions();
 
+        $permissions = [
+            'tambah-user',
+            'edit-user',
+            'hapus-user',
+            'lihat-user',
+            'tambah-produk',
+            'edit-produk',
+            'hapus-produk',
+            'lihat-produk',
+            'edit-permissions',
+            'lihat-permissions',
+            'membeli-produk'
 
-        Permission::create(['name' => 'tambah-user']);
-        Permission::create(['name' => 'edit-user']);
-        Permission::create(['name' => 'hapus-user']);
-        Permission::create(['name' => 'lihat-user']);
+        ];
 
-        Permission::create(['name' => 'tambah-produk']);
-        Permission::create(['name' => 'edit-produk']);
-        Permission::create(['name' => 'hapus-produk']);
-        Permission::create(['name' => 'lihat-produk']);
+        foreach ($permissions as $permission) {
+            Permission::firstOrCreate([
+                'name' => $permission,
+                'guard_name' => 'web',
+            ]);
+        }
 
-        $roleAdmin = Role::firstOrCreate(['name' => 'admin']);
-        $roleAdmin->givePermissionTo(Permission::all());
+        $roleAdmin = Role::firstOrCreate([
+            'name' => 'admin',
+            'guard_name' => 'web',
+        ]);
 
-        $roleUser = Role::firstOrCreate(['name' => 'user']);
-        $roleUser->givePermissionTo(['lihat-produk', 'tambah-produk', 'edit-produk', 'hapus-produk']);
+        $roleUser = Role::firstOrCreate([
+            'name' => 'user',
+            'guard_name' => 'web',
+        ]);
+
+        $permissions = Permission::all()->except(Permission::where('name', 'membeli-produk')->first()->id);
+        $roleAdmin->givePermissionTo($permissions);
+
+
+        $roleUser->givePermissionTo([
+            'lihat-produk',
+            'tambah-produk',
+            'edit-produk',
+            'hapus-produk',
+            'membeli-produk',
+        ]);
     }
 }

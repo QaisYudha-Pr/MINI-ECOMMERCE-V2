@@ -19,6 +19,7 @@ return new class extends Migration
             $table->bigInteger('harga');
             $table->integer('stok')->default(0);
             $table->string('kategori')->nullable();
+            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             $table->timestamps();
         });
     }

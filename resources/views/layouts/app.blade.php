@@ -7,32 +7,55 @@
 
         <title>{{ config('app.name', 'MiniE-Store') }}</title>
 
-        <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.bunny.net">
-        <link rel="icon" type="image/svg+xml" href="/LogoQ.svg">
+        <link href="https://fonts.bunny.net/css?family=plus-jakarta-sans:400,500,600,700,800,900" rel="stylesheet" />
 
-        <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
-
-        <!-- Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
+        
+        <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+
+        <style>
+            body {
+                font-family: 'Plus Jakarta Sans', sans-serif;
+                background-color: #f8fafc; /* Warna abu-abu sangat muda biar card putih makin kontras */
+            }
+            /* Custom scrollbar biar makin premium */
+            ::-webkit-scrollbar { width: 8px; }
+            ::-webkit-scrollbar-track { background: #f1f1f1; }
+            ::-webkit-scrollbar-thumb { 
+                background: #6366f1; 
+                border-radius: 10px;
+            }
+            ::-webkit-scrollbar-thumb:hover { background: #4f46e5; }
+        </style>
     </head>
-    <body class="font-sans antialiased">
-        <div class="min-h-screen bg-gray-100">
+    <body class="antialiased select-none">
+        <div class="min-h-screen">
             @include('layouts.navigation')
 
-            <!-- Page Heading -->
-            @isset($header)
-                <header class="bg-white shadow">
-                    <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-                        {{ $header }}
+            @if (isset($header))
+                <header class="bg-white/40 backdrop-blur-sm border-b border-gray-100">
+                    <div class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+                        <div data-aos="fade-down">
+                            {{ $header }}
+                        </div>
                     </div>
                 </header>
-            @endisset
+            @endif
 
-            <!-- Page Content -->
-            <main>
+            <main class="py-6">
                 {{ $slot }}
             </main>
         </div>
+
+        <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+        <script>
+            // Inisialisasi animasi AOS
+            AOS.init({
+                duration: 800,
+                once: true,
+                easing: 'ease-out-back'
+            });
+        </script>
     </body>
 </html>
