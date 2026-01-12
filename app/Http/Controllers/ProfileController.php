@@ -21,6 +21,30 @@ class ProfileController extends Controller
         ]);
     }
 
+    public function updateAvatar(Request $request)
+    {
+        $request->validate([
+            'avatar' => ['required', 'image', 'max:1024'],
+        ]);
+
+        $user = $request->user();
+
+        if ($request->hasFile('avatar')) {
+            // Hapus foto lama
+            if ($user->avatar && file_exists(public_path($user->avatar))) {
+                unlink(public_path($user->avatar));
+            }
+
+            $file = $request->file('avatar');
+            $filename = 'avatar_' . $user->id . '_' . time() . '.' . $file->getClientOriginalExtension();
+            $file->move(public_path('uploads/avatars'), $filename);
+
+            $user->avatar = 'uploads/avatars/' . $filename;
+            $user->save();
+        }
+
+        return back()->with('status', 'profile-updated');
+    }
     /**
      * Update the user's profile information.
      */

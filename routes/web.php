@@ -22,7 +22,7 @@ Route::get('/produk/{itemShop}', [ItemShopController::class, 'show'])->name('pro
 
 
 Route::resource('item-shop', ItemShopController::class);
-
+Route::post('/item-shop/{id}/review', [ItemShopController::class, 'storeReview'])->name('reviews.store')->middleware('auth');
 
 Route::middleware('auth')->group(function () {
 
@@ -45,6 +45,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    Route::patch('/profile/avatar', [ProfileController::class, 'updateAvatar'])->name('profile.avatar.update');
 });
 
 Route::get('admin', function () {

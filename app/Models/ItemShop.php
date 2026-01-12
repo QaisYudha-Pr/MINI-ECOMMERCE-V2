@@ -23,4 +23,15 @@ class ItemShop extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    public function reviews()
+    {
+        return $this->hasMany(Review::class, 'item_shop_id');
+    }
+
+    // Helper untuk ambil rata-rata rating
+    public function getRatingsAvgAttribute()
+    {
+        return $this->reviews()->avg('rating') ?? 0;
+    }
 }

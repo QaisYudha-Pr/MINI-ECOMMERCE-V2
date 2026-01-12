@@ -12,8 +12,11 @@ class HomeController extends Controller
      */
     public function index()
     {
-        //
-        $items = ItemShop::latest()->take(8)->get();
+        $items = ItemShop::withCount('reviews')
+            ->withAvg('reviews as ratings_avg', 'rating')
+            ->latest()
+            ->get();
+
         return view('home', compact('items'));
     }
 
