@@ -5,7 +5,7 @@ import Alpine from 'alpinejs';
 
 window.Alpine = Alpine;
 AOS.init({
-    once: false,
+    once: true,
     duration: 800,
 });
 Alpine.start();

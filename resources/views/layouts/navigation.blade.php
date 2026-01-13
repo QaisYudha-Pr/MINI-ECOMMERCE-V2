@@ -1,22 +1,38 @@
-<nav x-data="{ open: false }" class="bg-white/80 backdrop-blur-md border-b border-gray-100 sticky top-0 z-50 transition-all duration-300">
+<nav x-data="{ 
+        open: false,
+        {{-- Mengambil jumlah item keranjang dari localStorage secara real-time --}}
+        get cartCount() {
+            try {
+                const cart = JSON.parse(localStorage.getItem('minie_cart') || '[]');
+                return cart.length;
+            } catch (e) { return 0; }
+        }
+    }" 
+    class="bg-white/80 backdrop-blur-md border-b border-gray-100 sticky top-0 z-50 transition-all duration-300">
+    
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between h-20">
             <div class="flex">
+                {{-- LOGO --}}
                 <div class="shrink-0 flex items-center">
-                    <a href="{{ route('dashboard') }}" class="group flex items-center gap-3 transition-transform active:scale-95">
+                    <a href="{{ route('home') }}" class="group flex items-center gap-3 transition-transform active:scale-95">
                         <div class="w-11 h-11 bg-gradient-to-tr from-indigo-600 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg shadow-indigo-200 group-hover:rotate-6 transition-transform">
                             <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 118 0m-4 5v2a3 3 0 01-3 3h-6a3 3 0 01-3-3V7a3 3 0 013-3h6a3 3 0 013 3V7" />
                             </svg>
                         </div>
-                        <div class="flex flex-col">
+                        <div class="flex flex-col text-left">
                             <span class="font-black text-xl tracking-tighter text-gray-900 leading-none">MiniE-<span class="text-indigo-600">Store</span></span>
-                            <span class="text-[10px] font-bold uppercase tracking-[0.2em] text-gray-400">Dashboard</span>
+                            <span class="text-[10px] font-bold uppercase tracking-[0.2em] text-gray-400">Q-store</span>
                         </div>
                     </a>
                 </div>
 
+                {{-- NAV LINKS --}}
                 <div class="hidden space-x-2 sm:-my-px sm:ms-10 sm:flex items-center">
+                    <x-nav-link :href="route('home')" :active="request()->routeIs('home')">
+                        {{ __('Home') }}
+                    </x-nav-link>
                     <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                         {{ __('Dashboard') }}
                     </x-nav-link>
@@ -33,7 +49,19 @@
                 </div>
             </div>
 
-            <div class="hidden sm:flex sm:items-center sm:ms-6">
+            <div class="hidden sm:flex sm:items-center sm:ms-6 gap-4">
+                {{-- FITUR KERANJANG (CART ICON) --}}
+                <a @click.prevent="$dispatch('open-cart')" class="relative p-2.5 bg-gray-50 text-gray-500 hover:text-indigo-600 hover:bg-indigo-50 rounded-full transition-all active:scale-90 group">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                    </svg>
+                    {{-- Badge Angka --}}
+                    <template x-if="cartCount > 0">
+                        <span class="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-black w-5 h-5 flex items-center justify-center rounded-full border-2 border-white shadow-sm group-hover:scale-110 transition-transform" 
+                              x-text="cartCount"></span>
+                    </template>
+                </a>
+
                 @auth
                     <x-dropdown align="right" width="48">
                         <x-slot name="trigger">
@@ -81,8 +109,18 @@
                 @endguest
             </div>
 
-            <div class="-me-2 flex items-center sm:hidden">
-                <button @click="open = ! open" class="w-12 h-12 inline-flex items-center justify-center rounded-2xl text-gray-500 hover:text-indigo-600 hover:bg-indigo-50 transition-all duration-300 bg-white border border-gray-100">
+            {{-- MOBILE MENU BUTTON --}}
+            <div class="-me-2 flex items-center sm:hidden gap-3">
+                {{-- Cart Icon di Mobile --}}
+                <a href="#" class="relative p-2 text-gray-500">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 118 0m-4 5v2a3 3 0 01-3 3h-6a3 3 0 01-3-3V7a3 3 0 013-3h6a3 3 0 013 3V7" />
+                    </svg>
+                    <template x-if="cartCount > 0">
+                        <span class="absolute top-0 right-0 bg-red-500 text-white text-[8px] font-black w-4 h-4 flex items-center justify-center rounded-full border border-white" x-text="cartCount"></span>
+                    </template>
+                </a>
+                <button @click="open = ! open" class="w-12 h-12 inline-flex items-center justify-center rounded-2xl text-gray-500 hover:text-indigo-600 hover:bg-indigo-50 transition-all duration-300 bg-white border border-gray-100 shadow-sm">
                     <svg class="h-8 w-8" stroke="currentColor" fill="none" viewBox="0 0 24 24">
                         <path :class="{'hidden': open, 'inline-flex': ! open }" class="inline-flex" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 8h16M4 16h16" />
                         <path :class="{'hidden': ! open, 'inline-flex': open }" class="hidden" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12" />
@@ -92,27 +130,25 @@
         </div>
     </div>
 
+    {{-- MOBILE MENU DRAWER --}}
     <div x-show="open" 
          x-transition:enter="transition ease-out duration-200"
          x-transition:enter-start="opacity-0 -translate-y-4"
          x-transition:enter-end="opacity-100 translate-y-0"
          @click.away="open = false"
-         class="sm:hidden bg-white border-t border-gray-100 shadow-2xl rounded-b-[2.5rem] overflow-hidden">
+         class="sm:hidden bg-white border-t border-gray-100 shadow-2xl rounded-b-[2.5rem] overflow-hidden"
+         x-cloak>
         
         <div class="pt-4 pb-3 space-y-2 px-4">
+            <x-responsive-nav-link :href="route('home')" :active="request()->routeIs('home')" class="rounded-2xl">
+                {{ __('Home') }}
+            </x-responsive-nav-link>
             <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')" class="rounded-2xl">
                 {{ __('Dashboard') }}
             </x-responsive-nav-link>
             <x-responsive-nav-link :href="route('item-shop.index')" :active="request()->routeIs('item-shop.*')" class="rounded-2xl">
                 {{ __('Produk') }}
             </x-responsive-nav-link>
-            @auth
-                @role('admin')
-                <x-responsive-nav-link :href="route('users.index')" :active="request()->routeIs('users.*')" class="rounded-2xl">
-                    {{ __('Kelola User') }}
-                </x-responsive-nav-link>
-                @endrole
-            @endauth
         </div>
 
         <div class="pt-4 pb-8 border-t border-gray-100 px-6">

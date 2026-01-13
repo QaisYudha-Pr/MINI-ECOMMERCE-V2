@@ -21,14 +21,30 @@ class ItemShopController extends Controller
         return view('item-shop.show', compact('itemShop', 'reviews'));
     }
 
-    public function index()
+    public function index(Request $request)
     {
         $this->authorize('viewAny', ItemShop::class);
         $user = auth()->user();
+        $search = $request->query('search');
 
-        $items = $user->hasRole('admin')
-            ? ItemShop::latest()->paginate(8)
-            : $user->itemShops()->latest()->paginate(8);
+        $query = $user->hasRole('admin')
+            ? ItemShop::latest()
+            : $user->itemShops()->latest();
+
+        if ($search) {
+            $query->where('nama_barang', 'like', "%{$search}%")
+                ->orWhere('kategori', 'like', "%{$search}%");
+        }
+
+        $items = $query->paginate(8)->withQueryString();
+
+        // Jika request datang dari AJAX/Fetch, balikin JSON
+        if ($request->ajax()) {
+            return response()->json([
+                'items' => $items->items(),
+                'pagination' => (string) $items->links()
+            ]);
+        }
 
         return view('item-shop.admin', compact('items'));
     }
@@ -48,23 +64,20 @@ class ItemShopController extends Controller
             'harga' => 'required|numeric|min:0|max:999999999',
             'deskripsi' => 'required|string|min:10|max:5000',
             'gambar' => 'nullable|string',
+            'stok' => 'required|numeric|min:1|max:999999',
+            'kategori' => 'required|string', // Tambahkan validasi kategori
         ], [
-            'nama_barang.required' => 'Nama produk tidak boleh kosong',
-            'nama_barang.min' => 'Nama produk minimal 3 karakter',
-            'nama_barang.max' => 'Nama produk maksimal 255 karakter',
-            'harga.required' => 'Harga tidak boleh kosong',
-            'harga.numeric' => 'Harga harus berupa angka',
-            'harga.min' => 'Harga tidak boleh negatif',
-            'harga.max' => 'Harga terlalu besar',
-            'deskripsi.required' => 'Deskripsi tidak boleh kosong',
-            'deskripsi.min' => 'Deskripsi minimal 10 karakter',
-            'deskripsi.max' => 'Deskripsi maksimal 5000 karakter',
+            // ... (pesan error kamu) ...
+            'stok.required' => 'Stok awal harus diisi',
+            'kategori.required' => 'Kategori harus dipilih bolo!',
         ]);
 
         $data = [
             'nama_barang' => $validated['nama_barang'],
             'harga' => $validated['harga'],
             'deskripsi' => $validated['deskripsi'],
+            'stok' => $validated['stok'],      // <--- Tambahkan ini
+            'kategori' => $validated['kategori'],
             'user_id' => auth()->id(),
         ];
 
@@ -92,23 +105,16 @@ class ItemShopController extends Controller
             'harga' => 'required|numeric|min:0|max:999999999',
             'deskripsi' => 'required|string|min:10|max:5000',
             'gambar' => 'nullable|string',
-        ], [
-            'nama_barang.required' => 'Nama produk tidak boleh kosong',
-            'nama_barang.min' => 'Nama produk minimal 3 karakter',
-            'nama_barang.max' => 'Nama produk maksimal 255 karakter',
-            'harga.required' => 'Harga tidak boleh kosong',
-            'harga.numeric' => 'Harga harus berupa angka',
-            'harga.min' => 'Harga tidak boleh negatif',
-            'harga.max' => 'Harga terlalu besar',
-            'deskripsi.required' => 'Deskripsi tidak boleh kosong',
-            'deskripsi.min' => 'Deskripsi minimal 10 karakter',
-            'deskripsi.max' => 'Deskripsi maksimal 5000 karakter',
+            'stok'  => 'required|numeric|min:1|max:999999',
+            'kategori' => 'required|string',
         ]);
 
         $data = [
             'nama_barang' => $validated['nama_barang'],
             'harga' => $validated['harga'],
             'deskripsi' => $validated['deskripsi'],
+            'stok' => $validated['stok'],
+            'kategori' => $validated['kategori'],
         ];
 
         if ($request->filled('gambar')) {

@@ -1,168 +1,200 @@
 <x-app-layout>
-    {{-- Inisialisasi Alpine.js --}}
-    {{-- Kita ambil data dari PHP dan ubah ke JSON agar bisa dibaca JavaScript --}}
-    <div x-data="{ 
-            search: '', 
-            activeCategory: 'All',
-            items: {{ $items->map(function($item) {
+    {{-- CDN AOS untuk animasi scroll --}}
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+
+    <style>
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+
+    {{-- Container Utama Alpine.js --}}
+    <div x-data="{
+        search: '',
+        activeCategory: 'all',
+        cart: JSON.parse(localStorage.getItem('minie_cart') || '[]'),
+    
+        {{-- Data Items: Ambil semua data dari database --}}
+        items: {{ $items->filter(fn($i) => !empty(trim($i->kategori)))->map(function ($item) {
                 return [
                     'id' => $item->id,
                     'nama_barang' => $item->nama_barang,
                     'harga' => $item->harga,
                     'gambar' => asset($item->gambar),
-                    'kategori' => $item->kategori, {{-- Pastikan kolom ini ada di DB --}}
+                    'kategori' => strtolower($item->kategori),
+                    'stok' => $item->stok,
+                    'seller_name' => $item->user->name ?? 'Official Store',
+                    'seller_avatar' =>
+                        'https://ui-avatars.com/api/?name=' .
+                        urlencode($item->user->name ?? 'OS') .
+                        '&color=7F9CF5&background=EBF4FF',
                     'avg_rating' => round($item->ratings_avg ?? 0),
-                    'reviews_count' => $item->reviews_count ?? 0
+                    'reviews_count' => $item->reviews_count ?? 0,
                 ];
-            })->toJson() }},
-            get filteredItems() {
-                return this.items.filter(i => {
-                    const matchSearch = i.nama_barang.toLowerCase().includes(this.search.toLowerCase());
-                    const matchCategory = this.activeCategory === 'All' || i.kategori === this.activeCategory;
-                    return matchSearch && matchCategory;
-                });
-            }
-         }" 
-         class="bg-[#f8fafc] min-h-screen pb-20">
-        
-        {{-- 1. HERO SECTION & SEARCH --}}
-        <section class="relative overflow-hidden bg-indigo-900 rounded-[2.5rem] mx-4 sm:mx-6 mt-6 shadow-2xl shadow-indigo-200">
-            <div class="absolute top-0 right-0 -translate-y-12 translate-x-12 w-64 h-64 bg-indigo-500 rounded-full blur-3xl opacity-20"></div>
-            
-            <div class="relative max-w-7xl mx-auto px-8 py-16 sm:py-24 flex flex-col items-center text-center">
-                <span class="inline-block px-4 py-2 rounded-full bg-indigo-500/20 text-indigo-300 text-[10px] font-black uppercase tracking-[0.3em] mb-6">
-                    Collection 2026
+            })->values()->toJson() }},
+    
+        removeFromCart(index) {
+            this.cart.splice(index, 1);
+            this.saveCart();
+        },
+    
+        addToCart(item) {
+            if (item.stok <= 0) return;
+            this.cart.push(item);
+            this.saveCart();
+            $dispatch('notify', item.nama_barang + ' Masuk Keranjang!');
+        },
+    
+        saveCart() { localStorage.setItem('minie_cart', JSON.stringify(this.cart)); },
+        get cartCount() { return this.cart.length },
+        get totalPrice() { return this.cart.reduce((sum, item) => sum + item.harga, 0); },
+    
+        {{-- Kategori diambil dari barang yang stoknya > 0 saja --}}
+        get categories() {
+            const availableItems = this.items.filter(item => item.stok > 0);
+            return ['all', ...new Set(availableItems.map(item => item.kategori))];
+        },
+    
+        {{-- LOGIKA BARU: Hanya tampilkan barang jika STOK > 0 --}}
+        get filteredItems() {
+            return this.items.filter(item => {
+                const isAvailable = item.stok > 0;
+                {{-- Filter Utama: Harus Ada Stok --}}
+                const matchSearch = item.nama_barang.toLowerCase().includes(this.search.toLowerCase());
+                const matchCategory = this.activeCategory === 'all' || item.kategori === this.activeCategory;
+                return isAvailable && matchSearch && matchCategory;
+            });
+        }
+    }"@remove-from-cart.window="removeFromCart($event.detail.index)" class="bg-[#F8FAFC] min-h-screen pb-32">
+
+        {{-- 1. HERO SECTION --}}
+        <section class="relative mx-4 sm:mx-8 mt-6 overflow-hidden bg-[#0F172A] rounded-[3rem] shadow-2xl"
+            data-aos="zoom-in">
+            <div
+                class="absolute top-0 right-0 -translate-y-12 translate-x-12 w-96 h-96 bg-indigo-600 rounded-full blur-[120px] opacity-20">
+            </div>
+            <div class="relative max-w-7xl mx-auto px-8 py-20 flex flex-col items-center text-center">
+                <span
+                    class="inline-block px-4 py-1.5 rounded-full bg-indigo-500/10 border border-indigo-400/20 text-indigo-400 text-[10px] font-black uppercase tracking-[0.3em] mb-8">
+                    In Stock Only Mode
                 </span>
-                <h1 class="text-4xl sm:text-6xl font-black text-white leading-none tracking-tighter mb-8">
-                    Upgrade Your Style <br> <span class="text-indigo-400">Minimalist</span> Gear.
+                <h1 class="text-5xl sm:text-6xl font-black text-white leading-tight tracking-tighter mb-10">
+                    Find Your Best <br> <span class="text-indigo-500">Minimalist</span> Gear.
                 </h1>
-
-                {{-- SEARCH INPUT --}}
-                <div class="relative w-full max-w-lg group">
-                    <div class="absolute inset-y-0 left-6 flex items-center pointer-events-none">
-                        <svg class="w-5 h-5 text-indigo-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-                        </svg>
-                    </div>
-                    <input 
-                        x-model="search"
-                        type="text" 
-                        placeholder="Cari barang impianmu bolo..." 
-                        class="w-full pl-16 pr-8 py-6 bg-white/10 backdrop-blur-md border border-white/20 rounded-[2rem] text-white placeholder-indigo-200/50 focus:ring-4 focus:ring-indigo-500 focus:bg-white focus:text-gray-900 transition-all shadow-2xl outline-none">
+                <div class="relative w-full max-w-2xl">
+                    <input x-model="search" type="text" placeholder="Cari barang yang ready bolo..."
+                        class="w-full pl-12 pr-8 py-6 bg-white/5 backdrop-blur-xl border border-white/10 rounded-[2.5rem] text-white focus:bg-white focus:text-gray-900 transition-all outline-none">
                 </div>
             </div>
         </section>
 
-        {{-- 2. KATEGORI SECTION (STATIS) --}}
-        <section class="max-w-7xl mx-auto px-6 mt-16">
-            <div class="flex items-center justify-between mb-8">
-                <h2 class="text-xl font-black text-gray-900 uppercase tracking-widest">
-                    Top <span class="text-indigo-600">Categories</span>
-                </h2>
-                <button @click="activeCategory = 'All'; search = ''" class="text-[10px] font-black text-indigo-600 uppercase tracking-widest hover:underline">Reset</button>
-            </div>
-            
-            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-                @php
-                    $categories = [
-                        ['name' => 'Fashion', 'icon' => '👕'],
-                        ['name' => 'Gadgets', 'icon' => '📱'],
-                        ['name' => 'Gaming', 'icon' => '🎮'],
-                        ['name' => 'Home', 'icon' => '🏠'],
-                        ['name' => 'Watch', 'icon' => '⌚'],
-                        ['name' => 'Music', 'icon' => '🎧'],
-                    ];
-                @endphp
-
-                @foreach ($categories as $cat)
-                <button 
-                    @click="activeCategory = '{{ $cat['name'] }}'"
-                    :class="activeCategory === '{{ $cat['name'] }}' ? 'border-indigo-600 bg-indigo-50 ring-4 ring-indigo-100' : 'border-gray-100 bg-white'"
-                    class="group p-6 rounded-[2rem] border transition-all duration-300 text-center">
-                    <div class="text-3xl mb-3 group-hover:scale-110 transition-transform">{{ $cat['icon'] }}</div>
-                    <span class="block text-[10px] font-black text-gray-900 uppercase tracking-widest">{{ $cat['name'] }}</span>
-                </button>
-                @endforeach
+        {{-- 2. KATEGORI --}}
+        <section class="max-w-7xl mx-auto px-8 mt-16" data-aos="fade-up">
+            <div class="flex gap-4 overflow-x-auto no-scrollbar pb-4">
+                <template x-for="cat in categories" :key="cat">
+                    <button @click="activeCategory = cat"
+                        :class="activeCategory === cat ? 'bg-indigo-600 text-white shadow-lg' :
+                            'bg-white text-gray-500 border-gray-100'"
+                        class="px-8 py-4 rounded-[2rem] border transition-all whitespace-nowrap">
+                        <span class="text-[10px] font-black uppercase tracking-widest" x-text="cat"></span>
+                    </button>
+                </template>
             </div>
         </section>
 
-        {{-- 3. PRODUK GRID (LIVE) --}}
-        <section id="produk" class="max-w-7xl mx-auto px-6 mt-20">
-            <div class="flex items-center justify-between mb-10">
-                <h2 class="text-xl font-black text-gray-900 uppercase tracking-widest">
-                    Our <span class="text-indigo-600">Arrivals</span>
-                </h2>
-                <div class="text-[10px] font-black text-gray-400 uppercase tracking-widest">
-                    Showing <span x-text="filteredItems.length" class="text-indigo-600"></span> items
-                </div>
-            </div>
+        {{-- 3. PRODUK GRID (Only In Stock) --}}
+        <section class="max-w-7xl mx-auto px-8 mt-12">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+                <template x-for="(item, index) in filteredItems" :key="item.id">
+                    <div class="group bg-white rounded-[2.5rem] border border-gray-100 p-5 hover:shadow-2xl transition-all duration-500 flex flex-col h-full"
+                        data-aos="fade-up" :data-aos-delay="index * 50">
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
-                {{-- Loop Alpine.js --}}
-                <template x-for="item in filteredItems" :key="item.id">
-                    <div class="group bg-white rounded-[2.5rem] border border-gray-100 p-4 hover:shadow-2xl hover:shadow-gray-200/50 transition-all duration-500 relative">
-                        
                         {{-- Image --}}
-                        <div class="aspect-square rounded-[2rem] overflow-hidden bg-gray-50 mb-6">
+                        <div class="relative aspect-square rounded-[2rem] overflow-hidden bg-gray-50 mb-6">
                             <img :src="item.gambar"
-                                 class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                                 :alt="item.nama_barang">
+                                class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
+                            <a :href="'/item-shop/' + item.id"
+                                class="absolute inset-0 bg-indigo-900/10 opacity-0 group-hover:opacity-100 transition-all flex items-center justify-center">
+                                <div
+                                    class="bg-white text-gray-900 px-6 py-2 rounded-xl font-black text-[10px] uppercase">
+                                    Explore</div>
+                            </a>
                         </div>
 
                         {{-- Content --}}
-                        <div class="px-2">
-                            <h3 class="font-black text-gray-900 text-sm leading-tight group-hover:text-indigo-600 transition-colors mb-2" x-text="item.nama_barang"></h3>
+                        <div class="flex flex-col flex-grow">
+                            {{-- Seller & Stok --}}
+                            <div class="flex items-center justify-between mb-3">
+                                <div class="flex items-center gap-2">
+                                    <img :src="item.seller_avatar"
+                                        class="w-6 h-6 rounded-full border border-gray-100 shadow-sm">
+                                    <span class="text-[9px] font-black text-gray-400 uppercase"
+                                        x-text="item.seller_name"></span>
+                                </div>
+                                <div class="flex items-center gap-1.5 text-green-600">
+                                    <div class="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></div>
+                                    <span class="text-[9px] font-black uppercase" x-text="'Stok: ' + item.stok"></span>
+                                </div>
+                            </div>
+
+                            {{-- Judul --}}
+                            <a :href="'/item-shop/' + item.id" class="block mb-2">
+                                <h3 class="font-black text-gray-900 text-base leading-tight group-hover:text-indigo-600 transition-colors"
+                                    x-text="item.nama_barang"></h3>
+                            </a>
 
                             {{-- Rating --}}
                             <div class="flex items-center gap-2 mb-4">
-                                <div class="flex text-yellow-400">
+                                <div class="flex items-center gap-0.5 text-yellow-400">
                                     <template x-for="i in 5">
-                                        <svg class="w-3 h-3" 
-                                             :class="i <= item.avg_rating ? 'fill-current' : 'text-gray-200 fill-none'" 
-                                             stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.921-.755 1.688-1.54 1.118l-3.976-2.888a1 1 0 00-1.175 0l-3.976 2.888c-.784.57-1.838-.197-1.539-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+                                        <svg class="w-3 h-3"
+                                            :class="i <= item.avg_rating ? 'fill-current' : 'text-gray-200 fill-none'"
+                                            stroke="currentColor" viewBox="0 0 24 24">
+                                            <path
+                                                d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.921-.755 1.688-1.54 1.118l-3.976-2.888a1 1 0 00-1.175 0l-3.976 2.888c-.784.57-1.838-.197-1.539-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"
+                                                stroke-width="2" />
                                         </svg>
                                     </template>
                                 </div>
-                                <span class="text-[9px] font-black text-gray-400 uppercase tracking-tighter" x-text="`(${item.reviews_count} Reviews)`"></span>
+                                <span class="text-[10px] font-bold text-gray-400"
+                                    x-text="'(' + item.reviews_count + ')'"></span>
                             </div>
 
-                            <div class="flex items-center justify-between mt-4">
-                                <p class="text-indigo-600 font-black text-lg">
-                                    <span class="text-xs mr-0.5">Rp</span>
-                                    <span x-text="new Intl.NumberFormat('id-ID').format(item.harga)"></span>
+                            {{-- Footer --}}
+                            <div class="mt-auto pt-4 border-t border-gray-50 flex items-center justify-between">
+                                <p class="text-gray-900 font-black text-xl tracking-tighter">
+                                    <span class="text-xs mr-0.5">Rp</span><span
+                                        x-text="new Intl.NumberFormat('id-ID').format(item.harga)"></span>
                                 </p>
-                                
-                                <a :href="'/item-shop/' + item.id"
-                                   class="w-10 h-10 bg-gray-900 text-white rounded-xl flex items-center justify-center hover:bg-indigo-600 transition-all shadow-lg">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                                <button @click="addToCart(item)"
+                                    class="w-11 h-11 bg-gray-900 text-white rounded-2xl flex items-center justify-center transition-all hover:bg-indigo-600 shadow-lg shadow-gray-100 group/btn">
+                                    <svg class="w-5 h-5 group-hover/btn:rotate-90 transition-transform" fill="none"
+                                        stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3"
+                                            d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                                     </svg>
-                                </a>
+                                </button>
                             </div>
                         </div>
                     </div>
                 </template>
-
-                {{-- Empty State --}}
-                <div x-show="filteredItems.length === 0" class="col-span-full py-20 text-center bg-white rounded-[3rem] border-2 border-dashed border-gray-100">
-                    <p class="text-gray-400 font-bold uppercase tracking-widest text-xs">Produk tidak ditemukan bolo...</p>
-                </div>
             </div>
+
+            {{-- Empty State (Jika semua barang habis) --}}
+            <template x-if="filteredItems.length === 0">
+                <div class="py-20 text-center">
+                    <p class="text-gray-400 font-black uppercase tracking-widest">Waduh bolo, barang lagi kosong
+                        semua...</p>
+                </div>
+            </template>
         </section>
 
-        {{-- 4. NEWSLETTER --}}
-        <section class="max-w-7xl mx-auto px-6 mt-24">
-            <div class="bg-indigo-600 rounded-[3rem] p-8 sm:p-16 flex flex-col md:flex-row items-center justify-between gap-8 relative overflow-hidden">
-                <div class="relative z-10">
-                    <h2 class="text-3xl font-black text-white mb-2">Dapatkan Promo!</h2>
-                    <p class="text-indigo-100 text-sm font-medium">Berlangganan untuk update produk terbaru.</p>
-                </div>
-                <div class="relative z-10 flex gap-2 w-full md:w-auto">
-                    <input type="email" placeholder="Email Anda" class="w-full md:w-64 px-6 py-4 rounded-2xl border-none outline-none focus:ring-4 focus:ring-indigo-300">
-                    <button class="px-8 py-4 bg-gray-900 text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl">Join</button>
-                </div>
-            </div>
-        </section>
+        @include('components.cart-modal')
     </div>
+
 </x-app-layout>

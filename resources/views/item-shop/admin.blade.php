@@ -1,150 +1,275 @@
 ﻿<x-app-layout>
+    {{-- Tambahkan library SweetAlert & AOS di head jika belum ada --}}
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+
     <style>
-        /* Custom Soft Glassmorphism */
         .glass-card {
-            background: rgba(255, 255, 255, 0.8);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.5);
-        }
-        
-        .stat-icon-shadow {
-            filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.1));
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.7);
         }
 
-        /* Smooth Transition for Table Rows */
         .tr-gradient:hover {
-            background: linear-gradient(90deg, rgba(79, 70, 229, 0.05) 0%, rgba(255, 255, 255, 0) 100%);
+            background: linear-gradient(90deg, rgba(79, 70, 229, 0.03) 0%, rgba(255, 255, 255, 0) 100%);
+            transform: translateY(-2px);
+        }
+
+        /* Custom Scrollbar biar smooth */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #e2e8f0;
+            border-radius: 10px;
         }
     </style>
 
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 overflow-hidden">
         {{-- HEADER --}}
         <div class="flex flex-col md:flex-row justify-between items-end gap-6 mb-12">
-            <div data-aos="fade-right" data-aos-duration="1000">
-                <span class="inline-block px-3 py-1 rounded-full bg-indigo-100 text-indigo-700 text-xs font-bold uppercase tracking-wider mb-3">
-                    Inventory System
+            <div data-aos="fade-right">
+                <span
+                    class="inline-block px-4 py-1.5 rounded-full bg-indigo-50 text-indigo-600 text-[10px] font-black uppercase tracking-[0.2em] mb-4">
+                    Master Inventory
                 </span>
-                <h1 class="text-4xl md:text-5xl font-black text-gray-900 tracking-tight">
-                    Kelola <span class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600">Produk</span>
+                <h1 class="text-4xl md:text-6xl font-black text-gray-900 tracking-tighter">
+                    Manage <span class="text-indigo-600">Items.</span>
                 </h1>
-                <p class="text-gray-500 text-lg mt-2 font-medium">Monitoring stok dan performa produk secara real-time.</p>
+                <p class="text-gray-400 text-lg mt-2 font-medium">Monitoring inventory status and product performance.
+                </p>
             </div>
-            
+
             @can('create', App\Models\ItemShop::class)
-                <div data-aos="fade-left" data-aos-duration="1000">
+                <div data-aos="fade-left">
                     <a href="{{ route('item-shop.create') }}"
-                        class="group relative inline-flex items-center justify-center px-8 py-4 font-bold text-white transition-all duration-200 bg-indigo-600 font-pj rounded-2xl focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-900 hover:bg-indigo-700 shadow-xl shadow-indigo-200 active:scale-95">
-                        <svg class="w-5 h-5 mr-2 group-hover:rotate-90 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                        class="group relative inline-flex items-center justify-center px-10 py-5 font-black text-white transition-all duration-300 bg-gray-900 rounded-[2rem] hover:bg-indigo-600 hover:-translate-y-1 shadow-2xl shadow-gray-200">
+                        <svg class="w-5 h-5 mr-3 group-hover:rotate-90 transition-transform duration-500" fill="none"
+                            stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 4v16m8-8H4" />
                         </svg>
-                        Tambah Produk Baru
+                        NEW PRODUCT
                     </a>
                 </div>
             @endcan
         </div>
 
         {{-- STATS CARDS --}}
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
-            <div data-aos="fade-up" data-aos-delay="100" class="glass-card p-8 rounded-[2.5rem] shadow-sm hover:shadow-xl transition-all duration-500 group">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+            {{-- Total Product --}}
+            <div data-aos="fade-up" data-aos-delay="100" class="glass-card p-8 rounded-[3rem] shadow-sm group">
                 <div class="flex items-center justify-between">
                     <div>
-                        <p class="text-sm font-bold text-gray-400 uppercase tracking-widest">Total Produk</p>
-                        <h3 class="text-4xl font-black text-gray-900 mt-1 group-hover:text-indigo-600 transition-colors">{{ $items->total() }}</h3>
+                        <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest leading-none mb-2">
+                            Inventory Size</p>
+                        <h3 class="text-4xl font-black text-gray-900 group-hover:text-indigo-600 transition-colors">
+                            {{ $items->total() }} <span class="text-sm font-medium text-gray-400 uppercase">Items</span>
+                        </h3>
                     </div>
-                    <div class="bg-indigo-50 p-4 rounded-2xl text-indigo-600 group-hover:bg-indigo-600 group-hover:text-white transition-all duration-500 stat-icon-shadow">
-                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" /></svg>
+                    <div
+                        class="bg-indigo-50 p-4 rounded-3xl text-indigo-600 group-hover:scale-110 transition-transform">
+                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                        </svg>
                     </div>
                 </div>
             </div>
 
-            <div data-aos="fade-up" data-aos-delay="200" class="glass-card p-8 rounded-[2.5rem] shadow-sm hover:shadow-xl transition-all duration-500 group border-t-4 border-t-purple-500">
+            {{-- Info Halaman --}}
+            <div data-aos="fade-up" data-aos-delay="200"
+                class="glass-card p-8 rounded-[3rem] shadow-sm group border-b-4 border-indigo-500">
                 <div class="flex items-center justify-between">
                     <div>
-                        <p class="text-sm font-bold text-gray-400 uppercase tracking-widest">Halaman</p>
-                        <h3 class="text-4xl font-black text-gray-900 mt-1 group-hover:text-purple-600 transition-colors">{{ $items->currentPage() }}</h3>
+                        <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest leading-none mb-2">
+                            Active View</p>
+                        <h3 class="text-4xl font-black text-gray-900 group-hover:text-indigo-600 transition-colors">Page
+                            {{ $items->currentPage() }}</h3>
                     </div>
-                    <div class="bg-purple-50 p-4 rounded-2xl text-purple-600 group-hover:bg-purple-600 group-hover:text-white transition-all duration-500 stat-icon-shadow">
-                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                    <div class="bg-gray-50 p-4 rounded-3xl text-gray-400">
+                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
                     </div>
                 </div>
             </div>
 
-            <div data-aos="fade-up" data-aos-delay="300" class="glass-card p-8 rounded-[2.5rem] shadow-sm hover:shadow-xl transition-all duration-500 group border-t-4 border-t-emerald-500">
+            {{-- Status Check --}}
+            @php
+                $lowStockCount = App\Models\ItemShop::where('stok', '<=', 5)->count();
+            @endphp
+
+            <div data-aos="fade-up" data-aos-delay="300" class="glass-card p-8 rounded-[3rem] shadow-sm group">
                 <div class="flex items-center justify-between">
                     <div>
-                        <p class="text-sm font-bold text-gray-400 uppercase tracking-widest">Item Per Hal</p>
-                        <h3 class="text-4xl font-black text-gray-900 mt-1 group-hover:text-emerald-600 transition-colors">{{ $items->perPage() }}</h3>
-                    </div>
-                    <div class="bg-emerald-50 p-4 rounded-2xl text-emerald-600 group-hover:bg-emerald-600 group-hover:text-white transition-all duration-500 stat-icon-shadow">
-                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
+                        <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest leading-none mb-2">
+                            System Status</p>
+                        @if ($lowStockCount > 0)
+                            <h3 class="text-2xl font-black text-red-600 uppercase  animate-pulse">
+                                {{ $lowStockCount }} ITEMS LOW STOCK!
+                            </h3>
+                        @else
+                            <h3 class="text-2xl font-black text-gray-900 uppercase italic">
+                                All Systems <span class="text-green-500 font-black italic underline">OK</span>
+                            </h3>
+                        @endif
                     </div>
                 </div>
             </div>
         </div>
 
+        {{-- SEARCH BAR AREA --}}
+        <div class="mb-8" data-aos="fade-up" data-aos-delay="400">
+            <form action="{{ route('item-shop.index') }}" method="GET" class="relative group">
+                <div class="absolute inset-y-0 left-0 pl-6 flex items-center pointer-events-none">
+                    <svg class="w-5 h-5 text-gray-400 group-focus-within:text-indigo-600 transition-colors"
+                        fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3"
+                            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                </div>
+                <input type="text" id="searchInput" name="search" placeholder="Type to search..."
+                    class="block w-full pl-16 pr-24 py-6 bg-white border-none rounded-[2rem] shadow-xl shadow-gray-100 focus:ring-4 focus:ring-indigo-500/10 transition-all font-bold text-gray-700">
+
+                <div class="absolute inset-y-0 right-0 flex items-center pr-4">
+                    @if (request('search'))
+                        <a href="{{ route('item-shop.index') }}"
+                            class="mr-4 text-[10px] font-black text-gray-400 hover:text-red-500 uppercase tracking-widest">Clear</a>
+                    @endif
+                    <button type="submit"
+                        class="px-8 py-3 bg-gray-900 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-indigo-600 transition-all shadow-lg">
+                        Search
+                    </button>
+                </div>
+            </form>
+        </div>
+
         {{-- TABLE AREA --}}
-        <div data-aos="zoom-in-up" data-aos-duration="1000" class="bg-white rounded-[2.5rem] shadow-2xl shadow-gray-200/50 overflow-hidden border border-gray-100">
+        <div data-aos="zoom-in"
+            class="bg-white rounded-[3rem] shadow-2xl shadow-gray-200/50 overflow-hidden border border-gray-50">
             <div class="overflow-x-auto">
-                <table class="w-full border-collapse">
+                <table class="w-full">
                     <thead>
-                        <tr class="bg-gray-50/80 border-b border-gray-100">
-                            <th class="px-8 py-6 text-left text-xs font-black text-gray-400 uppercase tracking-[0.2em]">ID</th>
-                            <th class="px-8 py-6 text-left text-xs font-black text-gray-400 uppercase tracking-[0.2em]">Produk Detail</th>
-                            <th class="hidden sm:table-cell px-8 py-6 text-left text-xs font-black text-gray-400 uppercase tracking-[0.2em]">Price Tag</th>
-                            <th class="hidden lg:table-cell px-8 py-6 text-left text-xs font-black text-gray-400 uppercase tracking-[0.2em]">Merchant</th>
-                            <th class="px-8 py-6 text-center text-xs font-black text-gray-400 uppercase tracking-[0.2em]">Actions</th>
+                        <tr class="bg-gray-50/50">
+                            <th
+                                class="px-8 py-7 text-left text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">
+                                Rank</th>
+                            <th
+                                class="px-8 py-7 text-left text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">
+                                Product & Category</th>
+                            <th
+                                class="px-8 py-7 text-left text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">
+                                Status & Stock</th>
+                            <th
+                                class="px-8 py-7 text-left text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">
+                                Price</th>
+                            <th
+                                class="px-8 py-7 text-center text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">
+                                Settings</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-50">
                         @forelse ($items as $index => $item)
                             <tr class="tr-gradient transition-all duration-300 group">
                                 <td class="px-8 py-6">
-                                    <span class="text-sm font-black text-gray-300 group-hover:text-indigo-600 transition-colors">
-                                        #{{ ($items->currentPage() - 1) * $items->perPage() + $index + 1 }}
+                                    <span class="text-xs font-black text-gray-300 group-hover:text-indigo-600">
+                                        #{{ sprintf('%02d', ($items->currentPage() - 1) * $items->perPage() + $index + 1) }}
                                     </span>
                                 </td>
                                 <td class="px-8 py-6">
-                                    <div class="flex items-center gap-5">
-                                        <div class="relative flex-shrink-0">
-                                            @if($item->gambar)
-                                                <img src="{{ asset($item->gambar) }}" class="w-16 h-16 rounded-2xl object-cover ring-4 ring-gray-50 group-hover:ring-indigo-50 transition-all shadow-md">
+                                    <div class="flex items-center gap-6">
+                                        <div class="relative">
+                                            @if ($item->gambar)
+                                                <img src="{{ asset($item->gambar) }}"
+                                                    class="w-16 h-16 rounded-[1.25rem] object-cover ring-4 ring-gray-50 group-hover:ring-indigo-100 transition-all shadow-lg">
                                             @else
-                                                <div class="w-16 h-16 bg-gradient-to-br from-gray-100 to-gray-200 rounded-2xl flex items-center justify-center text-gray-400">
-                                                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                                                <div
+                                                    class="w-16 h-16 bg-gray-100 rounded-[1.25rem] flex items-center justify-center text-gray-300">
+                                                    <svg class="w-8 h-8" fill="none" stroke="currentColor"
+                                                        viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                            stroke-width="2"
+                                                            d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                                    </svg>
                                                 </div>
                                             @endif
                                         </div>
                                         <div>
-                                            <h4 class="font-bold text-gray-900 group-hover:text-indigo-600 transition-colors leading-tight">{{ $item->nama_barang }}</h4>
-                                            <p class="text-xs font-medium text-gray-400 mt-1 line-clamp-1">{{ $item->deskripsi ?? 'No Description' }}</p>
+                                            {{-- Contoh highlight hasil pencarian --}}
+                                            <h4
+                                                class="font-black text-gray-900 group-hover:text-indigo-600 transition-colors uppercase tracking-tight">
+                                                {!! request('search')
+                                                    ? str_replace(request('search'), '<span class="bg-yellow-200">' . request('search') . '</span>', $item->nama_barang)
+                                                    : $item->nama_barang !!}
+                                            </h4>
+                                            <span
+                                                class="text-[9px] font-black bg-indigo-50 text-indigo-500 px-2 py-0.5 rounded-md uppercase tracking-widest mt-1 inline-block">
+                                                {{ $item->kategori ?? 'UNSORTED' }}
+                                            </span>
                                         </div>
                                     </div>
                                 </td>
-                                <td class="hidden sm:table-cell px-8 py-6">
-                                    <div class="inline-flex items-center px-4 py-2 rounded-xl bg-gray-50 text-indigo-700 font-black group-hover:bg-indigo-600 group-hover:text-white transition-all duration-300">
-                                        Rp {{ number_format($item->harga, 0, ',', '.') }}
-                                    </div>
-                                </td>
-                                <td class="hidden lg:table-cell px-8 py-6">
-                                    <div class="flex items-center gap-3">
-                                        <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-500 flex items-center justify-center text-[10px] text-white font-bold ring-2 ring-white shadow-sm">
-                                            {{ strtoupper(substr($item->user?->name ?? '?', 0, 1)) }}
+                                <td class="px-8 py-6">
+                                    <div class="flex flex-col">
+                                        <div class="flex items-center gap-2">
+                                            <span
+                                                class="w-2 h-2 rounded-full {{ $item->stok > 10 ? 'bg-green-500' : 'bg-red-500 animate-pulse' }}"></span>
+                                            <span class="text-sm font-black text-gray-700">{{ $item->stok }} <span
+                                                    class="text-[10px] text-gray-400 uppercase font-bold">In
+                                                    Stock</span></span>
                                         </div>
-                                        <span class="text-sm font-bold text-gray-600 italic">@ {{ $item->user?->name ?? 'System' }}</span>
+                                        <p class="text-[10px] font-bold text-gray-400 mt-1 italic">Sold by
+                                            {{ $item->user?->name ?? 'System' }}</p>
                                     </div>
                                 </td>
-                                <td class="px-8 py-6 text-center">
-                                    <div class="flex justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 translate-x-2 group-hover:translate-x-0 transition-transform">
+                                <td class="px-8 py-6">
+                                    <div
+                                        class="inline-flex px-4 py-2 rounded-2xl bg-gray-900 text-white font-black text-xs shadow-xl shadow-gray-200">
+                                        IDR {{ number_format($item->harga, 0, ',', '.') }}
+                                    </div>
+                                </td>
+                                <td class="px-8 py-6">
+                                    <div class="flex justify-center gap-3">
                                         @can('view', $item)
-                                            <a href="{{ route('item-shop.show', $item->id) }}" class="p-3 bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white rounded-xl transition-all shadow-sm"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg></a>
+                                            <a href="{{ route('item-shop.show', $item->id) }}"
+                                                class="p-3 bg-gray-50 text-gray-400 hover:bg-indigo-600 hover:text-white rounded-2xl transition-all"><svg
+                                                    class="w-5 h-5" fill="none" stroke="currentColor"
+                                                    viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                        d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                        d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                                </svg></a>
                                         @endcan
                                         @can('update', $item)
-                                            <a href="{{ route('item-shop.edit', $item->id) }}" class="p-3 bg-amber-50 text-amber-600 hover:bg-amber-600 hover:text-white rounded-xl transition-all shadow-sm"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg></a>
+                                            <a href="{{ route('item-shop.edit', $item->id) }}"
+                                                class="p-3 bg-gray-50 text-gray-400 hover:bg-amber-500 hover:text-white rounded-2xl transition-all"><svg
+                                                    class="w-5 h-5" fill="none" stroke="currentColor"
+                                                    viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                        d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                                </svg></a>
                                         @endcan
                                         @can('delete', $item)
-                                            <form method="POST" action="{{ route('item-shop.destroy', $item->id) }}" class="inline">
+                                            <button type="button" onclick="btnDelete('{{ $item->id }}')"
+                                                class="p-3 bg-gray-50 text-gray-400 hover:bg-red-500 hover:text-white rounded-2xl transition-all">
+                                                <svg class="w-5 h-5" fill="none" stroke="currentColor"
+                                                    viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                </svg>
+                                            </button>
+                                            <form id="delete-form-{{ $item->id }}"
+                                                action="{{ route('item-shop.destroy', $item->id) }}" method="POST"
+                                                class="hidden">
                                                 @csrf @method('DELETE')
-                                                <button type="submit" onclick="return confirm('Hapus produk ini?')" class="p-3 bg-red-50 text-red-600 hover:bg-red-600 hover:text-white rounded-xl transition-all shadow-sm"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg></button>
                                             </form>
                                         @endcan
                                     </div>
@@ -153,12 +278,17 @@
                         @empty
                             <tr>
                                 <td colspan="5" class="py-32 text-center">
-                                    <div data-aos="zoom-in" class="flex flex-col items-center">
-                                        <div class="w-32 h-32 bg-indigo-50 rounded-full flex items-center justify-center mb-6 animate-pulse">
-                                            <svg class="w-16 h-16 text-indigo-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" /></svg>
+                                    <div class="flex flex-col items-center">
+                                        <div
+                                            class="w-32 h-32 bg-indigo-50 rounded-full flex items-center justify-center mb-6">
+                                            <svg class="w-16 h-16 text-indigo-200" fill="none"
+                                                stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
+                                            </svg>
                                         </div>
-                                        <h3 class="text-2xl font-black text-gray-800">Inventory Kosong</h3>
-                                        <p class="text-gray-400 mt-2 mb-8">Wah, belum ada produk yang kamu jual nih.</p>
+                                        <h3 class="text-2xl font-black text-gray-900">EMPTY INVENTORY</h3>
+                                        <p class="text-gray-400 mt-2 font-medium">Time to add some luxury products.</p>
                                     </div>
                                 </td>
                             </tr>
@@ -169,24 +299,94 @@
         </div>
 
         {{-- PAGINATION --}}
-        @if($items->hasPages())
-            <div class="mt-12 flex justify-center" data-aos="fade-up">
-                <div class="bg-white px-4 py-2 rounded-2xl shadow-lg border border-gray-100">
-                    {{ $items->links('pagination::tailwind') }}
-                </div>
+        @if ($items->hasPages())
+            <div class="mt-12 flex justify-center">
+                {{ $items->links() }}
             </div>
         @endif
     </div>
-</x-app-layout>
 
-<script>
-    // Pastikan AOS terinisialisasi
-    document.addEventListener('DOMContentLoaded', function() {
-        AOS.init({
-            once: true, // Animasi hanya jalan sekali saat scroll
-            mirror: false
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            AOS.init({
+                once: true,
+                duration: 800
+            });
         });
-    });
 
-    console.log('Item Shop Admin/User Page Loaded');
-</script>
+        // Function SweetAlert Hapus
+        function btnDelete(id) {
+            Swal.fire({
+                title: 'DELETE ITEM?',
+                text: "This action cannot be undone bolo!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#111827',
+                cancelButtonColor: '#ef4444',
+                confirmButtonText: 'YES, DELETE IT!',
+                cancelButtonText: 'CANCEL',
+                customClass: {
+                    popup: 'rounded-[3rem]',
+                    confirmButton: 'rounded-2xl px-6 py-3 font-black text-xs uppercase tracking-widest',
+                    cancelButton: 'rounded-2xl px-6 py-3 font-black text-xs uppercase tracking-widest'
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    document.getElementById('delete-form-' + id).submit();
+                }
+            })
+        }
+
+        const searchInput = document.getElementById('searchInput');
+        const tableBody = document.querySelector('tbody');
+
+        searchInput.addEventListener('keyup', function() {
+            let value = this.value;
+
+            // Fetch data ke controller yang sama tapi via AJAX
+            fetch(`{{ route('item-shop.index') }}?search=${value}`, {
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    tableBody.innerHTML = ''; // Kosongkan tabel
+
+                    if (data.items.length > 0) {
+                        data.items.forEach((item, index) => {
+                            // Render baris tabel baru
+                            tableBody.innerHTML += `
+                    <tr class="tr-gradient transition-all duration-300 group border-b border-gray-50">
+                        <td class="px-8 py-6 text-xs font-black text-gray-300">#${index + 1}</td>
+                        <td class="px-8 py-6">
+                            <div class="flex items-center gap-6">
+                                <img src="/${item.gambar}" class="w-16 h-16 rounded-[1.25rem] object-cover shadow-lg">
+                                <div>
+                                    <h4 class="font-black text-gray-900 uppercase">${item.nama_barang}</h4>
+                                    <span class="text-[9px] font-black bg-indigo-50 text-indigo-500 px-2 py-0.5 rounded-md uppercase tracking-widest">${item.kategori}</span>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-8 py-6">
+                            <span class="text-sm font-black text-gray-700">${item.stok} In Stock</span>
+                        </td>
+                        <td class="px-8 py-6">
+                            <div class="inline-flex px-4 py-2 rounded-2xl bg-gray-900 text-white font-black text-xs">
+                                IDR ${new Intl.NumberFormat('id-ID').format(item.harga)}
+                            </div>
+                        </td>
+                        <td class="px-8 py-6 text-center">
+                             <span class="text-gray-400 text-[10px] font-black italic uppercase">Refresh to Edit</span>
+                        </td>
+                    </tr>
+                `;
+                        });
+                    } else {
+                        tableBody.innerHTML =
+                            '<tr><td colspan="5" class="py-20 text-center font-black text-gray-400">DATA TIDAK DITEMUKAN BOLO</td></tr>';
+                    }
+                });
+        });
+    </script>
+</x-app-layout>

@@ -4,10 +4,14 @@ use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\SearchController;
 use App\Http\Controllers\HomeController;
-use App\Http\Controllers\produk\ProdukController;
 use App\Http\Controllers\ItemShopController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\CartController;
+
+Route::get('/test' , function () {
+    return view('test');
+});
 
 Route::get('/search', [SearchController::class, 'search'])->name('search');   
 Route::get('/item-shop/public', [ItemShopController::class, 'public'])
@@ -18,8 +22,6 @@ Route::get('/produk/{itemShop}', [ItemShopController::class, 'show'])->name('pro
 
 
 /* // Route dashboard dan Produuk(resource) hanya bisa diakses oleh user yang sudah login*/
-
-
 
 Route::resource('item-shop', ItemShopController::class);
 Route::post('/item-shop/{id}/review', [ItemShopController::class, 'storeReview'])->name('reviews.store')->middleware('auth');
@@ -51,5 +53,12 @@ Route::middleware('auth')->group(function () {
 Route::get('admin', function () {
     return '<h1>Hai min</h1>';
 })->middleware(['auth', 'verified', 'role:admin']);
+
+
+// rute checkout/cart
+Route::middleware('auth')->group(function () {
+    Route::post('/checkout', [CartController::class, 'checkout'])->name('checkout');
+});
+Route::get('/transactions', [CartController::class, 'index'])->name('transactions.index')->middleware('auth');
 
 require __DIR__.'/auth.php';
