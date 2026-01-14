@@ -1,20 +1,37 @@
 <x-app-layout>
-    {{-- CDN AOS & SweetAlert2 (Pastikan ini ada) --}}
-    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
+    {{-- 1. HEADER & STYLING --}}
     <style>
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-        .swal2-popup { border-radius: 2rem !important; font-family: inherit !important; }
+        [x-cloak] { display: none !important; }
+
+        /* Styling SweetAlert biar matching sama tema minimalist */
+        .swal2-popup { border-radius: 2.5rem !important; padding: 2rem !important; }
+        .swal2-styled.swal2-confirm {
+            background-color: #4f46e5 !important;
+            border-radius: 1rem !important;
+            padding: 0.8rem 2rem !important;
+            font-weight: 800 !important;
+            text-transform: uppercase !important;
+            font-size: 0.8rem !important;
+            letter-spacing: 0.1em !important;
+        }
+        .swal2-styled.swal2-cancel {
+            border-radius: 1rem !important;
+            padding: 0.8rem 2rem !important;
+            font-weight: 800 !important;
+            text-transform: uppercase !important;
+            font-size: 0.8rem !important;
+        }
     </style>
 
-    {{-- Container Utama Alpine.js --}}
+    {{-- 2. Alpine.js Root Container --}}
     <div x-data="{
         search: '',
         activeCategory: 'all',
         cart: JSON.parse(localStorage.getItem('minie_cart') || '[]'),
     
+        {{-- Data Items dari Database --}}
         items: {{ $items->filter(fn($i) => !empty(trim($i->kategori)))->map(function ($item) {
                 return [
                     'id' => $item->id,
@@ -25,65 +42,59 @@
                     'stok' => $item->stok,
                     'seller_name' => $item->user->name ?? 'Official Store',
                     'seller_avatar' => 'https://ui-avatars.com/api/?name=' . urlencode($item->user->name ?? 'OS') . '&color=7F9CF5&background=EBF4FF',
-                    'avg_rating' => round($item->ratings_avg ?? 0),
-                    'reviews_count' => $item->reviews_count ?? 0,
                 ];
             })->values()->toJson() }},
     
-        removeFromCart(index) {
-            Swal.fire({
-                title: 'Hapus barang?',
-                text: 'Barang ini bakal hilang dari keranjangmu bolo.',
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#4f46e5',
-                cancelButtonColor: '#ef4444',
-                confirmButtonText: 'Ya, Hapus!',
-                cancelButtonText: 'Batal'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    this.cart.splice(index, 1);
-                    this.saveCart();
-                    $dispatch('notify');
-                    Swal.fire({ title: 'Dihapus!', icon: 'success', timer: 1000, showConfirmButton: false });
-                }
-            });
-        },
-    
+        {{-- Logika Tambah Ke Keranjang --}}
         addToCart(item) {
             if (item.stok <= 0) return;
-            this.cart.push(item);
+            // Tambahkan property selected default true
+            this.cart.push({ ...item, selected: true });
             this.saveCart();
-    
-            // SweetAlert Toast Mode (Smooth & Modern)
-            const Toast = Swal.mixin({
-                toast: true,
-                position: 'top-end',
-                showConfirmButton: false,
-                timer: 2000,
-                timerProgressBar: true,
-                didOpen: (toast) => {
-                    toast.addEventListener('mouseenter', Swal.stopTimer)
-                    toast.addEventListener('mouseleave', Swal.resumeTimer)
-                }
-            });
-    
-            Toast.fire({
-                icon: 'success',
-                title: item.nama_barang,
-                text: 'Berhasil masuk keranjang!',
-                background: '#ffffff',
-                color: '#0f172a',
-                iconColor: '#4f46e5',
-            });
-    
-            $dispatch('notify');
+            $dispatch('notify', item.nama_barang + ' masuk keranjang!'); 
         },
     
-        saveCart() { localStorage.setItem('minie_cart', JSON.stringify(this.cart)); },
-        get cartCount() { return this.cart.length },
-        get totalPrice() { return this.cart.reduce((sum, item) => sum + item.harga, 0); },
+        get selectedTotalPrice() {
+            return this.cart
+                .filter(item => item.selected)
+                .reduce((sum, item) => sum + item.harga, 0);
+        },
     
+        get selectedCount() {
+            return this.cart.filter(item => item.selected).length;
+        },
+    
+        {{-- Logika Hapus Dari Keranjang --}}
+        removeFromCart(index) {
+            this.cart.splice(index, 1);
+            this.saveCart();
+            $dispatch('notify', 'Barang dihapus');
+        },
+
+        {{-- Logika Simpan --}}
+        saveCart() { localStorage.setItem('minie_cart', JSON.stringify(this.cart)); },
+
+        {{-- ARAHKAN KE HALAMAN CHECKOUT BARU --}}
+        processCheckout() {
+            const toCheckout = this.cart.filter(i => i.selected);
+            if (toCheckout.length === 0) {
+                Swal.fire({ icon: 'warning', title: 'Pilih barang dulu bolo!', text: 'Centang barang yang mau dibayar di keranjang.' });
+                return;
+            }
+            
+            // Simpan sementara data yang mau di-CO ke localStorage khusus
+            localStorage.setItem('checkout_items', JSON.stringify(toCheckout));
+            
+            // Redirect ke route checkout yang ada form alamat & maps-nya
+            window.location.href = '{{ route('checkout.index') }}';
+        },
+
+        removeSelected() {
+            this.cart = this.cart.filter(i => !i.selected);
+            this.saveCart();
+            $dispatch('notify', 'Item terpilih dihapus');
+        },
+
         get categories() {
             const availableItems = this.items.filter(item => item.stok > 0);
             return ['all', ...new Set(availableItems.map(item => item.kategori))];
@@ -97,14 +108,20 @@
                 return isAvailable && matchSearch && matchCategory;
             });
         }
-    }" @remove-from-cart.window="removeFromCart($event.detail.index)" class="bg-[#F8FAFC] min-h-screen pb-32">
+    }" 
+    @remove-from-cart.window="removeFromCart($event.detail.index)" 
+    @update-cart.window="cart[$event.detail.index].selected = $event.detail.selected; saveCart()" 
+    @remove-selected.window="removeSelected()" 
+    @checkout-selected.window="processCheckout()" 
+    @select-all-cart.window="cart.forEach(i => i.selected = $event.detail.selected); saveCart()"
+    class="bg-[#F8FAFC] min-h-screen pb-32">
 
-        {{-- 1. HERO SECTION --}}
+        {{-- 3. HERO SECTION --}}
         <section class="relative mx-4 sm:mx-8 mt-6 overflow-hidden bg-[#0F172A] rounded-[3rem] shadow-2xl" data-aos="zoom-in">
             <div class="absolute top-0 right-0 -translate-y-12 translate-x-12 w-96 h-96 bg-indigo-600 rounded-full blur-[120px] opacity-20"></div>
             <div class="relative max-w-7xl mx-auto px-8 py-20 flex flex-col items-center text-center">
                 <span class="inline-block px-4 py-1.5 rounded-full bg-indigo-500/10 border border-indigo-400/20 text-indigo-400 text-[10px] font-black uppercase tracking-[0.3em] mb-8">
-                    In Stock Only Mode
+                    Minimalist Shop Mode
                 </span>
                 <h1 class="text-5xl sm:text-6xl font-black text-white leading-tight tracking-tighter mb-10">
                     Find Your Best <br> <span class="text-indigo-500">Minimalist</span> Gear.
@@ -116,7 +133,7 @@
             </div>
         </section>
 
-        {{-- 2. KATEGORI --}}
+        {{-- 4. KATEGORI --}}
         <section class="max-w-7xl mx-auto px-8 mt-16" data-aos="fade-up">
             <div class="flex gap-4 overflow-x-auto no-scrollbar pb-4">
                 <template x-for="cat in categories" :key="cat">
@@ -129,7 +146,7 @@
             </div>
         </section>
 
-        {{-- 3. PRODUK GRID --}}
+        {{-- 5. PRODUK GRID --}}
         <section class="max-w-7xl mx-auto px-8 mt-12">
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
                 <template x-for="(item, index) in filteredItems" :key="item.id">
@@ -146,7 +163,7 @@
                         <div class="flex flex-col flex-grow">
                             <div class="flex items-center justify-between mb-3">
                                 <div class="flex items-center gap-2">
-                                    <img :src="item.seller_avatar" class="w-6 h-6 rounded-full border border-gray-100 shadow-sm">
+                                    <img :src="item.seller_avatar" class="w-6 h-6 rounded-full border border-gray-100">
                                     <span class="text-[9px] font-black text-gray-400 uppercase" x-text="item.seller_name"></span>
                                 </div>
                                 <div class="flex items-center gap-1.5 text-green-600">
@@ -159,22 +176,12 @@
                                 <h3 class="font-black text-gray-900 text-base leading-tight group-hover:text-indigo-600 transition-colors" x-text="item.nama_barang"></h3>
                             </a>
 
-                            <div class="flex items-center gap-2 mb-4">
-                                <div class="flex items-center gap-0.5 text-yellow-400">
-                                    <template x-for="i in 5">
-                                        <svg class="w-3 h-3" :class="i <= item.avg_rating ? 'fill-current' : 'text-gray-200 fill-none'" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.921-.755 1.688-1.54 1.118l-3.976-2.888a1 1 0 00-1.175 0l-3.976 2.888c-.784.57-1.838-.197-1.539-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" stroke-width="2" />
-                                        </svg>
-                                    </template>
-                                </div>
-                                <span class="text-[10px] font-bold text-gray-400" x-text="'(' + item.reviews_count + ')'"></span>
-                            </div>
-
                             <div class="mt-auto pt-4 border-t border-gray-50 flex items-center justify-between">
                                 <p class="text-gray-900 font-black text-xl tracking-tighter">
                                     <span class="text-xs mr-0.5">Rp</span><span x-text="new Intl.NumberFormat('id-ID').format(item.harga)"></span>
                                 </p>
-                                <button @click="addToCart(item)" class="w-11 h-11 bg-gray-900 text-white rounded-2xl flex items-center justify-center transition-all hover:bg-indigo-600 shadow-lg shadow-gray-100 group/btn">
+                                <button @click="addToCart(item)"
+                                    class="w-11 h-11 bg-gray-900 text-white rounded-2xl flex items-center justify-center transition-all hover:bg-indigo-600 shadow-lg shadow-gray-100 group/btn">
                                     <svg class="w-5 h-5 group-hover/btn:rotate-90 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                                     </svg>
@@ -184,14 +191,15 @@
                     </div>
                 </template>
             </div>
-
-            <template x-if="filteredItems.length === 0">
-                <div class="py-20 text-center">
-                    <p class="text-gray-400 font-black uppercase tracking-widest">Waduh bolo, barang lagi kosong...</p>
-                </div>
-            </template>
         </section>
 
+        {{-- 6. MODAL & FOOTER --}}
         @include('components.cart-modal')
     </div>
+
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        AOS.init({ duration: 800, once: true });
+    </script>
 </x-app-layout>

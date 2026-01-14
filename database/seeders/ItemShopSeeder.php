@@ -15,6 +15,8 @@ class ItemShopSeeder extends Seeder
                 'harga' => 7500000,
                 'deskripsi' => 'Laptop ringan untuk kerja dan kuliah',
                 'gambar' => '/jarvis.jpg',
+                'kategori' => 'Elektronik',
+                'stok' => 30,
                 'user_id' => 1
 
             ],
@@ -23,6 +25,8 @@ class ItemShopSeeder extends Seeder
                 'harga' => 150000,
                 'deskripsi' => 'Mouse wireless hemat baterai',
                 'gambar' => '/jarvis.jpg',
+                'kategori' => 'Elektronik',
+                'stok' => 50,
                 'user_id' => 1
 
             ],
@@ -31,6 +35,8 @@ class ItemShopSeeder extends Seeder
                 'harga' => 350000,
                 'deskripsi' => 'Keyboard mechanical nyaman untuk ngetik',
                 'gambar' => '/jarvis.jpg',
+                'kategori' => 'Elektronik',
+                'stok' => 50,
                 'user_id' => 1
             ],
             [
@@ -38,6 +44,8 @@ class ItemShopSeeder extends Seeder
                 'harga' => 1800000,
                 'deskripsi' => 'Monitor Full HD untuk kerja dan gaming',
                 'gambar' => '/jarvis.jpg',
+                'kategori' => 'Elektronik',
+                'stok' => 50,
                 'user_id' => 1
             ],
             [
@@ -45,6 +53,8 @@ class ItemShopSeeder extends Seeder
                 'harga' => 250000,
                 'deskripsi' => 'Headset gaming dengan mic jernih',
                 'gambar' => '/jarvis.jpg',
+                'kategori' => 'Elektronik',
+                'stok' => 50,
                 'user_id' => 1
             ],
             [
@@ -52,6 +62,8 @@ class ItemShopSeeder extends Seeder
                 'harga' => 120000,
                 'deskripsi' => 'Flashdisk USB 3.0 kecepatan tinggi',
                 'gambar' => '/jarvis.jpg',
+                'kategori' => 'Elektronik',
+                'stok' => 50,
                 'user_id' => 2
             ],
             [
@@ -59,6 +71,8 @@ class ItemShopSeeder extends Seeder
                 'harga' => 900000,
                 'deskripsi' => 'SSD NVMe performa tinggi',
                 'gambar' => '/jarvis.jpg',
+                'kategori' => 'Elektronik',
+                'stok' => 50,
                 'user_id' => 2
             ],
             [
@@ -66,6 +80,8 @@ class ItemShopSeeder extends Seeder
                 'harga' => 2200000,
                 'deskripsi' => 'Printer ink tank hemat tinta',
                 'gambar' => '/jarvis.jpg',
+                'kategori' => 'Elektronik',
+                'stok' => 50,
                 'user_id' => 2
             ],
         ]);

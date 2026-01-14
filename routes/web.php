@@ -8,12 +8,13 @@ use App\Http\Controllers\ItemShopController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\CartController;
+use App\Http\Controllers\CheckoutController;
 
-Route::get('/test' , function () {
+Route::get('/test', function () {
     return view('test');
 });
 
-Route::get('/search', [SearchController::class, 'search'])->name('search');   
+Route::get('/search', [SearchController::class, 'search'])->name('search');
 Route::get('/item-shop/public', [ItemShopController::class, 'public'])
     ->name('item-shop.public');
 
@@ -35,8 +36,6 @@ Route::middleware('auth')->group(function () {
         ->except(['show', 'public']);
 
     Route::middleware('role:admin')->group(function () {
-        Route::get('/users-manage', [UserController::class, 'index'])
-            ->name('users.index');
         Route::resource('users', UserController::class);
     });
 });
@@ -59,6 +58,18 @@ Route::get('admin', function () {
 Route::middleware('auth')->group(function () {
     Route::post('/checkout', [CartController::class, 'checkout'])->name('checkout');
 });
-Route::get('/transactions', [CartController::class, 'index'])->name('transactions.index')->middleware('auth');
+Route::get('/transactions', [CartController::class, 'index'])->name('transactions.index')->middleware('auth'); //histori
+// 1. Halaman View Checkout (GET)
+Route::get('/checkout', function () {
+    return view('transactions.checkout'); // Pastikan pathnya resources/views/transactions/checkout.blade.php
+})->middleware('auth')->name('checkout.index');
+
+// 2. Proses Simpan Transaksi (POST) - Ini yang dipanggil AJAX Fetch
+Route::post('/checkout/process', [CheckoutController::class, 'store'])
+    ->middleware('auth')
+    ->name('checkout.process');
+Route::get('/checkout/process', function() {
+    return redirect()->route('transactions.index')->with('success', 'Pembayaran diproses!');
+})->middleware('auth');    
 
 require __DIR__.'/auth.php';

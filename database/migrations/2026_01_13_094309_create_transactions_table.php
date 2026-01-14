@@ -16,8 +16,15 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->string('invoice_number')->unique();
             $table->decimal('total_price', 12, 2);
-            $table->enum('status', ['pending', 'success', 'failed'])->default('pending');
-            $table->json('items_details'); // Nyimpen detail barang (nama, harga, qty) dalam bentuk JSON
+            $table->enum('status', ['pending', 'success', 'failed',])->default('pending');
+
+            // Tambahan Kolom Baru
+            $table->text('alamat');
+            $table->string('lat')->nullable();
+            $table->string('lng')->nullable();
+            $table->string('payment_method')->default('midtrans');
+
+            $table->json('items_details');
             $table->timestamps();
         });
     }
