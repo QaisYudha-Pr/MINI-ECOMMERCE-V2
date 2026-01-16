@@ -83,12 +83,7 @@
 
                 {{-- Footer --}}
                 <div class="p-8 border-t border-gray-50 bg-gray-50/50 rounded-bl-[3rem]">
-                    <div class="flex justify-between items-end mb-6">
-                        <span class="text-[10px] font-black text-gray-400 uppercase tracking-widest leading-none">Total
-                            Payment</span>
-                        <span class="text-2xl font-black text-gray-900 leading-none"
-                            x-text="'Rp ' + new Intl.NumberFormat('id-ID').format(totalPrice)"></span>
-                    </div>
+                    
 
                     <div class="mt-6">
                         <div class="flex gap-3 mb-4">

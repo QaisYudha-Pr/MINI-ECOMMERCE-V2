@@ -73,3 +73,7 @@ Route::get('/checkout/process', function() {
 })->middleware('auth');    
 
 require __DIR__.'/auth.php';
+
+
+// Tanpa prefix /api/
+Route::post('/callback', [App\Http\Controllers\MidtransCallbackController::class, 'callback']);

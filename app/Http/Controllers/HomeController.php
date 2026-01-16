@@ -16,7 +16,8 @@ class HomeController extends Controller
             ->withAvg('reviews as ratings_avg', 'rating')
             ->latest()
             ->get();
-
+        // Hanya ambil item yang stoknya lebih dari 0
+$items = ItemShop::where('stok', '>', 0)->get();
         return view('home', compact('items'));
     }
 
