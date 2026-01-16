@@ -86,15 +86,125 @@
         </div>
     </div>
 
+    {{-- Modal Crop Avatar --}}
+    <div x-data="{ open: false }" x-init="$watch('open', value => { if (!value) document.getElementById('avatar-input').value = '' })"
+        @open-crop-modal.window="open = true"
+        id="cropModal" class="fixed inset-0 z-[100] hidden items-center justify-center bg-gray-900/80 backdrop-blur-sm"
+        :class="{ 'flex': open, 'hidden': !open }">
+        
+        <div class="bg-white rounded-[2.5rem] p-6 w-full max-w-lg shadow-2xl m-4 relative animate-fade-in-up">
+            <h3 class="text-xl font-black text-gray-900 uppercase tracking-widest mb-4 text-center">Crop Your <span class="text-indigo-600">Avatar</span></h3>
+            
+            <div class="relative w-full h-[400px] bg-gray-100 rounded-2xl overflow-hidden mb-6 border-2 border-dashed border-gray-300">
+                <img id="image-to-crop" class="max-w-full block" src="">
+            </div>
+
+            <div class="flex gap-4">
+                <button @click="open = false" class="flex-1 py-4 bg-gray-100 text-gray-500 rounded-2xl font-black uppercase text-xs tracking-widest hover:bg-gray-200 transition-all">
+                    Cancel
+                </button>
+                <button id="btn-crop-upload" class="flex-1 py-4 bg-indigo-600 text-white rounded-2xl font-black uppercase text-xs tracking-widest hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-200">
+                    Crop & Upload
+                </button>
+            </div>
+        </div>
+    </div>
+
+    {{-- Form Hidden --}}
     <form id="avatar-form" action="{{ route('profile.avatar.update') }}" method="POST" enctype="multipart/form-data" class="hidden">
         @csrf
         @method('PATCH')
-        <input type="file" name="avatar" id="avatar-input" accept="image/*" onchange="submitAvatar()">
+        <input type="file" name="avatar" id="avatar-input" accept="image/*">
     </form>
 
+    {{-- CropperJS CSS & JS --}}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+
     <script>
-        function submitAvatar() {
-            document.getElementById('avatar-form').submit();
-        }
+        const avatarInput = document.getElementById('avatar-input');
+        const imageToCrop = document.getElementById('image-to-crop');
+        const btnCropUpload = document.getElementById('btn-crop-upload');
+        let cropper;
+
+        // Trigger input file saat tombol diklik (sudah ada label yang handle ini, jadi listener change aja)
+        avatarInput.addEventListener('change', function(e) {
+            const files = e.target.files;
+            if (files && files.length > 0) {
+                const file = files[0];
+                const reader = new FileReader();
+                
+                reader.onload = function(e) {
+                    imageToCrop.src = e.target.result;
+                    
+                    // Buka Modal via Alpine event
+                    window.dispatchEvent(new CustomEvent('open-crop-modal'));
+
+                    // Destroy old cropper if exists
+                    if (cropper) {
+                        cropper.destroy();
+                    }
+
+                    // Init Cropper
+                    setTimeout(() => {
+                        cropper = new Cropper(imageToCrop, {
+                            aspectRatio: 1,
+                            viewMode: 1,
+                            dragMode: 'move',
+                            autoCropArea: 1,
+                            background: false,
+                        });
+                    }, 200);
+                };
+                
+                reader.readAsDataURL(file);
+            }
+        });
+
+        btnCropUpload.addEventListener('click', function() {
+            if (!cropper) return;
+
+            const canvas = cropper.getCroppedCanvas({
+                width: 400,
+                height: 400,
+            });
+
+            canvas.toBlob(function(blob) {
+                const formData = new FormData();
+                formData.append('avatar', blob, 'avatar.png'); // Kirim sebagai file
+                formData.append('_method', 'PATCH'); // Spoofing PATCH
+                formData.append('_token', '{{ csrf_token() }}');
+
+                // Tampilkan loading di button
+                btnCropUpload.innerText = 'UPLOADING...';
+                btnCropUpload.disabled = true;
+
+                fetch("{{ route('profile.avatar.update') }}", {
+                    method: 'POST',
+                    body: formData,
+                })
+                .then(response => {
+                    if (response.ok) {
+                        return response; // Bisa redirect/reload
+                    }
+                    throw new Error('Upload failed');
+                })
+                .then(() => {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Avatar Updated!',
+                        text: 'Foto profil berhasil diperbarui, bolo.',
+                        timer: 1500,
+                        showConfirmButton: false
+                    }).then(() => window.location.reload());
+                })
+                .catch(err => {
+                    console.error(err);
+                    Swal.fire('Error', 'Gagal upload foto, coba lagi ya.', 'error');
+                    btnCropUpload.innerText = 'CROP & UPLOAD';
+                    btnCropUpload.disabled = false;
+                });
+            });
+        });
     </script>
 </x-app-layout> 
