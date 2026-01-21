@@ -13,7 +13,7 @@
                 @csrf
                 @method('PUT')
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-16">
-                    
+
                     <div class="space-y-6">
                         <div class="group">
                             <label class="block text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-2">Product Name</label>
@@ -24,10 +24,11 @@
                             <div class="group">
                                 <label class="block text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-2">Category</label>
                                 <select name="kategori" class="w-full px-6 py-4 bg-gray-50 border-none rounded-2xl focus:ring-4 focus:ring-indigo-500/10 focus:bg-white transition-all font-bold text-gray-700 appearance-none" required>
-                                    <option value="fashion" {{ $itemShop->kategori == 'fashion' ? 'selected' : '' }}>Fashion</option>
-                                    <option value="electronics" {{ $itemShop->kategori == 'electronics' ? 'selected' : '' }}>Electronics</option>
-                                    <option value="food" {{ $itemShop->kategori == 'food' ? 'selected' : '' }}>Food & Drink</option>
-                                    <option value="other" {{ $itemShop->kategori == 'other' ? 'selected' : '' }}>Other</option>
+                                    @php $currentKategori = old('kategori', $itemShop->kategori); @endphp
+                                    <option value="fashion" {{ $currentKategori == 'fashion' ? 'selected' : '' }}>Fashion</option>
+                                    <option value="electronics" {{ $currentKategori == 'electronics' ? 'selected' : '' }}>Electronics</option>
+                                    <option value="food" {{ $currentKategori == 'food' ? 'selected' : '' }}>Food & Drink</option>
+                                    <option value="other" {{ $currentKategori == 'other' ? 'selected' : '' }}>Other</option>
                                 </select>
                             </div>
                             <div class="group">
@@ -57,7 +58,7 @@
                         </div>
                         <input type="file" id="gambar_input" accept="image/*" class="hidden">
                         <input type="hidden" id="cropped_image_data" name="gambar">
-                        
+
                         <div id="crop-actions" class="hidden grid grid-cols-2 gap-3">
                             <button type="button" onclick="saveCrop()" class="py-4 bg-indigo-600 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-lg transition-all">Save Changes</button>
                             <button type="button" onclick="cancelCrop()" class="py-4 bg-gray-100 text-gray-400 rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all">Reset</button>
@@ -93,14 +94,20 @@
                     if (cropper) cropper.destroy();
                     cropActions.classList.remove('hidden');
                     document.getElementById('overlay-text').classList.add('hidden');
-                    cropper = new Cropper(image, { aspectRatio: 1, viewMode: 2 });
+                    cropper = new Cropper(image, {
+                        aspectRatio: 1,
+                        viewMode: 2
+                    });
                 };
                 reader.readAsDataURL(files[0]);
             }
         }
 
         function saveCrop() {
-            const canvas = cropper.getCroppedCanvas({ width: 800, height: 800 });
+            const canvas = cropper.getCroppedCanvas({
+                width: 800,
+                height: 800
+            });
             image.src = canvas.toDataURL('image/jpeg');
             croppedInput.value = image.src;
             cropper.destroy();
@@ -109,6 +116,8 @@
             document.getElementById('overlay-text').classList.remove('hidden');
         }
 
-        function cancelCrop() { location.reload(); }
+        function cancelCrop() {
+            location.reload();
+        }
     </script>
 </x-app-layout>

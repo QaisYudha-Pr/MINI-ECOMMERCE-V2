@@ -24,6 +24,11 @@ class User extends Authenticatable
         return $this->hasMany(ItemShop::class);
     }
 
+    public function favoriteItems()
+    {
+        return $this->belongsToMany(ItemShop::class, 'favorites');
+    }
+
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable;
 
@@ -36,6 +41,8 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'nama_toko',
+        'avatar',
     ];
 
     /**

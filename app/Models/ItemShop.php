@@ -14,7 +14,9 @@ class ItemShop extends Model
         'deskripsi',
         'harga',
         'stok',
+        'total_terjual',
         'kategori',
+        'lokasi',
         'gambar',
         'user_id',
     ];
@@ -33,5 +35,10 @@ class ItemShop extends Model
     public function getRatingsAvgAttribute()
     {
         return $this->reviews()->avg('rating') ?? 0;
+    }
+
+    public function favoritedBy()
+    {
+        return $this->belongsToMany(User::class, 'favorites');
     }
 }

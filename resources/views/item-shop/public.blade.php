@@ -130,7 +130,7 @@
 
                         {{-- BUTTONS --}}
                         <div class="flex gap-2 flex-col sm:flex-row">
-                            <a href="{{ route('produk.show', $item->id) }}"
+                            <a href="{{ route('item-shop.show', $item->id) }}"
                                 class="flex-1 text-center bg-indigo-600 text-white py-2.5 rounded-xl hover:bg-indigo-700 active:scale-95 transition-all duration-200 text-sm font-semibold">
                                 Lihat Detail
                             </a>

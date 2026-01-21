@@ -1,4 +1,4 @@
-<x-app-layout>
+<x-admin-layout>
     <x-slot name="header">
         <div class="flex items-center gap-3" data-aos="fade-right">
             <div class="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-200">
@@ -207,4 +207,4 @@
             });
         });
     </script>
-</x-app-layout> 
+</x-admin-layout> 

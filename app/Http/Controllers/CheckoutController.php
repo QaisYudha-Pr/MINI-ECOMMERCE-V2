@@ -16,6 +16,7 @@ class CheckoutController extends Controller
 {
     public function store(Request $request)
     {
+        $this->authorize('membeli-produk');
         try {
             DB::beginTransaction();
 
@@ -39,12 +40,13 @@ class CheckoutController extends Controller
 
                 $itemTotal = $item->harga * $qty;
                 $subtotal += $itemTotal;
-                
+
                 $item->decrement('stok', $qty);
 
                 $itemsSummary[] = [
                     'id' => $item->id,
                     'nama_barang' => $item->nama_barang,
+                    'kategori' => $item->kategori, // Ditambahkan agar bisa muncul di dashboard
                     'harga' => (int)$item->harga,
                     'quantity' => (int)$qty,
                     'total' => (int)$itemTotal
@@ -113,11 +115,10 @@ class CheckoutController extends Controller
                 'invoice' => $transaction->invoice_number,
                 'payment_method' => $request->payment_method
             ]);
-
         } catch (Exception $e) {
             DB::rollBack();
             return response()->json([
-                'success' => false, 
+                'success' => false,
                 'message' => $e->getMessage()
             ], 400);
         }

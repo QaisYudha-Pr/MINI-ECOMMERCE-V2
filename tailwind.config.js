@@ -12,7 +12,21 @@ export default {
     theme: {
         extend: {
             fontFamily: {
-                sans: ['Figtree', ...defaultTheme.fontFamily.sans],
+                sans: ['Inter', 'ui-sans-serif', 'system-ui'],
+            },
+            colors: {
+                // Neutral Canvas
+                primary: '#0f172a', // Slate 900
+                secondary: '#64748b', // Slate 500
+                background: '#f8fafc', // Slate 50
+                surface: '#ffffff',
+                
+                // Elegant Accent
+                accent: {
+                    DEFAULT: '#4f46e5', // Indigo 600
+                    hover: '#4338ca',   // Indigo 700
+                    light: '#e0e7ff',   // Indigo 100
+                },
             },
         },
     },

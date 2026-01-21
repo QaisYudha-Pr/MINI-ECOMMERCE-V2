@@ -1,4 +1,4 @@
-<x-app-layout>
+<x-admin-layout>
     {{-- Menambahkan script Midtrans Snap --}}
     <script type="text/javascript" src="https://app.sandbox.midtrans.com/snap/snap.js"
         data-client-key="{{ config('services.midtrans.client_key') }}"></script>
@@ -16,6 +16,7 @@
                             <div>
                                 <span class="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Invoice</span>
                                 <h3 class="text-lg font-black text-gray-900">{{ $trx->invoice_number }}</h3>
+                                <p class="text-[10px] font-bold text-gray-400 mt-1">{{ $trx->created_at->format('d M Y, H:i') }}</p>
                             </div>
                             <div class="text-right">
                                 {{-- Warna Status yang lebih lengkap --}}
@@ -99,4 +100,4 @@
             });
         }
     </script>
-</x-app-layout>
+</x-admin-layout>

@@ -10,6 +10,13 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CheckoutController;
 
+use App\Http\Controllers\SellerController;
+use App\Http\Controllers\FavoriteController;
+
+Route::post('/favorite/{item}', [FavoriteController::class, 'toggle'])
+    ->middleware('auth')
+    ->name('favorite.toggle');
+
 Route::get('/test', function () {
     return view('test');
 });
@@ -17,25 +24,32 @@ Route::get('/test', function () {
 Route::get('/search', [SearchController::class, 'search'])->name('search');
 Route::get('/item-shop/public', [ItemShopController::class, 'public'])
     ->name('item-shop.public');
+Route::get('/item-shop/stats', [ItemShopController::class, 'stats'])->name('item-shop.stats');
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
-Route::get('/produk/{itemShop}', [ItemShopController::class, 'show'])->name('produk.show');
+Route::get('/item-shop/{itemShop}', [ItemShopController::class, 'show'])->name('item-shop.show');
 
 
 /* // Route dashboard dan Produuk(resource) hanya bisa diakses oleh user yang sudah login*/
 
-Route::resource('item-shop', ItemShopController::class);
-Route::post('/item-shop/{id}/review', [ItemShopController::class, 'storeReview'])->name('reviews.store')->middleware('auth');
-
 Route::middleware('auth')->group(function () {
 
-    Route::get('/dashboard', DashboardController::class)
-        ->name('dashboard');
+    Route::get('/dashboard', DashboardController::class)->name('dashboard');
 
-    Route::resource('item-shop', ItemShopController::class)
-        ->except(['show', 'public']);
+    // Seller Registration
+    Route::get('/become-seller', [SellerController::class, 'create'])->name('seller.create');
+    Route::post('/become-seller', [SellerController::class, 'store'])->name('seller.store');
 
-    Route::middleware('role:admin')->group(function () {
+    // Product Management
+    Route::group(['middleware' => ['role_or_permission:seller|admin|tambah-produk|edit-produk|hapus-produk']], function () {
+        Route::resource('item-shop', ItemShopController::class)
+            ->except(['show', 'public']);
+    });
+
+    // Reviews
+    Route::post('/item-shop/{id}/review', [ItemShopController::class, 'storeReview'])->name('reviews.store');
+
+    Route::middleware('role_or_permission:admin|lihat-user|tambah-user|edit-user|hapus-user')->group(function () {
         Route::resource('users', UserController::class);
     });
 });
@@ -68,11 +82,11 @@ Route::get('/checkout', function () {
 Route::post('/checkout/process', [CheckoutController::class, 'store'])
     ->middleware('auth')
     ->name('checkout.process');
-Route::get('/checkout/process', function() {
+Route::get('/checkout/process', function () {
     return redirect()->route('transactions.index')->with('success', 'Pembayaran diproses!');
-})->middleware('auth');    
+})->middleware('auth');
 
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';
 
 
 // Tanpa prefix /api/

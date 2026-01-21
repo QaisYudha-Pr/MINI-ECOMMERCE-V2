@@ -8,7 +8,7 @@
 
     {{-- Sliding Panel --}}
     <div class="fixed inset-y-0 right-0 max-w-full flex">
-        <div class="w-screen max-w-md" x-show="showCart"
+        <div class="w-full sm:max-w-md" x-show="showCart"
             x-transition:enter="transform transition ease-in-out duration-500"
             x-transition:enter-start="translate-x-full" x-transition:enter-end="translate-x-0"
             x-transition:leave="transform transition ease-in-out duration-500" x-transition:leave-start="translate-x-0"

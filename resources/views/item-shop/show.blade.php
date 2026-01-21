@@ -36,10 +36,10 @@
             <div class="grid lg:grid-cols-12 gap-12 items-start">
                 
                 {{-- LEFT COLUMN: IMAGES --}}
-                <div class="lg:col-span-7 space-y-6 sticky top-24" data-aos="fade-right">
-                    <div class="relative group rounded-[3rem] overflow-hidden shadow-2xl shadow-indigo-100 border-4 border-white bg-white">
+                <div class="lg:col-span-7 space-y-6 lg:sticky lg:top-24" data-aos="fade-right">
+                    <div class="relative group rounded-[2.5rem] lg:rounded-[3rem] overflow-hidden shadow-2xl shadow-indigo-100 border-4 border-white bg-white">
                         <img src="{{ $itemShop->gambar ? asset($itemShop->gambar) : 'https://via.placeholder.com/800' }}" 
-                             class="w-full h-[600px] object-cover transition-transform duration-700 group-hover:scale-105">
+                             class="w-full h-[400px] lg:h-[600px] object-cover transition-transform duration-700 group-hover:scale-105">
                         
                         {{-- Floating Badges --}}
                         <div class="absolute top-6 left-6 flex flex-col gap-2">
@@ -91,13 +91,55 @@
                             <p class="leading-relaxed">{{ $itemShop->deskripsi }}</p>
                         </div>
 
+                    <div x-data="{
+                        cart: JSON.parse(localStorage.getItem('minie_cart') || '[]'),
+                        saveCart() { localStorage.setItem('minie_cart', JSON.stringify(this.cart)); },
+                        item: {
+                            id: {{ $itemShop->id }},
+                            nama_barang: '{{ $itemShop->nama_barang }}',
+                            harga: {{ $itemShop->harga }},
+                            gambar: '{{ asset($itemShop->gambar) }}',
+                            stok: {{ $itemShop->stok }}
+                        },
+                        
+                        addToCart() {
+                            if (this.item.stok <= 0) {
+                                Swal.fire('Stok Habis', 'Maaf bolo, stok sudah habis!', 'warning');
+                                return;
+                            }
+                            const exists = this.cart.find(c => c.id === this.item.id);
+                            if (exists) {
+                                Swal.fire('Sudah Ada', 'Barang sudah di keranjang bolo!', 'info');
+                                return;
+                            }
+                            this.cart.push({ ...this.item, quantity: 1, selected: true });
+                            this.saveCart();
+                            $dispatch('notify', 'Masuk keranjang!');
+                            window.dispatchEvent(new CustomEvent('cart-updated'));
+                        },
+
+                        checkoutNow() {
+                            if (this.item.stok <= 0) return;
+                            const exists = this.cart.find(c => c.id === this.item.id);
+                            if (!exists) {
+                                this.cart.push({ ...this.item, quantity: 1, selected: true });
+                                this.saveCart();
+                            } else {
+                                exists.selected = true;
+                                this.saveCart();
+                            }
+                            const toCheckout = this.cart.filter(i => i.id === this.item.id);
+                            localStorage.setItem('checkout_items', JSON.stringify(toCheckout));
+                            window.location.href = '{{ route('checkout.index') }}';
+                        }
+                    }">
                         @auth
                             <div class="grid grid-cols-4 gap-4">
-                                <button class="col-span-3 py-5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl font-black uppercase text-xs tracking-[0.2em] transition-all shadow-xl shadow-indigo-200 active:scale-95">
-                                    Add to Cart
+                                <button @click="addToCart" class="col-span-2 py-5 bg-white border-2 border-indigo-600 text-indigo-600 hover:bg-indigo-50 rounded-2xl font-black uppercase text-xs tracking-widest transition-all active:scale-95">
+                                    + Keranjang
                                 </button>
-                                <button class="col-span-1 flex items-center justify-center bg-gray-50 hover:bg-gray-100 text-gray-400 rounded-2xl transition-all">
-                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>
+                                <button @click="checkoutNow" class="col-span-2 py-5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl font-black uppercase text-xs tracking-widest transition-all shadow-xl shadow-indigo-200 active:scale-95">
+                                    Beli Sekarang
                                 </button>
                             </div>
                         @else
@@ -105,6 +147,7 @@
                                 Login to Buy
                             </a>
                         @endauth
+                    </div>
                     </div>
 
                     {{-- REVIEWS PREVIEW --}}

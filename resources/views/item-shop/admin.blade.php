@@ -1,4 +1,4 @@
-﻿<x-app-layout>
+﻿<x-admin-layout>
     {{-- Tambahkan library SweetAlert & AOS di head jika belum ada --}}
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
@@ -60,20 +60,19 @@
             @endcan
         </div>
 
-        {{-- STATS CARDS --}}
+        {{-- STATS CARDS (Dynamic for Admin & User) --}}
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
             {{-- Total Product --}}
             <div data-aos="fade-up" data-aos-delay="100" class="glass-card p-8 rounded-[3rem] shadow-sm group">
                 <div class="flex items-center justify-between">
                     <div>
                         <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest leading-none mb-2">
-                            Inventory Size</p>
+                            My Inventory</p>
                         <h3 class="text-4xl font-black text-gray-900 group-hover:text-indigo-600 transition-colors">
                             {{ $items->total() }} <span class="text-sm font-medium text-gray-400 uppercase">Items</span>
                         </h3>
                     </div>
-                    <div
-                        class="bg-indigo-50 p-4 rounded-3xl text-indigo-600 group-hover:scale-110 transition-transform">
+                    <div class="bg-indigo-50 p-4 rounded-3xl text-indigo-600 group-hover:scale-110 transition-transform">
                         <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
@@ -102,31 +101,32 @@
             </div>
 
             {{-- Status Check --}}
-            @php
-                $lowStockCount = App\Models\ItemShop::where('stok', '<=', 5)->count();
-            @endphp
-
             <div data-aos="fade-up" data-aos-delay="300" class="glass-card p-8 rounded-[3rem] shadow-sm group">
                 <div class="flex items-center justify-between">
                     <div>
                         <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest leading-none mb-2">
-                            System Status</p>
+                            Inventory Health</p>
                         @if ($lowStockCount > 0)
-                            <h3 class="text-2xl font-black text-red-600 uppercase  animate-pulse">
-                                {{ $lowStockCount }} ITEMS LOW STOCK!
+                            <h3 class="text-2xl font-black text-red-600 uppercase animate-pulse">
+                                Requires Attention
                             </h3>
+                            <p class="text-xs font-bold text-red-400 mt-1">{{ $lowStockCount }} Items Low Stock (≤ 5)</p>
                         @else
                             <h3 class="text-2xl font-black text-gray-900 uppercase italic">
-                                All Systems <span class="text-green-500 font-black italic underline">OK</span>
+                                Excellent
                             </h3>
+                            <p class="text-xs font-bold text-green-500 mt-1">Stock Levels Healthy</p>
                         @endif
                     </div>
                 </div>
             </div>
         </div>
 
-        {{-- SEARCH BAR AREA --}}
+        {{-- SEARCH BAR AREA (UNTUK SEMUA USER) --}}
         <div class="mb-8" data-aos="fade-up" data-aos-delay="400">
+            <div class="flex items-center justify-between mb-4 px-2">
+                <h3 class="font-black text-xl text-gray-900 uppercase tracking-tight">Search <span class="text-indigo-600">Product</span></h3>
+            </div>
             <form action="{{ route('item-shop.index') }}" method="GET" class="relative group">
                 <div class="absolute inset-y-0 left-0 pl-6 flex items-center pointer-events-none">
                     <svg class="w-5 h-5 text-gray-400 group-focus-within:text-indigo-600 transition-colors"
@@ -135,7 +135,7 @@
                             d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                     </svg>
                 </div>
-                <input type="text" id="searchInput" name="search" placeholder="Type to search..."
+                <input type="text" id="searchInput" name="search" placeholder="Cari nama produk, kategori..."
                     class="block w-full pl-16 pr-24 py-6 bg-white border-none rounded-[2rem] shadow-xl shadow-gray-100 focus:ring-4 focus:ring-indigo-500/10 transition-all font-bold text-gray-700">
 
                 <div class="absolute inset-y-0 right-0 flex items-center pr-4">
@@ -159,33 +159,33 @@
                     <thead>
                         <tr class="bg-gray-50/50">
                             <th
-                                class="px-8 py-7 text-left text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">
+                                class="px-4 md:px-8 py-7 text-left text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">
                                 Rank</th>
                             <th
-                                class="px-8 py-7 text-left text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">
+                                class="px-4 md:px-8 py-7 text-left text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">
                                 Product & Category</th>
                             <th
-                                class="px-8 py-7 text-left text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">
+                                class="px-4 md:px-8 py-7 text-left text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">
                                 Status & Stock</th>
                             <th
-                                class="px-8 py-7 text-left text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">
+                                class="px-4 md:px-8 py-7 text-left text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">
                                 Price</th>
                             <th
-                                class="px-8 py-7 text-center text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">
+                                class="px-4 md:px-8 py-7 text-center text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">
                                 Settings</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-50">
                         @forelse ($items as $index => $item)
                             <tr class="tr-gradient transition-all duration-300 group">
-                                <td class="px-8 py-6">
+                                <td class="px-4 md:px-8 py-6">
                                     <span class="text-xs font-black text-gray-300 group-hover:text-indigo-600">
                                         #{{ sprintf('%02d', ($items->currentPage() - 1) * $items->perPage() + $index + 1) }}
                                     </span>
                                 </td>
-                                <td class="px-8 py-6">
+                                <td class="px-4 md:px-8 py-6">
                                     <div class="flex items-center gap-6">
-                                        <div class="relative">
+                                        <div class="relative shrink-0">
                                             @if ($item->gambar)
                                                 <img src="{{ asset($item->gambar) }}"
                                                     class="w-16 h-16 rounded-[1.25rem] object-cover ring-4 ring-gray-50 group-hover:ring-indigo-100 transition-all shadow-lg">
@@ -197,14 +197,14 @@
                                                         <path stroke-linecap="round" stroke-linejoin="round"
                                                             stroke-width="2"
                                                             d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                                    </svg>
-                                                </div>
+                                                     </svg>
+                                                 </div>
                                             @endif
                                         </div>
-                                        <div>
+                                        <div class="min-w-0">
                                             {{-- Contoh highlight hasil pencarian --}}
                                             <h4
-                                                class="font-black text-gray-900 group-hover:text-indigo-600 transition-colors uppercase tracking-tight">
+                                                class="font-black text-gray-900 group-hover:text-indigo-600 transition-colors uppercase tracking-tight truncate">
                                                 {!! request('search')
                                                     ? str_replace(request('search'), '<span class="bg-yellow-200">' . request('search') . '</span>', $item->nama_barang)
                                                     : $item->nama_barang !!}
@@ -216,7 +216,7 @@
                                         </div>
                                     </div>
                                 </td>
-                                <td class="px-8 py-6">
+                                <td class="px-4 md:px-8 py-6">
                                     <div class="flex flex-col">
                                         <div class="flex items-center gap-2">
                                             <span
@@ -229,13 +229,13 @@
                                             {{ $item->user?->name ?? 'System' }}</p>
                                     </div>
                                 </td>
-                                <td class="px-8 py-6">
+                                <td class="px-4 md:px-8 py-6">
                                     <div
                                         class="inline-flex px-4 py-2 rounded-2xl bg-gray-900 text-white font-black text-xs shadow-xl shadow-gray-200">
                                         IDR {{ number_format($item->harga, 0, ',', '.') }}
                                     </div>
                                 </td>
-                                <td class="px-8 py-6">
+                                <td class="px-4 md:px-8 py-6">
                                     <div class="flex justify-center gap-3">
                                         @can('view', $item)
                                             <a href="{{ route('item-shop.show', $item->id) }}"
@@ -389,4 +389,4 @@
                 });
         });
     </script>
-</x-app-layout>
+</x-admin-layout>

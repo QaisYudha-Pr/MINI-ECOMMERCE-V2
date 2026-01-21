@@ -9,7 +9,7 @@
         <div class="bg-white rounded-[2.5rem] shadow-2xl border border-gray-100 overflow-hidden" data-aos="zoom-in-up">
             <form action="{{ route('users.store') }}" method="POST" class="p-8 sm:p-12 space-y-8">
                 @csrf
-                
+
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                     {{-- NAME --}}
                     <div class="group">
@@ -31,8 +31,8 @@
                     <div class="group">
                         <label class="block text-sm font-black text-gray-700 uppercase tracking-widest mb-2 ml-1">Role Akses</label>
                         <select name="role" class="w-full px-5 py-4 bg-gray-50 border-gray-200 rounded-2xl focus:ring-2 focus:ring-indigo-600 outline-none transition font-bold text-gray-700 cursor-pointer">
-                            <option value="user">User / Buyer</option>
-                            <option value="admin">Administrator</option>
+                            <option value="user" {{ old('role') == 'user' ? 'selected' : '' }}>User / Buyer</option>
+                            <option value="admin" {{ old('role') == 'admin' ? 'selected' : '' }}>Administrator</option>
                         </select>
                         @error('role') <p class="text-red-500 text-xs mt-2 font-bold">{{ $message }}</p> @enderror
                     </div>

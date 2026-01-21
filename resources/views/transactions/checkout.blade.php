@@ -42,15 +42,27 @@
                             <h2 class="text-xl font-black text-gray-900 tracking-tight uppercase">Alamat Pengiriman</h2>
                         </div>
                         
-                        <div id="leaflet-map" class="h-[250px] rounded-[2rem] mb-6 overflow-hidden shadow-inner"></div>
+                        {{-- Search Input with Autocomplete --}}
+                        <div class="relative mb-6 group">
+                            <div class="absolute inset-y-0 left-0 pl-6 flex items-center pointer-events-none">
+                                <svg class="w-5 h-5 text-gray-400 group-focus-within:text-indigo-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                            </div>
+                            <input type="text" id="map-search" 
+                                class="w-full bg-slate-50 border-2 border-slate-50 focus:border-indigo-500 focus:bg-white rounded-[1.5rem] pl-14 pr-6 py-4 text-sm transition-all outline-none" 
+                                placeholder="Cari nama jalan, toko, atau gedung di Mojokerto...">
+                            
+                            {{-- Dropdown Hasil Pencarian --}}
+                            <div id="search-results" class="absolute z-[100] w-full mt-2 bg-white rounded-2xl shadow-2xl border border-slate-100 hidden overflow-hidden">
+                                {{-- Hasil akan muncul di sini --}}
+                            </div>
+                        </div>
+
+                        <div id="leaflet-map" class="h-[300px] rounded-[2rem] mb-6 overflow-hidden shadow-inner border-2 border-slate-50"></div>
                         
                         <div class="relative">
                             <textarea name="alamat" id="alamat" rows="3" 
                                 class="w-full bg-gray-50 border-none rounded-2xl px-6 py-4 text-sm focus:ring-2 focus:ring-indigo-500 transition-all placeholder:text-gray-400"
-                                placeholder="Klik/Geser marker di peta untuk mengisi alamat..." required></textarea>
-                            <div class="absolute right-4 top-4">
-                                <span class="px-3 py-1 bg-indigo-100 text-indigo-600 text-[9px] font-black rounded-full uppercase tracking-wider">Auto-Detect</span>
-                            </div>
+                                placeholder="Detail alamat (No. Rumah, RT/RW, Patokan). Ketik di sini juga bisa menggerakkan peta..." required></textarea>
                         </div>
                     </div>
 
@@ -69,7 +81,7 @@
                 </div>
 
                 {{-- RIGHT COLUMN: Payment & Summary --}}
-                <div class="lg:col-span-4 space-y-8 sticky top-28">
+                <div class="lg:col-span-4 space-y-8 lg:sticky lg:top-28">
                     
                     {{-- 3. Payment Method --}}
                     <div class="bg-white rounded-[2.5rem] p-8 shadow-sm border border-gray-100">
@@ -198,18 +210,152 @@
             renderCheckout();
         }
 
-        // 4. MAP SETUP
-        let map = L.map('leaflet-map').setView([-6.20, 106.81], 13);
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
-        let marker = L.marker([-6.20, 106.81], {draggable: true}).addTo(map);
+        // 4. MAP SETUP (FOKUS MOJOKERTO)
+        const mojokertoCoord = [-7.4726, 112.4382];
+        let map = L.map('leaflet-map', { 
+            zoomControl: false,
+            attributionControl: false 
+        }).setView(mojokertoCoord, 14);
 
-        marker.on('dragend', async () => {
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png').addTo(map);
+
+        let deliveryArea = L.circle(mojokertoCoord, {
+            color: '#4f46e5', weight: 2, dashArray: '5, 10', fillColor: '#4f46e5', fillOpacity: 0.05, radius: 10000 
+        }).addTo(map);
+
+        let marker = L.marker(mojokertoCoord, {draggable: true}).addTo(map);
+        marker.bindTooltip("Geser ke lokasi pengirimanmu bolo", { permanent: false, direction: 'top' }).openTooltip();
+
+        const locateBtn = L.control({position: 'topright'});
+        locateBtn.onAdd = function() {
+            let div = L.DomUtil.create('div', 'bg-white p-3 rounded-2xl shadow-xl cursor-pointer hover:scale-110 transition-all border border-slate-100');
+            div.innerHTML = `<svg class="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>`;
+            div.onclick = () => map.locate({setView: true, maxZoom: 16});
+            return div;
+        };
+        locateBtn.addTo(map);
+
+        map.on('locationfound', (e) => {
+            marker.setLatLng(e.latlng);
+            updateAddress(e.latlng.lat, e.latlng.lng);
+        });
+
+        // --- DYNAMIC SEARCH LOGIC (OPTIMIZED FOR MOJOKERTO) ---
+        const searchInput = document.getElementById('map-search');
+        const alamatArea = document.getElementById('alamat');
+        const resultsBox = document.getElementById('search-results');
+        let searchTimer;
+
+        async function performSearch(query, isManualInput = false) {
+            if (query.length < 3) return resultsBox ? resultsBox.classList.add('hidden') : null;
+            
+            if (!isManualInput && resultsBox) {
+                resultsBox.innerHTML = '<div class="px-6 py-4 text-xs text-slate-400 animate-pulse">Mencari lokasi akurat...</div>';
+                resultsBox.classList.remove('hidden');
+            }
+            
+            // Membersihkan query (khusus untuk paste dari GMap yang panjang)
+            let cleanQuery = query.replace(/, Indonesia$/i, ''); // Buang "Indonesia" di akhir
+            
+            // Jika query tidak mengandung Mojokerto, baru kita tambahkan
+            let optimizedQuery = cleanQuery.toLowerCase().includes('mojokerto') ? cleanQuery : cleanQuery + ' Mojokerto';
+            
+            async function fetchOSM(q) {
+                const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(q)}&limit=5&addressdetails=1`);
+                return await res.json();
+            }
+
+            try {
+                let data = await fetchOSM(optimizedQuery);
+                
+                // FALLBACK: Jika tidak ketemu, coba potong bagian belakang (biasanya kode pos/negara yang bikin bingung OSM)
+                if (data.length === 0 && optimizedQuery.split(',').length > 3) {
+                    const simplerQuery = optimizedQuery.split(',').slice(0, 3).join(',');
+                    data = await fetchOSM(simplerQuery);
+                }
+
+                if (data.length > 0) {
+                    if (isManualInput) {
+                        const item = data[0];
+                        selectLocation(item.lat, item.lon, item.display_name, false); 
+                    } else if (resultsBox) {
+                        resultsBox.innerHTML = data.map(item => {
+                            const parts = item.display_name.split(',');
+                            const mainName = parts[0];
+                            const subName = parts.slice(1, 4).join(',');
+                            
+                            return `
+                            <div class="px-6 py-4 hover:bg-indigo-50 cursor-pointer border-b border-slate-50 last:border-0 transition-colors" 
+                                 onclick="selectLocation(${item.lat}, ${item.lon}, '${item.display_name.replace(/'/g, "\\'")}')">
+                                <p class="text-sm font-black text-indigo-600 truncate mb-0.5">${mainName}</p>
+                                <p class="text-[10px] font-medium text-slate-400 truncate">${subName}</p>
+                            </div>
+                        `}).join('');
+                        resultsBox.classList.remove('hidden');
+                    }
+                } else if (!isManualInput && resultsBox) {
+                    resultsBox.innerHTML = '<div class="px-6 py-4 text-xs text-red-400 font-bold">Lokasi tidak ditemukan. Coba hapus beberapa detail kecil bolo.</div>';
+                }
+            } catch (e) {
+                console.error("Search failed", e);
+                if (resultsBox) resultsBox.classList.add('hidden');
+            }
+        }
+
+        searchInput.addEventListener('input', (e) => {
+            clearTimeout(searchTimer);
+            searchTimer = setTimeout(() => performSearch(e.target.value), 400); // Lebih cepat responnya
+        });
+
+        // Event listener untuk klik di luar dropdown agar hilang
+        document.addEventListener('click', (e) => {
+            if (!searchInput.contains(e.target) && !resultsBox.contains(e.target)) {
+                resultsBox.classList.add('hidden');
+            }
+        });
+
+        alamatArea.addEventListener('input', (e) => {
+            clearTimeout(searchTimer);
+            // Kalo ngetik di textarea detail, pencariannya lebih santai
+            searchTimer = setTimeout(() => performSearch(e.target.value, true), 2000); 
+        });
+
+        window.selectLocation = (lat, lon, name, updateTextarea = true) => {
+            const pos = { lat: parseFloat(lat), lng: parseFloat(lon) };
+            marker.setLatLng(pos);
+            map.flyTo(pos, 16, { animate: true, duration: 1.5 });
+            document.getElementById('lat').value = lat;
+            document.getElementById('lng').value = lon;
+            if (updateTextarea) {
+                alamatArea.value = name;
+                searchInput.value = '';
+            }
+            if (resultsBox) resultsBox.classList.add('hidden');
+        };
+
+        async function updateAddress(lat, lng) {
+            document.getElementById('lat').value = lat;
+            document.getElementById('lng').value = lng;
+            try {
+                const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}`);
+                const data = await res.json();
+                alamatArea.value = data.display_name || "";
+            } catch(e) {}
+        }
+
+        marker.on('dragend', () => {
             let pos = marker.getLatLng();
-            document.getElementById('lat').value = pos.lat;
-            document.getElementById('lng').value = pos.lng;
-            const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${pos.lat}&lon=${pos.lng}`);
-            const data = await res.json();
-            document.getElementById('alamat').value = data.display_name || "Alamat tidak ditemukan";
+            updateAddress(pos.lat, pos.lng);
+            
+            const distance = map.distance(pos, mojokertoCoord);
+            if (distance > 10000) {
+                Swal.fire({
+                    icon: 'info',
+                    title: 'Bolo, Lokasinya Agak Jauh',
+                    text: 'Pastikan lokasi pengiriman masih terjangkau area Mojokerto ya!',
+                    toast: true, position: 'top-end', showConfirmButton: false, timer: 3000
+                });
+            }
         });
 
         // Fungsi helper untuk menghapus item dari cart utama

@@ -16,11 +16,6 @@
     <link rel="icon" type="image/png/svg" href="{{ asset('LogoQ.svg') }}" />
 
     <style>
-        body {
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            background-color: #f8fafc;
-        }
-
         [x-cloak] {
             display: none !important;
         }
@@ -31,31 +26,38 @@
         }
 
         ::-webkit-scrollbar-track {
-            background: #f1f1f1;
+            background: transparent;
         }
 
         ::-webkit-scrollbar-thumb {
-            background: #6366f1;
+            @apply bg-slate-300;
             border-radius: 10px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            @apply bg-slate-400;
         }
 
         /* Animasi Dot (Titik-titik) */
         @keyframes blink {
-
-            0%,
-            100% {
-                opacity: 0.2;
-            }
-
-            50% {
-                opacity: 1;
-            }
+            0%, 100% { opacity: 0.2; }
+            50% { opacity: 1; }
         }
 
         .dot-anim {
             animation: blink 1s infinite;
         }
     </style>
+    <script>
+        document.addEventListener('alpine:init', () => {
+            Alpine.store('global', {
+                search: '',
+                category: 'all',
+                setSearch(val) { this.search = val },
+                setCategory(val) { this.category = val }
+            })
+        })
+    </script>
 </head>
 
 <body class="antialiased select-none" x-data="{ loading: true }" x-init="window.onload = () => { setTimeout(() => loading = false, 300) }">

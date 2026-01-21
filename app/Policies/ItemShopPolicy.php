@@ -7,28 +7,34 @@ use App\Models\User;
 
 class ItemShopPolicy
 {
-    public function viewAny(?User $user)
+    public function viewAny(User $user)
     {
-        return true; // guest boleh lihat
+        return $user->hasRole('admin')
+            || $user->hasRole('seller')
+            || $user->hasPermissionTo('lihat-produk');
     }
 
     public function view(?User $user, ItemShop $item)
     {
-        return true;
+        return true; // Semua orang bisa lihat detail produk (public)
     }
 
     public function create(User $user)
     {
-        return $user->hasAnyRole(['admin', 'user']);
+        return $user->hasRole('admin') || $user->hasPermissionTo('tambah-produk');
     }
 
-    public function update(User $user, ItemShop $nama_barang)
+    public function update(User $user, ItemShop $item)
     {
-        return $user->hasRole('admin') || $nama_barang->user_id === $user->id;
+        return $user->hasRole('admin')
+            || $user->hasPermissionTo('edit-produk')
+            || $item->user_id === $user->id;
     }
 
-    public function delete(User $user, ItemShop $nama_barang)
+    public function delete(User $user, ItemShop $item)
     {
-        return $user->hasRole('admin') || $nama_barang->user_id === $user->id;
+        return $user->hasRole('admin')
+            || $user->hasPermissionTo('hapus-produk')
+            || $item->user_id === $user->id;
     }
 }

@@ -46,15 +46,26 @@ class RolePermissionSeeder extends Seeder
             'guard_name' => 'web',
         ]);
 
-        $permissions = Permission::all()->except(Permission::where('name', 'membeli-produk')->first()->id);
-        $roleAdmin->givePermissionTo($permissions);
+        $roleSeller = Role::firstOrCreate([
+            'name' => 'seller',
+            'guard_name' => 'web',
+        ]);
 
+        $permissions = Permission::all();
+        // Admin gets everything
+        $roleAdmin->syncPermissions($permissions);
 
-        $roleUser->givePermissionTo([
+        // Seller gets product management + viewing
+        $roleSeller->syncPermissions([
             'lihat-produk',
             'tambah-produk',
             'edit-produk',
             'hapus-produk',
+        ]);
+
+        // User only gets buying and viewing
+        $roleUser->syncPermissions([
+            'lihat-produk',
             'membeli-produk',
         ]);
     }

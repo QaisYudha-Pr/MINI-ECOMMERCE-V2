@@ -32,11 +32,20 @@ class ItemShopController extends Controller
             : $user->itemShops()->latest();
 
         if ($search) {
-            $query->where('nama_barang', 'like', "%{$search}%")
-                ->orWhere('kategori', 'like', "%{$search}%");
+            $query->where(function($q) use ($search) {
+                $q->where('nama_barang', 'like', "%{$search}%")
+                  ->orWhere('kategori', 'like', "%{$search}%");
+            });
         }
 
         $items = $query->paginate(8)->withQueryString();
+
+        // Hitung Low Stock sesuai role
+        $lowStockQuery = ItemShop::where('stok', '<=', 5);
+        if (!$user->hasRole('admin')) {
+            $lowStockQuery->where('user_id', $user->id);
+        }
+        $lowStockCount = $lowStockQuery->count();
 
         // Jika request datang dari AJAX/Fetch, balikin JSON
         if ($request->ajax()) {
@@ -46,7 +55,7 @@ class ItemShopController extends Controller
             ]);
         }
 
-        return view('item-shop.admin', compact('items'));
+        return view('item-shop.admin', compact('items', 'lowStockCount'));
     }
 
     public function create()
@@ -140,6 +149,11 @@ class ItemShopController extends Controller
         $itemShop->delete();
 
         return back()->with('success', 'Produk berhasil dihapus!');
+    }
+
+    public function stats()
+    {
+        return response()->json(ItemShop::select('id', 'total_terjual', 'stok')->get());
     }
 
     public function storeReview(Request $request, $id)
