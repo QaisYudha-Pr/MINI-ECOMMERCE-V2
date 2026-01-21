@@ -60,7 +60,21 @@
             </div>
 
             {{-- SEARCH BAR --}}
-            <div class="flex-grow max-w-3xl relative" x-data="{ searchFocused: false }">
+            <div class="flex-grow max-w-3xl relative" 
+                x-data="{ 
+                    searchFocused: false, 
+                    results: [],
+                    loading: false,
+                    async handleSearch(q) {
+                        if (q.length < 2) { this.results = []; return; }
+                        this.loading = true;
+                        try {
+                            const resp = await fetch(`/search?q=${q}`);
+                            this.results = await resp.json();
+                        } catch (e) { console.error(e); }
+                        this.loading = false;
+                    }
+                }">
                 <div class="relative group">
                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                         <svg class="w-4 h-4 text-gray-400 group-focus-within:text-[#00AA5B]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -69,41 +83,72 @@
                     </div>
                     <input type="text" 
                         x-model="$store.global.search"
+                        @input.debounce.300ms="handleSearch($event.target.value)"
                         @focus="searchFocused = true"
                         @click.away="searchFocused = false"
                         placeholder="Cari di MiniQ Store"
-                        class="w-full bg-gray-50 border border-gray-200 rounded-lg pl-10 pr-4 py-2 text-xs focus:ring-1 focus:ring-[#00AA5B] focus:border-[#00AA5B] focus:bg-white transition-all outline-none">
+                        class="w-full bg-white border border-gray-200 rounded-lg pl-10 pr-4 py-2.5 text-xs focus:ring-1 focus:ring-[#00AA5B] focus:border-[#00AA5B] transition-all outline-none">
                 </div>
 
                 {{-- Search Suggestions Dropdown --}}
-                <div x-show="searchFocused" x-cloak
+                <div x-show="searchFocused && ($store.global.search.length > 0 || results.length > 0)" x-cloak
                     x-transition:enter="transition ease-out duration-200"
                     x-transition:enter-start="opacity-0 translate-y-2"
                     x-transition:enter-end="opacity-100 translate-y-0"
-                    class="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-100 shadow-2xl rounded-xl p-4 z-[70]">
+                    class="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-100 shadow-2xl rounded-xl overflow-hidden z-[70]">
                     
-                    <div class="mb-4">
-                        <h4 class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3">Pencarian Populer</h4>
-                        <div class="flex flex-wrap gap-2">
-                            <template x-for="tag in ['Laptop Gaming', 'Sepatu Pria', 'TWS', 'Meja Kerja']">
-                                <button @click="$store.global.setSearch(tag); searchFocused = false" 
-                                    class="px-3 py-1.5 bg-gray-50 border border-gray-100 rounded-lg text-[10px] font-bold text-gray-600 hover:text-[#00AA5B] hover:border-[#00AA5B] transition-all">
-                                    <span x-text="tag"></span>
-                                </button>
-                            </template>
-                        </div>
-                    </div>
-
-                    {{-- Tips Box matching user image --}}
-                    <div class="border border-gray-100 rounded-xl p-3 flex items-center justify-between bg-white hover:bg-gray-50 transition-colors cursor-pointer">
-                        <div class="flex items-center gap-3">
-                            <div class="w-8 h-8 rounded-lg bg-orange-50 flex items-center justify-center">
-                                <svg class="w-4 h-4 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
+                    {{-- Popular/Default State --}}
+                    <template x-if="$store.global.search.length === 0">
+                        <div class="p-4">
+                            <h4 class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3">Pencarian Populer</h4>
+                            <div class="flex flex-wrap gap-2">
+                                <template x-for="tag in ['Laptop Gaming', 'Sepatu Pria', 'TWS', 'Meja Kerja']">
+                                    <button @click="$store.global.setSearch(tag); handleSearch(tag)" 
+                                        class="px-3 py-1.5 bg-gray-50 border border-gray-100 rounded-lg text-[10px] font-bold text-gray-600 hover:text-[#00AA5B] hover:border-[#00AA5B] transition-all">
+                                        <span x-text="tag"></span>
+                                    </button>
+                                </template>
                             </div>
-                            <span class="text-xs font-bold text-gray-700">Tips & Trik Pencarian</span>
                         </div>
-                        <span class="text-xs font-black text-[#00AA5B]">Pelajari</span>
-                    </div>
+                    </template>
+
+                    {{-- Live Results matching the image style --}}
+                    <template x-if="$store.global.search.length > 0">
+                        <div class="py-2">
+                            <div x-show="loading" class="px-4 py-2 text-[10px] text-gray-400 italic">Mencari bolo...</div>
+                            
+                            <template x-for="item in results" :key="item.id">
+                                <a :href="item.url" class="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors group">
+                                    <div class="relative shrink-0">
+                                        <img :src="item.seller_avatar" class="w-10 h-10 rounded-full border border-gray-100 object-cover">
+                                        <template x-if="item.is_verified">
+                                            <div class="absolute -bottom-1 -right-1 bg-white rounded-full p-0.5 shadow-sm">
+                                                <svg class="w-3 h-3 text-[#00AA5B]" fill="currentColor" viewBox="0 0 24 24">
+                                                    <path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                                                </svg>
+                                            </div>
+                                        </template>
+                                    </div>
+                                    <div class="flex-grow min-w-0">
+                                        <div class="flex items-center gap-1">
+                                            <span class="text-xs font-bold text-gray-800 line-clamp-1" x-text="item.name"></span>
+                                            <template x-if="item.is_verified">
+                                                <span class="text-[9px] font-black text-[#00AA5B] uppercase tracking-tighter">Official</span>
+                                            </template>
+                                        </div>
+                                        <div class="text-[10px] text-gray-500 font-medium" x-text="item.location"></div>
+                                    </div>
+                                    <svg class="w-4 h-4 text-gray-300 group-hover:text-[#00AA5B] transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7" />
+                                    </svg>
+                                </a>
+                            </template>
+
+                            <div x-show="results.length === 0 && !loading" class="px-4 py-8 text-center">
+                                <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Barang nggak ketemu bolo</p>
+                            </div>
+                        </div>
+                    </template>
                 </div>
             </div>
 
@@ -191,7 +236,7 @@
             <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')" class="rounded-2xl">
                 {{ __('Dashboard') }}
             </x-responsive-nav-link>
-            <x-responsive-nav-link :href="route('item-shop.index')" :active="request()->routeIs('item-shop.*')" class="rounded-2xl">
+            <x-responsive-nav-link :href="route('shop.public')" :active="request()->routeIs('shop.public')" class="rounded-2xl">
                 {{ __('Produk') }}
             </x-responsive-nav-link>
             @auth

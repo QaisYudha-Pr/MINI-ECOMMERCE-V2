@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Shop\User;
 
+use App\Http\Controllers\Controller;
 use App\Models\ItemShop;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;

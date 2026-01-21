@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Shop\User;
 
+use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Review;
 use App\Models\ItemShop;
@@ -38,7 +39,6 @@ class ReviewController extends Controller
     {
         $this->authorize('delete', $review);
 
-        $itemShopId = $review->item_shop_id;
         $review->delete();
 
         return back()->with('success', 'Review berhasil dihapus!');

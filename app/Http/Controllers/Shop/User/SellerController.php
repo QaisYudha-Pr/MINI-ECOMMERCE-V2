@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Shop\User;
 
+use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -9,12 +10,11 @@ class SellerController extends Controller
 {
     public function create()
     {
-        // If user is already a seller, redirect them
         if (Auth::user()->hasRole('seller')) {
             return redirect()->route('dashboard')->with('success', 'You are already a seller!');
         }
 
-        return view('seller.register-seller');
+        return view('shop.user.seller-register');
     }
 
     public function store(Request $request)

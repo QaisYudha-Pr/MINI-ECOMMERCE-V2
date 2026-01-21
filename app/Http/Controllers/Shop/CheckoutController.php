@@ -1,13 +1,13 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Shop;
 
+use App\Http\Controllers\Controller;
 use App\Models\ItemShop;
 use App\Models\Transaction;
-use App\Models\Cart;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str; // Import dipisah agar lebih stabil
+use Illuminate\Support\Str;
 use Midtrans\Config;
 use Midtrans\Snap;
 use Exception;
@@ -24,7 +24,6 @@ class CheckoutController extends Controller
             $itemsSummary = [];
             $biayaLayanan = 2500;
 
-            // 1. VALIDASI & PROSES STOK
             foreach ($request->cart as $cartItem) {
                 $item = ItemShop::where('id', $cartItem['id'])->lockForUpdate()->first();
 
@@ -46,7 +45,7 @@ class CheckoutController extends Controller
                 $itemsSummary[] = [
                     'id' => $item->id,
                     'nama_barang' => $item->nama_barang,
-                    'kategori' => $item->kategori, // Ditambahkan agar bisa muncul di dashboard
+                    'kategori' => $item->kategori,
                     'harga' => (int)$item->harga,
                     'quantity' => (int)$qty,
                     'total' => (int)$itemTotal
@@ -55,8 +54,6 @@ class CheckoutController extends Controller
 
             $grandTotal = $subtotal + $biayaLayanan;
 
-            // 2. BUAT TRANSAKSI
-            // Di sini line 58 yang tadi error, sekarang sudah pakai Str yang benar
             $transaction = Transaction::create([
                 'user_id' => auth()->id(),
                 'invoice_number' => 'INV-' . date('Ymd') . strtoupper(Str::random(6)),
@@ -69,7 +66,6 @@ class CheckoutController extends Controller
 
             $snapToken = null;
 
-            // 3. LOGIC PEMBAYARAN
             if ($request->payment_method === 'midtrans') {
                 Config::$serverKey = config('services.midtrans.server_key');
                 Config::$isProduction = config('services.midtrans.is_production', false);

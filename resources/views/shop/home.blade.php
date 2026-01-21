@@ -21,7 +21,7 @@
         }
 
         .swal2-styled.swal2-confirm {
-            background-color: #4f46e5 !important;
+            background-color: #00AA5B !important;
             border-radius: 1rem !important;
             padding: 0.8rem 2rem !important;
             font-weight: 800 !important;
@@ -47,6 +47,12 @@
     
         {{-- Data Items dari Database --}}
         items: {{ $items->filter(fn($i) => !empty(trim($i->kategori)))->map(function ($item) {
+                // Ensure we use the real avatar path and fallback properly
+                $avatar = $item->user->avatar ?? null;
+                $sellerAvatar = $avatar 
+                    ? (Str::startsWith($avatar, ['http://', 'https://']) ? $avatar : asset($avatar))
+                    : 'https://ui-avatars.com/api/?name=' . urlencode($item->user->nama_toko ?? $item->user->name ?? 'OS') . '&color=00AA5B&background=EBF4FF';
+
                 return [
                     'id' => $item->id,
                     'nama_barang' => $item->nama_barang,
@@ -54,13 +60,24 @@
                     'gambar' => asset($item->gambar),
                     'kategori' => strtolower($item->kategori),
                     'stok' => $item->stok,
-                    'seller_name' => $item->user->name ?? 'Official Store',
-                    'seller_avatar' =>
-                        'https://ui-avatars.com/api/?name=' .
-                        urlencode($item->user->name ?? 'OS') .
-                        '&color=7F9CF5&background=EBF4FF',
+                    'rating' => number_format($item->ratings_avg ?? 0, 1, '.', ','),
+                    'reviews_count' => $item->reviews_count ?? 0,
+                    'total_terjual' => $item->total_terjual ?? 0,
+                    'lokasi' => $item->lokasi ?? 'Mojokerto',
+                    'seller_name' => $item->user->nama_toko ?? $item->user->name ?? 'Official Store',
+                    'seller_avatar' => $sellerAvatar,
                 ];
             })->values()->toJson() }},
+
+        {{-- Helper Formatters --}}
+        formatSold(num) {
+            if (num >= 1000000) return (num/1000000).toFixed(1).replace('.', ',').replace(',0', '') + 'jt+';
+            if (num >= 1000) return (num/1000).toFixed(1).replace('.', ',').replace(',0', '') + 'rb+';
+            return num;
+        },
+        formatPrice(num) {
+            return new Intl.NumberFormat('id-ID').format(num);
+        },
     
         {{-- Logika Tambah Ke Keranjang --}}
         addToCart(item) {
@@ -143,15 +160,15 @@
         <section class="relative mx-4 sm:mx-8 mt-6 overflow-hidden bg-[#0F172A] rounded-[3rem] shadow-2xl"
             data-aos="zoom-in">
             <div
-                class="absolute top-0 right-0 -translate-y-12 translate-x-12 w-96 h-96 bg-indigo-600 rounded-full blur-[120px] opacity-20">
+                class="absolute top-0 right-0 -translate-y-12 translate-x-12 w-96 h-96 bg-[#00AA5B] rounded-full blur-[120px] opacity-20">
             </div>
             <div class="relative max-w-7xl mx-auto px-8 py-20 flex flex-col items-center text-center">
                 <span
-                    class="inline-block px-4 py-1.5 rounded-full bg-indigo-500/10 border border-indigo-400/20 text-indigo-400 text-[10px] font-black uppercase tracking-[0.3em] mb-8">
-                    Minimalist Shop Mode
+                    class="inline-block px-4 py-1.5 rounded-full bg-[#00AA5B]/10 border border-[#00AA5B]/20 text-[#00AA5B] text-[10px] font-black uppercase tracking-[0.3em] mb-8">
+                    MiniQ Store Mode
                 </span>
                 <h1 class="text-5xl sm:text-6xl font-black text-white leading-tight tracking-tighter mb-10">
-                    Find Your Best <br> <span class="text-indigo-500">Minimalist</span> Gear.
+                    Find Your Best <br> <span class="text-[#00AA5B]">Quality</span> Gear.
                 </h1>
                 <div class="relative w-full max-w-2xl">
                     <input x-model="search" type="text" placeholder="Cari barang yang ready bolo..."
@@ -165,7 +182,7 @@
             <div class="flex gap-4 overflow-x-auto no-scrollbar pb-4">
                 <template x-for="cat in categories" :key="cat">
                     <button @click="activeCategory = cat"
-                        :class="activeCategory === cat ? 'bg-indigo-600 text-white shadow-lg' :
+                        :class="activeCategory === cat ? 'bg-[#00AA5B] text-white shadow-lg' :
                             'bg-white text-gray-500 border-gray-100'"
                         class="px-8 py-4 rounded-[2rem] border transition-all whitespace-nowrap">
                         <span class="text-[10px] font-black uppercase tracking-widest" x-text="cat"></span>
@@ -178,49 +195,66 @@
         <section class="max-w-7xl mx-auto px-8 mt-12">
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
                 <template x-for="(item, index) in filteredItems" :key="item.id">
-                    <div class="group bg-white rounded-[2.5rem] border border-gray-100 p-5 hover:shadow-2xl transition-all duration-500 flex flex-col h-full"
+                    <div class="group bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-lg transition-all duration-300 flex flex-col h-full relative"
                         data-aos="fade-up" :data-aos-delay="index * 50">
 
-                        <div class="relative aspect-square rounded-[2rem] overflow-hidden bg-gray-50 mb-6">
+                        <!-- Image Section -->
+                        <div class="relative aspect-square overflow-hidden bg-gray-50">
                             <img :src="item.gambar"
-                                class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
-                            <a :href="'/item-shop/' + item.id"
-                                class="absolute inset-0 bg-indigo-900/10 opacity-0 group-hover:opacity-100 transition-all flex items-center justify-center">
-                                <div
-                                    class="bg-white text-gray-900 px-6 py-2 rounded-xl font-black text-[10px] uppercase">
-                                    Explore</div>
-                            </a>
+                                class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105">
+                            
+                            <a :href="'/shop/items/' + item.id"
+                                class="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-all"></a>
                         </div>
 
-                        <div class="flex flex-col flex-grow">
-                            <div class="flex items-center justify-between mb-3">
-                                <div class="flex items-center gap-2">
-                                    <img :src="item.seller_avatar" class="w-6 h-6 rounded-full border border-gray-100">
-                                    <span class="text-[9px] font-black text-gray-400 uppercase"
-                                        x-text="item.seller_name"></span>
-                                </div>
-                                <div class="flex items-center gap-1.5 text-green-600">
-                                    <div class="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></div>
-                                    <span class="text-[9px] font-black uppercase" x-text="'Stok: ' + item.stok"></span>
-                                </div>
-                            </div>
-
-                            <a :href="'/item-shop/' + item.id" class="block mb-2">
-                                <h3 class="font-black text-gray-900 text-base leading-tight group-hover:text-indigo-600 transition-colors"
+                        <!-- Content Section -->
+                        <div class="p-3 flex flex-col flex-grow">
+                            <!-- Title -->
+                            <a :href="'/shop/items/' + item.id" class="block mb-1">
+                                <h3 class="text-[11px] font-medium text-gray-800 leading-tight line-clamp-2 h-8 group-hover:text-[#00AA5B] transition-colors"
                                     x-text="item.nama_barang"></h3>
                             </a>
 
-                            <div class="mt-auto pt-4 border-t border-gray-50 flex items-center justify-between">
-                                <p class="text-gray-900 font-black text-xl tracking-tighter">
-                                    <span class="text-xs mr-0.5">Rp</span><span
-                                        x-text="new Intl.NumberFormat('id-ID').format(item.harga)"></span>
-                                </p>
-                                <button @click="addToCart(item)"
-                                    class="w-11 h-11 bg-gray-900 text-white rounded-2xl flex items-center justify-center transition-all hover:bg-indigo-600 shadow-lg shadow-gray-100 group/btn">
-                                    <svg class="w-5 h-5 group-hover/btn:rotate-90 transition-transform" fill="none"
-                                        stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3"
-                                            d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                            <!-- Price -->
+                            <div class="mb-1.5">
+                                <span class="text-xs font-black text-gray-900">Rp</span>
+                                <span class="text-sm font-black text-gray-900" x-text="formatPrice(item.harga)"></span>
+                            </div>
+
+                            <!-- Rating & Sold -->
+                            <div class="flex items-center gap-1 mb-1.5">
+                                <div class="flex items-center gap-0.5">
+                                    <svg class="w-2.5 h-2.5 text-yellow-400 fill-current" viewBox="0 0 20 20">
+                                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                                    </svg>
+                                    <span class="text-[10px] text-gray-500 font-medium" x-text="item.rating"></span>
+                                </div>
+                                <span class="text-gray-300 text-[10px]">|</span>
+                                <span class="text-[10px] text-gray-500 font-medium" x-text="formatSold(item.total_terjual) + ' terjual'"></span>
+                            </div>
+
+                            <!-- Location & Seller Info -->
+                            <div class="flex items-center justify-between mt-auto">
+                                <div class="flex flex-col gap-1">
+                                    <div class="flex items-center gap-1">
+                                        <div class="bg-[#00AA5B]/10 p-0.5 rounded-full">
+                                            <svg class="w-2.5 h-2.5 text-[#00AA5B]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                                            </svg>
+                                        </div>
+                                        <span class="text-[10px] text-gray-500 font-medium truncate w-24" x-text="item.lokasi"></span>
+                                    </div>
+                                    <div class="flex items-center gap-1">
+                                        <img :src="item.seller_avatar" class="w-3 h-3 rounded-full border border-gray-100">
+                                        <span class="text-[9px] font-bold text-gray-400 uppercase tracking-tighter" x-text="item.seller_name"></span>
+                                    </div>
+                                </div>
+                                
+                                <!-- Quick Add Button -->
+                                <button @click="addToCart(item)" 
+                                    class="p-2 bg-gray-50 rounded-xl text-gray-400 hover:bg-[#00AA5B] hover:text-white transition-all shadow-sm">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/>
                                     </svg>
                                 </button>
                             </div>

@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Shop;
 
+use App\Http\Controllers\Controller;
 use App\Models\Transaction;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -19,11 +20,9 @@ class CartController extends Controller
             return response()->json(['message' => 'Login dulu bolo!'], 401);
         }
 
-        // 1. Mulai transaksi database biar aman
         DB::beginTransaction();
 
         try {
-            // 2. Simpan Transaksi ke Database
             $transaction = Transaction::create([
                 'user_id' => Auth::id(),
                 'invoice_number' => 'INV-' . strtoupper(Str::random(10)),
@@ -32,7 +31,6 @@ class CartController extends Controller
                 'items_details' => $request->items,
             ]);
 
-            // 3. LOGIKA POTONG STOK
             if (is_array($request->items)) {
                 foreach ($request->items as $cartItem) {
                     $item = ItemShop::find($cartItem['id']);
@@ -66,6 +64,6 @@ class CartController extends Controller
                 return $trx;
             });
 
-        return view('transactions.index', compact('transactions'));
+        return view('shop.cart.index', compact('transactions'));
     }
 }
