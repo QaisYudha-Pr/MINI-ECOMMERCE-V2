@@ -1,4 +1,13 @@
 <x-app-layout>
+    @push('styles')
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
+        <style>
+            .cropper-view-box, .cropper-face { border-radius: 2rem; }
+        </style>
+    @push('scripts')
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+    @endpush
+
     <x-slot name="header">
         <div class="flex items-center justify-between" data-aos="fade-down">
             <div class="flex items-center gap-3">
@@ -65,11 +74,16 @@
                         </h1>
 
                         <div class="flex items-center gap-4 mb-8">
-                             <div class="flex text-yellow-400 text-lg">
+                             <div class="flex items-center gap-0.5">
                                 @php $avg = $itemShop->reviews()->avg('rating') ?? 0; @endphp
                                 @for($i=1; $i<=5; $i++)
-                                    <span>{{ $i <= round($avg) ? '★' : '☆' }}</span>
+                                    @if($i <= round($avg))
+                                        <svg class="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+                                    @else
+                                        <svg class="w-5 h-5 text-gray-200" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+                                    @endif
                                 @endfor
+                                <span class="ml-2 text-sm font-black text-gray-900">{{ number_format($avg, 1) }}</span>
                             </div>
                             <span class="text-xs font-bold text-gray-400">({{ $itemShop->reviews()->count() }} Reviews)</span>
                         </div>
@@ -98,6 +112,9 @@
                             id: {{ $itemShop->id }},
                             nama_barang: '{{ $itemShop->nama_barang }}',
                             harga: {{ $itemShop->harga }},
+                            berat: {{ $itemShop->berat ?? 1000 }},
+                            seller_lat: {{ $itemShop->user->latitude ?? 'null' }},
+                            seller_lng: {{ $itemShop->user->longitude ?? 'null' }},
                             gambar: '{{ asset($itemShop->gambar) }}',
                             stok: {{ $itemShop->stok }}
                         },
@@ -164,10 +181,19 @@
                                 <div class="bg-gray-50 p-4 rounded-2xl border border-gray-100 hover:bg-white hover:shadow-md transition-all">
                                     <div class="flex items-center justify-between mb-2">
                                         <span class="font-bold text-xs text-gray-900">{{ $review->user->name }}</span>
-                                        <div class="flex text-yellow-500 text-[10px]">
-                                            @for($i=1; $i<=5; $i++) {{ $i<=$review->rating?'★':'☆' }} @endfor
+                                        <div class="flex items-center gap-0.5 mt-1">
+                                            @for($i=1; $i<=5; $i++)
+                                                @if($i <= $review->rating)
+                                                    <svg class="w-3 h-3 text-yellow-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+                                                @else
+                                                    <svg class="w-3 h-3 text-gray-200" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+                                                @endif
+                                            @endfor
                                         </div>
                                     </div>
+                                    @if($review->photo)
+                                        <img src="{{ asset($review->photo) }}" class="w-full h-20 object-cover rounded-xl mb-2 opacity-80 hover:opacity-100 transition-opacity">
+                                    @endif
                                     <p class="text-xs text-gray-500 line-clamp-2">"{{ $review->comment }}"</p>
                                 </div>
                             @empty
@@ -195,26 +221,107 @@
                         @auth
                             <div class="bg-white p-8 rounded-[2.5rem] shadow-xl shadow-gray-200/50 border border-white sticky top-24">
                                 <h4 class="text-sm font-black uppercase tracking-widest mb-6">Write a Review</h4>
-                                <form action="{{ route('reviews.store', $itemShop->id) }}" method="POST" class="space-y-5">
+                                <form action="{{ route('reviews.store', $itemShop->id) }}" method="POST" enctype="multipart/form-data" class="space-y-5" 
+                                    x-data="{ 
+                                        rating: 5, 
+                                        preview: null, 
+                                        showCropper: false,
+                                        cropper: null,
+                                        handleFile(e) {
+                                            const file = e.target.files[0];
+                                            if (!file) return;
+                                            const reader = new FileReader();
+                                            reader.onload = (event) => {
+                                                this.showCropper = true;
+                                                const img = document.getElementById('cropper-target');
+                                                img.src = event.target.result;
+                                                this.$nextTick(() => {
+                                                    if (this.cropper) this.cropper.destroy();
+                                                    this.cropper = new Cropper(img, {
+                                                        aspectRatio: 1,
+                                                        viewMode: 1,
+                                                        dragMode: 'move',
+                                                        background: false,
+                                                        autoCropArea: 1
+                                                    });
+                                                });
+                                            };
+                                            reader.readAsDataURL(file);
+                                        },
+                                        saveCrop() {
+                                            const canvas = this.cropper.getCroppedCanvas({ width: 800, height: 800 });
+                                            this.preview = canvas.toDataURL('image/jpeg');
+                                            document.getElementById('cropped_data').value = this.preview;
+                                            this.showCropper = false;
+                                        }
+                                    }">
                                     @csrf
-                                    <div>
-                                        <label class="text-[10px] font-black uppercase text-gray-400 block mb-2">Stars</label>
-                                        <div class="relative">
-                                            <select name="rating" class="w-full pl-4 pr-10 py-3 rounded-2xl border-gray-100 bg-gray-50 focus:bg-white focus:ring-indigo-500 font-bold text-sm transition-all appearance-none">
-                                                <option value="5">⭐⭐⭐⭐⭐ (5/5)</option>
-                                                <option value="4">⭐⭐⭐⭐ (4/5)</option>
-                                                <option value="3">⭐⭐⭐ (3/5)</option>
-                                                <option value="2">⭐⭐ (2/5)</option>
-                                                <option value="1">⭐ (1/5)</option>
-                                            </select>
-                                            <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                                                <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                                    <input type="hidden" name="rating" :value="rating">
+                                    <input type="hidden" name="cropped_photo" id="cropped_data">
+
+                                    {{-- Modal Cropper --}}
+                                    <div x-show="showCropper" class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm" x-cloak>
+                                        <div class="bg-white rounded-[2.5rem] p-8 max-w-xl w-full shadow-2xl" @click.away="showCropper = false">
+                                            <div class="flex justify-between items-center mb-6">
+                                                <h3 class="text-xl font-black uppercase tracking-tighter">Sesuaikan Foto</h3>
+                                                <button type="button" @click="showCropper = false" class="text-gray-400 hover:text-gray-600">
+                                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                                                </button>
+                                            </div>
+                                            <div class="aspect-square bg-gray-100 rounded-2xl overflow-hidden mb-8 border border-gray-100 shadow-inner">
+                                                <img id="cropper-target" src="" class="max-w-full block">
+                                            </div>
+                                            <div class="grid grid-cols-2 gap-4">
+                                                <button type="button" @click="showCropper = false" class="py-4 bg-gray-100 text-gray-500 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-gray-200 transition-all">Batal</button>
+                                                <button type="button" @click="saveCrop" class="py-4 bg-indigo-600 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-xl shadow-indigo-100 hover:bg-indigo-700 transition-all">Potong & Simpan</button>
                                             </div>
                                         </div>
                                     </div>
+
+                                    <div>
+                                        <label class="text-[10px] font-black uppercase text-gray-400 block mb-3">Rate this product</label>
+                                        <div class="flex items-center gap-2 bg-gray-50 p-4 rounded-2xl border border-gray-100">
+                                            <template x-for="i in 5">
+                                                <button type="button" @click="rating = i" class="transition-all duration-200 transform hover:scale-125 focus:outline-none">
+                                                    <svg class="w-8 h-8" :class="rating >= i ? 'text-yellow-400' : 'text-gray-200'" fill="currentColor" viewBox="0 0 20 20">
+                                                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+                                                    </svg>
+                                                </button>
+                                            </template>
+                                            <span class="ml-auto text-xs font-black text-gray-400" x-text="rating + '/5'"></span>
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <label class="text-[10px] font-black uppercase text-gray-400 block mb-2">Upload Photo (Optional)</label>
+                                        <div class="relative group">
+                                            <input type="file" name="photo" accept="image/*" class="hidden" id="review-photo" 
+                                                @change="handleFile($event)">
+                                            <label for="review-photo" class="flex flex-col items-center justify-center w-full h-32 bg-gray-50 border-2 border-dashed border-gray-200 rounded-2xl cursor-pointer hover:bg-gray-100 transition-all overflow-hidden relative">
+                                                <template x-if="!preview">
+                                                    <div class="text-center">
+                                                        <svg class="w-8 h-8 text-gray-400 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                                                        <span class="text-[10px] font-black uppercase text-gray-400">Pilih Foto</span>
+                                                    </div>
+                                                </template>
+                                                <template x-if="preview">
+                                                    <div class="relative w-full h-full group/preview">
+                                                        <img :src="preview" class="w-full h-full object-cover">
+                                                        <div class="absolute inset-0 bg-black/40 opacity-0 group-hover/preview:opacity-100 transition-opacity flex items-center justify-center">
+                                                            <button type="button" @click="preview = null; document.getElementById('cropped_data').value = ''; document.getElementById('review-photo').value = ''" 
+                                                                class="p-2 bg-red-500 text-white rounded-xl hover:bg-red-600 transition-all transform hover:scale-110">
+                                                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </template>
+                                            </label>
+                                        </div>
+                                    </div>
+
                                     <div>
                                         <label class="text-[10px] font-black uppercase text-gray-400 block mb-2">Message</label>
-                                        <textarea name="comment" rows="4" class="w-full p-4 rounded-2xl border-gray-100 bg-gray-50 focus:bg-white focus:ring-indigo-500 text-sm transition-all resize-none" placeholder="Tell us about the product..."></textarea>
+                                        <textarea name="comment" rows="4" class="w-full p-4 rounded-2xl border-gray-100 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-indigo-500 text-sm transition-all resize-none outline-none" placeholder="Tell us about the product..." required></textarea>
                                     </div>
                                     <button type="submit" class="w-full py-4 bg-gray-900 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-lg hover:bg-black transition-all transform hover:-translate-y-1">
                                         Submit Review
@@ -242,15 +349,27 @@
                                         <div class="flex justify-between items-start mb-2">
                                             <div>
                                                 <h5 class="font-black text-gray-900 uppercase text-xs tracking-widest">{{ $review->user->name }}</h5>
-                                                <div class="flex text-yellow-400 text-xs mt-1">
+                                                <div class="flex items-center gap-0.5 mt-1">
                                                     @for ($i = 1; $i <= 5; $i++)
-                                                        {{ $i <= $review->rating ? '★' : '☆' }}
+                                                        @if($i <= $review->rating)
+                                                            <svg class="w-3.5 h-3.5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+                                                        @else
+                                                            <svg class="w-3.5 h-3.5 text-gray-200" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+                                                        @endif
                                                     @endfor
                                                 </div>
                                             </div>
                                             <span class="text-[10px] font-bold text-gray-300 uppercase tracking-widest">{{ $review->created_at->diffForHumans() }}</span>
                                         </div>
                                         <p class="text-gray-500 leading-relaxed text-sm mt-3 pl-4 border-l-2 border-indigo-100">"{{ $review->comment }}"</p>
+                                        
+                                        @if($review->photo)
+                                            <div class="mt-4 pl-4">
+                                                <img src="{{ asset($review->photo) }}" 
+                                                    class="w-32 h-32 object-cover rounded-2xl shadow-md border-4 border-white cursor-pointer hover:scale-105 transition-all"
+                                                    onclick="Swal.fire({imageUrl: '{{ asset($review->photo) }}', imageAlt: 'Review Photo', showConfirmButton: false, customClass: {popup: 'rounded-[2rem]'}})">
+                                            </div>
+                                        @endif
                                     </div>
                                 </div>
                             </div>

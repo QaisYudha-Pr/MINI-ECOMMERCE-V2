@@ -14,6 +14,7 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
     <link rel="icon" type="image/png/svg" href="{{ asset('LogoQ.svg') }}" />
+    @stack('styles')
 
     <style>
         [x-cloak] {

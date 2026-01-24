@@ -12,7 +12,7 @@
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
             {{-- Metrics/Stats or Action Cards --}}
             @if(Auth::user()->hasRole('seller') || Auth::user()->hasRole('admin'))
-                <div class="md:col-span-2 grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div class="md:col-span-2 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                      <!-- Card: Total Products -->
                     <div class="bg-white p-6 rounded-2xl border border-slate-100 flex items-center justify-between">
                         <div>
@@ -35,16 +35,29 @@
                         </div>
                     </div>
 
-                    <!-- Card: Orders -->
-                    <div class="bg-white p-6 rounded-2xl border border-slate-100 flex items-center justify-between">
-                         <div>
-                            <div class="text-slate-500 text-xs font-bold uppercase tracking-wider mb-1">Pesanan Sukses</div>
-                            <div class="text-2xl font-black text-slate-900">{{ Auth::user()->hasRole('admin') ? \App\Models\Transaction::where('status', 'success')->count() : 0 }}</div>
+                    @if(Auth::user()->hasRole('admin'))
+                        <!-- Card: Pending Sellers (Admin Only) -->
+                        <div class="bg-white p-6 rounded-2xl border border-slate-100 flex items-center justify-between group hover:border-[#00AA5B] transition-all cursor-pointer" onclick="window.location.href='{{ route('admin.sellers.index') }}'">
+                            <div>
+                                <div class="text-slate-500 text-xs font-bold uppercase tracking-wider mb-1 text-[#00AA5B]">Request Seller</div>
+                                <div class="text-2xl font-black text-slate-900">{{ \App\Models\User::where('seller_status', 'pending')->count() }}</div>
+                            </div>
+                            <div class="w-12 h-12 bg-green-50 rounded-xl flex items-center justify-center text-[#00AA5B] group-hover:bg-[#00AA5B] group-hover:text-white transition-all">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/></svg>
+                            </div>
                         </div>
-                         <div class="w-12 h-12 bg-green-50 rounded-xl flex items-center justify-center text-green-600">
-                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
+                    @else
+                        <!-- Card: Orders (Seller Only) -->
+                        <div class="bg-white p-6 rounded-2xl border border-slate-100 flex items-center justify-between">
+                            <div>
+                                <div class="text-slate-500 text-xs font-bold uppercase tracking-wider mb-1">Pesanan Sukses</div>
+                                <div class="text-2xl font-black text-slate-900">{{ \App\Models\Transaction::where('status', 'success')->count() }}</div>
+                            </div>
+                            <div class="w-12 h-12 bg-green-50 rounded-xl flex items-center justify-center text-green-600">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
+                            </div>
                         </div>
-                    </div>
+                    @endif
                 </div>
 
                 {{-- Quick Action (Responsive adjustment) --}}

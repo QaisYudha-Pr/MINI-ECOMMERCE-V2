@@ -43,6 +43,11 @@ class User extends Authenticatable
         'password',
         'nama_toko',
         'avatar',
+        'alamat',
+        'latitude',
+        'longitude',
+        'seller_status',
+        'seller_document',
     ];
 
     /**

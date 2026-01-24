@@ -14,6 +14,7 @@ class ItemShop extends Model
         'deskripsi',
         'harga',
         'stok',
+        'berat',
         'total_terjual',
         'kategori',
         'lokasi',

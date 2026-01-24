@@ -1,5 +1,7 @@
 <x-app-layout>
     {{-- 1. HEADER & STYLING --}}
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
     <style>
         .no-scrollbar::-webkit-scrollbar {
             display: none;
@@ -12,6 +14,20 @@
 
         [x-cloak] {
             display: none !important;
+        }
+
+        /* Swiper Custom Style */
+        .swiper-pagination-bullet {
+            background: white !important;
+            opacity: 0.5;
+            width: 6px;
+            height: 6px;
+            transition: all 0.3s;
+        }
+        .swiper-pagination-bullet-active {
+            opacity: 1;
+            width: 20px;
+            border-radius: 10px;
         }
 
         /* Styling SweetAlert biar matching sama tema minimalist */
@@ -64,8 +80,11 @@
                     'reviews_count' => $item->reviews_count ?? 0,
                     'total_terjual' => $item->total_terjual ?? 0,
                     'lokasi' => $item->lokasi ?? 'Mojokerto',
+                    'berat' => $item->berat ?? 1000,
                     'seller_name' => $item->user->nama_toko ?? $item->user->name ?? 'Official Store',
                     'seller_avatar' => $sellerAvatar,
+                    'seller_lat' => $item->user->latitude ?? -7.4726,
+                    'seller_lng' => $item->user->longitude ?? 112.4382,
                 ];
             })->values()->toJson() }},
 
@@ -156,23 +175,70 @@
         @select-all-cart.window="cart.forEach(i => i.selected = $event.detail.selected); saveCart()"
         class="bg-[#F8FAFC] min-h-screen pb-32">
 
-        {{-- 3. HERO SECTION --}}
-        <section class="relative mx-4 sm:mx-8 mt-6 overflow-hidden bg-[#0F172A] rounded-[3rem] shadow-2xl"
-            data-aos="zoom-in">
-            <div
-                class="absolute top-0 right-0 -translate-y-12 translate-x-12 w-96 h-96 bg-[#00AA5B] rounded-full blur-[120px] opacity-20">
+        {{-- NEW: Tokopedia Style Banner Slider --}}
+        <section class="max-w-7xl mx-auto px-4 sm:px-8 mt-6" data-aos="fade-down">
+            <div class="swiper bannerSwiper rounded-[2.5rem] overflow-hidden shadow-2xl relative group">
+                <div class="swiper-wrapper">
+                    <div class="swiper-slide">
+                        <div class="relative w-full h-[180px] sm:h-[350px]">
+                            <img src="{{ asset('banners/banner1.png') }}" class="w-full h-full object-cover">
+                            <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
+                        </div>
+                    </div>
+                    <div class="swiper-slide">
+                        <div class="relative w-full h-[180px] sm:h-[350px]">
+                            <img src="{{ asset('banners/banner2.png') }}" class="w-full h-full object-cover">
+                            <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                {{-- Pagination Dots --}}
+                <div class="swiper-pagination !left-10 !bottom-8 !text-left !w-auto"></div>
+
+                {{-- Promo Button --}}
+                <div class="absolute bottom-8 right-10 z-10">
+                    <a href="{{ route('shop.public') }}" class="px-5 py-2.5 bg-black/30 backdrop-blur-xl border border-white/10 rounded-full text-white text-[10px] font-black uppercase tracking-widest hover:bg-white hover:text-black transition-all duration-500 shadow-xl">
+                        Selengkapnya
+                    </a>
+                </div>
             </div>
-            <div class="relative max-w-7xl mx-auto px-8 py-20 flex flex-col items-center text-center">
-                <span
-                    class="inline-block px-4 py-1.5 rounded-full bg-[#00AA5B]/10 border border-[#00AA5B]/20 text-[#00AA5B] text-[10px] font-black uppercase tracking-[0.3em] mb-8">
-                    MiniQ Store Mode
-                </span>
-                <h1 class="text-5xl sm:text-6xl font-black text-white leading-tight tracking-tighter mb-10">
-                    Find Your Best <br> <span class="text-[#00AA5B]">Quality</span> Gear.
-                </h1>
-                <div class="relative w-full max-w-2xl">
-                    <input x-model="search" type="text" placeholder="Cari barang yang ready bolo..."
-                        class="w-full pl-12 pr-8 py-6 bg-white/5 backdrop-blur-xl border border-white/10 rounded-[2.5rem] text-white focus:bg-white focus:text-gray-900 transition-all outline-none">
+        </section>
+
+        {{-- 3. BENEFIT SECTION (REPLACING SEARCH STRIP) --}}
+        <section class="max-w-7xl mx-auto px-8 mt-12" data-aos="fade-up">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Benefit 1 -->
+                <div class="group bg-white p-6 rounded-[2rem] border border-gray-100 shadow-sm hover:shadow-md transition-all flex items-center gap-5">
+                    <div class="w-14 h-14 bg-orange-50 rounded-2xl flex items-center justify-center text-orange-500 group-hover:scale-110 transition-transform">
+                        <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    </div>
+                    <div>
+                        <h4 class="text-sm font-black text-gray-900 uppercase tracking-tight">Gratis Ongkir</h4>
+                        <p class="text-[10px] text-gray-500 font-bold uppercase tracking-widest mt-1">Min. Belanja Rp0</p>
+                    </div>
+                </div>
+
+                <!-- Benefit 2 -->
+                <div class="group bg-white p-6 rounded-[2rem] border border-gray-100 shadow-sm hover:shadow-md transition-all flex items-center gap-5">
+                    <div class="w-14 h-14 bg-green-50 rounded-2xl flex items-center justify-center text-[#00AA5B] group-hover:scale-110 transition-transform">
+                        <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+                    </div>
+                    <div>
+                        <h4 class="text-sm font-black text-gray-900 uppercase tracking-tight">MiniQ Original</h4>
+                        <p class="text-[10px] text-gray-500 font-bold uppercase tracking-widest mt-1">Garansi Produk Asli</p>
+                    </div>
+                </div>
+
+                <!-- Benefit 3 -->
+                <div class="group bg-white p-6 rounded-[2rem] border border-gray-100 shadow-sm hover:shadow-md transition-all flex items-center gap-5">
+                    <div class="w-14 h-14 bg-indigo-50 rounded-2xl flex items-center justify-center text-indigo-600 group-hover:scale-110 transition-transform">
+                        <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                    </div>
+                    <div>
+                        <h4 class="text-sm font-black text-gray-900 uppercase tracking-tight">COD Mojokerto</h4>
+                        <p class="text-[10px] text-gray-500 font-bold uppercase tracking-widest mt-1">Local Pride</p>
+                    </div>
                 </div>
             </div>
         </section>
@@ -211,7 +277,7 @@
                         <div class="p-3 flex flex-col flex-grow">
                             <!-- Title -->
                             <a :href="'/shop/items/' + item.id" class="block mb-1">
-                                <h3 class="text-[11px] font-medium text-gray-800 leading-tight line-clamp-2 h-8 group-hover:text-[#00AA5B] transition-colors"
+                                <h3 class="text-xs font-bold text-gray-800 leading-relaxed line-clamp-2 h-10 group-hover:text-[#00AA5B] transition-colors"
                                     x-text="item.nama_barang"></h3>
                             </a>
 
@@ -274,6 +340,22 @@
         AOS.init({
             duration: 800,
             once: true
+        });
+
+        // Initialize Swiper
+        document.addEventListener('DOMContentLoaded', function() {
+            new Swiper('.bannerSwiper', {
+                loop: true,
+                autoplay: {
+                    delay: 4000,
+                    disableOnInteraction: false,
+                },
+                pagination: {
+                    el: '.swiper-pagination',
+                    clickable: true,
+                },
+                speed: 1000,
+            });
         });
     </script>
 </x-app-layout>

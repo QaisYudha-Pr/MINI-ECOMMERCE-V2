@@ -24,14 +24,40 @@ class UserSeeder extends Seeder
             'name' => 'admin',
             'email' => 'admin@gmail.com',
             'password' => bcrypt('admin1234'),
+            'nama_toko' => 'Admin Official Store',
+            'alamat' => 'Pusat Kota Mojokerto, Jawa Timur',
+            'latitude' => -7.4726,
+            'longitude' => 112.4382,
+            'seller_status' => 'approved',
         ]);
         $admin->assignRole('admin');
+        $admin->assignRole('seller');
 
         $user = User::create([
             'name' => 'user',
             'email' => 'user@gmail.com',
             'password' => bcrypt('user1234'),
+            'nama_toko' => 'Bolo Shop Mojokerto',
+            'alamat' => 'Kecamatan Magersari, Mojokerto',
+            'latitude' => -7.4682,
+            'longitude' => 112.4501,
+            'seller_status' => 'approved',
         ]);
         $user->assignRole('user');
+        $user->assignRole('seller');
+
+        // Tambah satu seller khusus untuk testing variasi lokasi
+        $seller = User::create([
+            'name' => 'Penjual Jauh',
+            'email' => 'seller@gmail.com',
+            'password' => bcrypt('seller1234'),
+            'nama_toko' => 'Toko Jauh Banget',
+            'alamat' => 'Sooko, Kabupaten Mojokerto',
+            'latitude' => -7.4921,
+            'longitude' => 112.4135,
+            'seller_status' => 'approved',
+        ]);
+        $seller->assignRole('user');
+        $seller->assignRole('seller');
     }
 }

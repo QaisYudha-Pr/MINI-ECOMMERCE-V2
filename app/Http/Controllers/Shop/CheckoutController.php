@@ -47,17 +47,19 @@ class CheckoutController extends Controller
                     'nama_barang' => $item->nama_barang,
                     'kategori' => $item->kategori,
                     'harga' => (int)$item->harga,
+                    'berat' => (int)$item->berat,
                     'quantity' => (int)$qty,
                     'total' => (int)$itemTotal
                 ];
             }
 
-            $grandTotal = $subtotal + $biayaLayanan;
+            $grandTotal = $subtotal + $biayaLayanan + (int)$request->shipping_fee;
 
             $transaction = Transaction::create([
                 'user_id' => auth()->id(),
                 'invoice_number' => 'INV-' . date('Ymd') . strtoupper(Str::random(6)),
                 'total_price' => $grandTotal,
+                'shipping_fee' => (int)$request->shipping_fee,
                 'status' => 'pending',
                 'payment_method' => $request->payment_method,
                 'alamat' => $request->alamat,
@@ -89,7 +91,13 @@ class CheckoutController extends Controller
                             'price' => $biayaLayanan,
                             'quantity' => 1,
                             'name' => 'Biaya Layanan'
-                        ]]
+                        ]],
+                        (int)$request->shipping_fee > 0 ? [[
+                            'id' => 'SHIPPING-FEE',
+                            'price' => (int)$request->shipping_fee,
+                            'quantity' => 1,
+                            'name' => 'Biaya Pengiriman'
+                        ]] : []
                     ),
                     'customer_details' => [
                         'first_name' => auth()->user()->name,

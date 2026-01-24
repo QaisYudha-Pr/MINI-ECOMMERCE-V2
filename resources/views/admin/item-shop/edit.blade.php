@@ -32,9 +32,14 @@
                                 </select>
                             </div>
                             <div class="group">
-                                <label class="block text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-2">Stock Level</label>
-                                <input type="number" name="stok" value="{{ old('stok', $itemShop->stok) }}" class="w-full px-6 py-4 bg-gray-50 border-none rounded-2xl focus:ring-4 focus:ring-indigo-500/10 focus:bg-white transition-all font-black text-gray-700" required>
+                                <label class="block text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-2">Weight (Gram)</label>
+                                <input type="number" name="berat" value="{{ old('berat', $itemShop->berat) }}" class="w-full px-6 py-4 bg-gray-50 border-none rounded-2xl focus:ring-4 focus:ring-indigo-500/10 focus:bg-white transition-all font-black text-gray-700" required>
                             </div>
+                        </div>
+
+                        <div class="group">
+                            <label class="block text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-2">Stock Level</label>
+                            <input type="number" name="stok" value="{{ old('stok', $itemShop->stok) }}" class="w-full px-6 py-4 bg-gray-50 border-none rounded-2xl focus:ring-4 focus:ring-indigo-500/10 focus:bg-white transition-all font-black text-gray-700" required>
                         </div>
 
                         <div class="group">

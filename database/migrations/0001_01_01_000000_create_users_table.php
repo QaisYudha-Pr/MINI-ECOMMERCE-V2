@@ -15,9 +15,15 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->string('avatar')->nullable();
+            $table->string('nama_toko')->nullable();
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
+            $table->text('alamat')->nullable();
+            $table->decimal('latitude', 10, 8)->nullable();
+            $table->decimal('longitude', 11, 8)->nullable();
+            $table->enum('seller_status', ['none', 'pending', 'approved', 'rejected'])->default('none');
+            $table->string('seller_document')->nullable();
             $table->rememberToken();
             $table->timestamps();
         });

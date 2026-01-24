@@ -16,7 +16,9 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->string('invoice_number')->unique();
             $table->decimal('total_price', 12, 2);
-            $table->enum('status', ['pending', 'success', 'failed',])->default('pending');
+            $table->decimal('shipping_fee', 12, 2)->default(0);
+            $table->string('status')->default('pending');
+            $table->string('snap_token')->nullable();
 
             // Tambahan Kolom Baru
             $table->text('alamat');

@@ -26,7 +26,13 @@
             </div>
             <div class="flex items-center gap-6">
                 <a href="#" class="hover:text-[#00AA5B]">Tentang MiniE</a>
-                <a href="#" class="hover:text-[#00AA5B]">Mulai Berjualan</a>
+                @guest
+                    <a href="{{ route('seller.create') }}" class="hover:text-[#00AA5B]">Mulai Berjualan</a>
+                @else
+                    @unlessrole('seller|admin')
+                        <a href="{{ route('seller.create') }}" class="hover:text-[#00AA5B]">Mulai Berjualan</a>
+                    @endunlessrole
+                @endguest
                 <a href="#" class="hover:text-[#00AA5B]">Promo</a>
                 <a href="#" class="hover:text-[#00AA5B]">MiniE Care</a>
             </div>
@@ -50,12 +56,15 @@
                     Kategori
                 </button>
                 <div x-show="kategoriOpen" x-cloak class="absolute top-full left-0 mt-2 w-56 bg-white border border-gray-100 shadow-xl rounded-2xl py-2 z-[60]">
-                    <template x-for="cat in ['Elektronik', 'Fashion', 'Kesehatan', 'Hobi']" :key="cat">
-                        <button @click="$store.global.setCategory(cat.toLowerCase()); kategoriOpen = false" 
+                    @php
+                        $navCategories = \App\Models\ItemShop::distinct()->pluck('kategori')->filter()->values();
+                    @endphp
+                    @foreach($navCategories as $cat)
+                        <a href="{{ route('shop.public', ['category' => $cat]) }}"
                             class="w-full text-left block px-4 py-2 text-xs font-semibold text-gray-600 hover:bg-gray-50 hover:text-[#00AA5B]">
-                            <span x-text="cat"></span>
-                        </button>
-                    </template>
+                            {{ $cat }}
+                        </a>
+                    @endforeach
                 </div>
             </div>
 
@@ -75,20 +84,21 @@
                         this.loading = false;
                     }
                 }">
-                <div class="relative group">
+                <form action="{{ route('shop.public') }}" method="GET" class="relative group">
                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                         <svg class="w-4 h-4 text-gray-400 group-focus-within:text-[#00AA5B]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                         </svg>
                     </div>
                     <input type="text" 
+                        name="search"
                         x-model="$store.global.search"
                         @input.debounce.300ms="handleSearch($event.target.value)"
                         @focus="searchFocused = true"
                         @click.away="searchFocused = false"
                         placeholder="Cari di MiniQ Store"
                         class="w-full bg-white border border-gray-200 rounded-lg pl-10 pr-4 py-2.5 text-xs focus:ring-1 focus:ring-[#00AA5B] focus:border-[#00AA5B] transition-all outline-none">
-                </div>
+                </form>
 
                 {{-- Search Suggestions Dropdown --}}
                 <div x-show="searchFocused && ($store.global.search.length > 0 || results.length > 0)" x-cloak
@@ -239,13 +249,26 @@
             <x-responsive-nav-link :href="route('shop.public')" :active="request()->routeIs('shop.public')" class="rounded-2xl">
                 {{ __('Produk') }}
             </x-responsive-nav-link>
+
             @auth
                 @unlessrole('admin')
-                <x-responsive-nav-link :href="route('transactions.index')" :active="request()->routeIs('transactions.*')" class="rounded-2xl">
-                    {{ __('Riwayat Pesanan') }}
-                </x-responsive-nav-link>
+                    <x-responsive-nav-link :href="route('transactions.index')" :active="request()->routeIs('transactions.*')" class="rounded-2xl">
+                        {{ __('Riwayat Pesanan') }}
+                    </x-responsive-nav-link>
                 @endunlessrole
             @endauth
+
+            @guest
+                <x-responsive-nav-link :href="route('seller.create')" class="rounded-2xl text-[#00AA5B] font-bold">
+                    {{ __('Mulai Berjualan') }}
+                </x-responsive-nav-link>
+            @else
+                @unlessrole('seller|admin')
+                    <x-responsive-nav-link :href="route('seller.create')" class="rounded-2xl text-[#00AA5B] font-bold">
+                        {{ __('Mulai Berjualan') }}
+                    </x-responsive-nav-link>
+                @endunlessrole
+            @endguest
         </div>
 
         <div class="pt-4 pb-8 border-t border-gray-100 px-6">

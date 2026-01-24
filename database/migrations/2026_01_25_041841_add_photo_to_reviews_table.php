@@ -11,9 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('item_shops', function (Blueprint $table) {
-            $table->integer('total_terjual')->default(0)->after('stok');
-            $table->string('lokasi')->nullable()->after('kategori');
+        Schema::table('reviews', function (Blueprint $table) {
+            $table->string('photo')->nullable()->after('comment');
         });
     }
 
@@ -22,8 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('item_shops', function (Blueprint $table) {
-            $table->dropColumn(['total_terjual', 'lokasi']);
+        Schema::table('reviews', function (Blueprint $table) {
+            $table->dropColumn('photo');
         });
     }
 };

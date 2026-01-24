@@ -19,6 +19,7 @@ class StoreItemShopRequest extends FormRequest
             'deskripsi' => 'required|string|min:10|max:5000',
             'gambar' => 'nullable|string',
             'stok' => 'required|numeric|min:1|max:999999',
+            'berat' => 'required|numeric|min:1|max:100000',
             'kategori' => 'required|string',
         ];
     }

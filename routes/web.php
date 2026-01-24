@@ -9,6 +9,7 @@ use App\Http\Controllers\Shop\SearchController;
 use App\Http\Controllers\Shop\HomeController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Admin\SellerValidationController;
 use App\Http\Controllers\Admin\ItemShopController as AdminItemShopController;
 use App\Http\Controllers\Shop\ItemShopController as ShopItemShopController;
 use App\Http\Controllers\Shop\CartController;
@@ -42,6 +43,11 @@ Route::post('/callback', [MidtransCallbackController::class, 'callback']);
  
 Route::middleware('auth')->group(function () {
  
+    // Dashboard for both Admin and User
+    Route::get('/dashboard', DashboardController::class)->name('dashboard');
+    Route::redirect('/admin/dashboard', '/dashboard');
+    Route::redirect('/user/dashboard', '/dashboard');
+
     // Profile Management
     Route::prefix('profile')->name('profile.')->group(function () {
         Route::get('/', [ProfileController::class, 'edit'])->name('edit');
@@ -74,8 +80,6 @@ Route::middleware('auth')->group(function () {
     */
     Route::prefix('admin')->group(function () {
  
-        Route::get('/dashboard', DashboardController::class)->name('dashboard');
- 
         // Product Management (Resource for internal use)
         Route::middleware('role_or_permission:seller|admin|tambah-produk|edit-produk|hapus-produk')->group(function () {
             Route::resource('item-shop', AdminItemShopController::class)->except(['show']);
@@ -84,6 +88,9 @@ Route::middleware('auth')->group(function () {
         // User Management
         Route::middleware('role_or_permission:admin|lihat-user|tambah-user|edit-user|hapus-user')->group(function () {
             Route::resource('users', UserController::class);
+            Route::get('seller-requests', [SellerValidationController::class, 'index'])->name('admin.sellers.index');
+            Route::post('seller-requests/{user}/approve', [SellerValidationController::class, 'approve'])->name('admin.sellers.approve');
+            Route::post('seller-requests/{user}/reject', [SellerValidationController::class, 'reject'])->name('admin.sellers.reject');
         });
  
         Route::get('/', fn() => '<h1>Hai min</h1>')->middleware('role:admin');

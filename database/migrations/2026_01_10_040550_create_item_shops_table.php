@@ -18,7 +18,10 @@ return new class extends Migration
             $table->text('deskripsi')->nullable();
             $table->bigInteger('harga');
             $table->integer('stok')->default(0);
+            $table->integer('berat')->default(1000)->comment('berat dalam gram');
+            $table->integer('total_terjual')->default(0);
             $table->string('kategori')->nullable();
+            $table->string('lokasi')->nullable();
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             $table->timestamps();
         });
