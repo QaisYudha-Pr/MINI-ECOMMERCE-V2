@@ -5,7 +5,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>{{ config('app.name', 'MiniE-Store') }}</title>
+    <title>{{ config('app.name', 'MiniQ-Store') }}</title>
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     
@@ -121,6 +121,8 @@
         <main class="py-6">
             {{ $slot }}
         </main>
+
+        <x-footer />
     </div>
 
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
@@ -167,7 +169,7 @@
                 </div>
             `,
             confirmButtonText: 'SAYA PERBAIKI',
-            confirmButtonColor: '#4f46e5', // Warna Indigo sesuai tema kamu
+            confirmButtonColor: '#00AA5B', // Theme Green
             customClass: {
                 popup: 'rounded-[2rem]',
                 confirmButton: 'rounded-xl px-6 py-3 text-xs font-black uppercase tracking-widest'

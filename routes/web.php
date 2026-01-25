@@ -10,6 +10,7 @@ use App\Http\Controllers\Shop\HomeController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\SellerValidationController;
+use App\Http\Controllers\Admin\CmsController;
 use App\Http\Controllers\Admin\ItemShopController as AdminItemShopController;
 use App\Http\Controllers\Shop\ItemShopController as ShopItemShopController;
 use App\Http\Controllers\Shop\CartController;
@@ -25,6 +26,7 @@ use App\Http\Controllers\Api\MidtransCallbackController;
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/search', [SearchController::class, 'search'])->name('search');
 Route::get('/test', fn() => view('test'));
+Route::get('/about', fn() => view('about.mstore-about'))->name('about');
  
 // Public Shop Routes
 Route::prefix('shop')->name('shop.')->group(function () {
@@ -91,6 +93,14 @@ Route::middleware('auth')->group(function () {
             Route::get('seller-requests', [SellerValidationController::class, 'index'])->name('admin.sellers.index');
             Route::post('seller-requests/{user}/approve', [SellerValidationController::class, 'approve'])->name('admin.sellers.approve');
             Route::post('seller-requests/{user}/reject', [SellerValidationController::class, 'reject'])->name('admin.sellers.reject');
+        });
+
+        // CMS Settings
+        Route::middleware('role:admin')->prefix('cms')->name('admin.cms.')->group(function () {
+            Route::get('/', [CmsController::class, 'index'])->name('index');
+            Route::post('/update-logo', [CmsController::class, 'updateLogo'])->name('update-logo');
+            Route::post('/update-text', [CmsController::class, 'updateText'])->name('update-text');
+            Route::post('/update-images', [CmsController::class, 'updateImages'])->name('update-images');
         });
  
         Route::get('/', fn() => '<h1>Hai min</h1>')->middleware('role:admin');

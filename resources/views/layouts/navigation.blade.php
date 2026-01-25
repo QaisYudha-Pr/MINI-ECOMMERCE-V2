@@ -25,7 +25,7 @@
                 </a>
             </div>
             <div class="flex items-center gap-6">
-                <a href="#" class="hover:text-[#00AA5B]">Tentang MiniE</a>
+                <a href="{{ route('about') }}" class="hover:text-[#00AA5B]">Tentang MiniQ</a>
                 @guest
                     <a href="{{ route('seller.create') }}" class="hover:text-[#00AA5B]">Mulai Berjualan</a>
                 @else
@@ -34,7 +34,7 @@
                     @endunlessrole
                 @endguest
                 <a href="#" class="hover:text-[#00AA5B]">Promo</a>
-                <a href="#" class="hover:text-[#00AA5B]">MiniE Care</a>
+                <a href="#" class="hover:text-[#00AA5B]">MiniQ Care</a>
             </div>
         </div>
     </div>
@@ -44,9 +44,8 @@
         <div class="flex items-center justify-between h-16 md:h-20 gap-4">
             {{-- LOGO --}}
             <div class="shrink-0 flex items-center">
-                <a href="{{ route('home') }}" class="group flex items-center gap-2">
-                    <span class="font-black text-2xl tracking-tighter text-[#00AA5B]">MiniQ</span>
-                    <span class="font-black text-2xl tracking-tighter text-gray-900">Store</span>
+                <a href="{{ route('home') }}" class="group">
+                    <x-application-logo />
                 </a>
             </div>
 

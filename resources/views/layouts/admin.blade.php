@@ -8,7 +8,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>{{ config('app.name', 'MiniE-Store') }}</title>
+    <title>{{ config('app.name', 'MiniQ-Store') }}</title>
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
@@ -59,9 +59,8 @@
                     </svg>
                 </button>
                 {{-- Logo --}}
-                <a href="{{ route('home') }}" class="flex items-center gap-2">
-                    <div class="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center text-white font-bold">Q</div>
-                    <span class="font-bold text-lg tracking-tight hidden sm:block">MiniE<span class="text-indigo-600">Store</span></span>
+                <a href="{{ route('home') }}" class="flex items-center">
+                    <x-application-logo class="h-8" />
                 </a>
             </div>
 
@@ -168,11 +167,20 @@
                 @endif
                 @endif
 
-
-
+                {{-- CMS SECTION --}}
+                @if(Auth::user()->hasRole('admin'))
                 <div class="pt-4 pb-2">
-                    <span class="px-3 text-xs font-semibold text-slate-400 uppercase tracking-wider">Account</span>
+                    <span class="px-3 text-xs font-semibold text-slate-400 uppercase tracking-wider">Appearance</span>
                 </div>
+                <li>
+                    <a href="{{ route('admin.cms.index') }}" class="flex items-center p-3 text-slate-700 rounded-xl hover:bg-slate-50 group {{ request()->routeIs('admin.cms.*') ? 'bg-indigo-50 text-indigo-700' : '' }}">
+                        <svg class="w-5 h-5 transition duration-75 {{ request()->routeIs('admin.cms.*') ? 'text-indigo-700' : 'text-slate-400 group-hover:text-slate-900' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z" />
+                        </svg>
+                        <span class="ms-3">CMS Settings</span>
+                    </a>
+                </li>
+                @endif
 
                 <li>
                     <a href="{{ route('dashboard') }}" class="flex items-center p-3 text-slate-700 rounded-xl hover:bg-slate-50 group {{ request()->routeIs('income.*') ? 'bg-indigo-50 text-indigo-700' : '' }}">

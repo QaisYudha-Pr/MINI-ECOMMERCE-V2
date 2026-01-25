@@ -1,4 +1,4 @@
-@props(['title' => config('app.name', 'MiniE-Store')])
+@props(['title' => config('app.name', 'MiniQ-Store')])
 
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
@@ -60,9 +60,8 @@
                     </svg>
                 </button>
                 {{-- Logo --}}
-                <a href="{{ route('home') }}" class="flex items-center gap-2">
-                    <div class="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center text-white font-bold">Q</div>
-                    <span class="font-bold text-lg tracking-tight hidden sm:block">MiniE<span class="text-indigo-600">Store</span></span>
+                <a href="{{ route('home') }}" class="flex items-center">
+                    <x-application-logo class="h-8" />
                 </a>
             </div>
 
@@ -159,9 +158,24 @@
                 </li>
                 @endif
 
-
+                {{-- CMS SECTION --}}
+                @if(Auth::user()->hasRole('admin'))
+                <div class="pt-4 pb-2">
+                    <span class="px-3 text-xs font-semibold text-slate-400 uppercase tracking-wider">Appearance</span>
+                </div>
+                <li>
+                    <a href="{{ route('admin.cms.index') }}" class="flex items-center p-3 text-slate-700 rounded-xl hover:bg-slate-50 group {{ request()->routeIs('admin.cms.*') ? 'bg-indigo-50 text-indigo-700' : '' }}">
+                        <svg class="w-5 h-5 transition duration-75 {{ request()->routeIs('admin.cms.*') ? 'text-indigo-700' : 'text-slate-400 group-hover:text-slate-900' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z" />
+                        </svg>
+                        <span class="ms-3">CMS Settings</span>
+                    </a>
+                </li>
+                @endif
 
                 <div class="pt-4 pb-2">
+                    <span class="px-3 text-xs font-semibold text-slate-400 uppercase tracking-wider">Account</span>
+                </div>
                     <span class="px-3 text-xs font-semibold text-slate-400 uppercase tracking-wider">Account</span>
                 </div>
 
