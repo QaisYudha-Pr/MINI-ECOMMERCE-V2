@@ -69,7 +69,7 @@
                                     </button>
                                 @endif
                                 
-                                <a href="#" class="px-6 py-3 bg-gray-900 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-gray-700 transition-colors">
+                                <a href="{{ route('transactions.show', $trx->id) }}" class="px-6 py-3 bg-gray-900 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-gray-700 transition-colors">
                                     Details
                                 </a>
                             </div>

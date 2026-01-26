@@ -130,7 +130,8 @@
                         <span class="ms-3">Home</span>
                     </a>
                 </li>
-                @if(Auth::user()->hasRole('seller') || Auth::user()->hasRole('admin') || Auth::user()->hasPermissionTo('lihat-produk'))
+                {{-- SELLER SECTION --}}
+                @if(Auth::user()->hasRole('seller') || Auth::user()->hasRole('admin'))
                 <div class="pt-4 pb-2">
                     <span class="px-3 text-xs font-semibold text-slate-400 uppercase tracking-wider">Seller Centre</span>
                 </div>
@@ -142,9 +143,18 @@
                         <span class="ms-3">My Products</span>
                     </a>
                 </li>
+                <li>
+                    <a href="{{ route('dashboard') }}" class="flex items-center p-3 text-slate-700 rounded-xl hover:bg-slate-50 group {{ request()->routeIs('income.*') ? 'bg-indigo-50 text-indigo-700' : '' }}">
+                        <svg class="w-5 h-5 transition duration-75 {{ request()->routeIs('income.*') ? 'text-indigo-700' : 'text-slate-400 group-hover:text-slate-900' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <span class="ms-3">Status Pendapatan</span>
+                    </a>
+                </li>
                 @endif
 
-                @if(Auth::user()->hasRole('admin') || Auth::user()->hasPermissionTo('lihat-user'))
+                {{-- ADMIN SECTION --}}
+                @if(Auth::user()->hasRole('admin'))
                 <div class="pt-4 pb-2">
                     <span class="px-3 text-xs font-semibold text-slate-400 uppercase tracking-wider">Administration</span>
                 </div>
@@ -156,10 +166,7 @@
                         <span class="ms-3">Manage Users</span>
                     </a>
                 </li>
-                @endif
 
-                {{-- CMS SECTION --}}
-                @if(Auth::user()->hasRole('admin'))
                 <div class="pt-4 pb-2">
                     <span class="px-3 text-xs font-semibold text-slate-400 uppercase tracking-wider">Appearance</span>
                 </div>
@@ -173,31 +180,35 @@
                 </li>
                 @endif
 
-                <div class="pt-4 pb-2">
-                    <span class="px-3 text-xs font-semibold text-slate-400 uppercase tracking-wider">Account</span>
-                </div>
-                    <span class="px-3 text-xs font-semibold text-slate-400 uppercase tracking-wider">Account</span>
-                </div>
-
-                <li>
-                    <a href="{{ route('dashboard') }}" class="flex items-center p-3 text-slate-700 rounded-xl hover:bg-slate-50 group {{ request()->routeIs('income.*') ? 'bg-indigo-50 text-indigo-700' : '' }}">
-                        <svg class="w-5 h-5 transition duration-75 {{ request()->routeIs('income.*') ? 'text-indigo-700' : 'text-slate-400 group-hover:text-slate-900' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                        <span class="ms-3">Status Pendapatan</span>
-                    </a>
-                </li>
-
+                {{-- USER SECTION --}}
                 @unlessrole('admin')
+                <div class="pt-4 pb-2">
+                    <span class="px-3 text-xs font-semibold text-slate-400 uppercase tracking-wider">Belanja Saya</span>
+                </div>
                 <li>
                     <a href="{{ route('transactions.index') }}" class="flex items-center p-3 text-slate-700 rounded-xl hover:bg-slate-50 group {{ request()->routeIs('transactions.*') ? 'bg-indigo-50 text-indigo-700' : '' }}">
                         <svg class="w-5 h-5 transition duration-75 {{ request()->routeIs('transactions.*') ? 'text-indigo-700' : 'text-slate-400 group-hover:text-slate-900' }}" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m3.75 9v7.5m2.25-6.466a9.016 9.016 0 0 0-3.461-.203c-.536.072-.974.478-1.021 1.017a4.559 4.559 0 0 0-.018.402c0 .464.336.844.775.994l2.95 1.012c.44.15.775.53.775.994 0 .136-.006.27-.018.402-.047.539-.485.945-1.021 1.017a9.077 9.077 0 0 1-3.461-.203M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />
                         </svg>
-                        <span class="ms-3">Detail Transaction</span>
+                        <span class="ms-3">Pesanan Saya</span>
                     </a>
                 </li>
                 @endunlessrole
+
+                {{-- BECOME SELLER --}}
+                @if(!Auth::user()->hasRole('seller') && !Auth::user()->hasRole('admin'))
+                <div class="pt-4 pb-2">
+                    <span class="px-3 text-xs font-semibold text-slate-400 uppercase tracking-wider">Peluang Bisnis</span>
+                </div>
+                <li>
+                    <a href="{{ route('seller.create') }}" class="flex items-center p-3 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 group shadow-lg shadow-indigo-100 transition-all">
+                        <svg class="w-5 h-5 text-indigo-200 group-hover:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                        </svg>
+                        <span class="ms-3 font-bold">Mulai Berjualan</span>
+                    </a>
+                </li>
+                @endif
 
                 <li>
                     <form method="POST" action="{{ route('logout') }}">

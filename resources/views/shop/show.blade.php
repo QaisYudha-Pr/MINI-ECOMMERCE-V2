@@ -4,110 +4,145 @@
         <style>
             .cropper-view-box, .cropper-face { border-radius: 2rem; }
         </style>
+    @endpush
     @push('scripts')
         <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
     @endpush
 
-    <x-slot name="header">
-        <div class="flex items-center justify-between" data-aos="fade-down">
-            <div class="flex items-center gap-3">
-                <a href="{{ route('home') }}" class="p-2 bg-white rounded-xl shadow-sm hover:shadow-md transition-all">
-                    <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
-                </a>
-                <h2 class="font-black text-xl text-gray-900 leading-tight uppercase tracking-tighter">
-                    Product <span class="text-indigo-600">Detail</span>
-                </h2>
-            </div>
-            
-            {{-- Status Stok Individual --}}
-            @if($itemShop->stok > 10)
-                <div class="px-4 py-2 bg-green-100 text-green-700 rounded-xl font-black text-[10px] uppercase tracking-widest flex items-center gap-2">
-                    <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
-                    Ready Stock
-                </div>
-            @elseif($itemShop->stok > 0)
-                <div class="px-4 py-2 bg-orange-100 text-orange-700 rounded-xl font-black text-[10px] uppercase tracking-widest flex items-center gap-2">
-                    <span class="w-2 h-2 bg-orange-500 rounded-full animate-pulse"></span>
-                    Low Stock: {{ $itemShop->stok }} Left
-                </div>
-            @else
-                <div class="px-4 py-2 bg-red-100 text-red-700 rounded-xl font-black text-[10px] uppercase tracking-widest flex items-center gap-2">
-                    <span class="w-2 h-2 bg-red-500 rounded-full"></span>
-                    Out of Stock
-                </div>
-            @endif
-        </div>
-    </x-slot>
+    
 
-    <div class="py-12 bg-gray-50/50 min-h-screen">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="py-4 bg-white min-h-screen">
+        <div class="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8">
             
-            <div class="grid lg:grid-cols-12 gap-12 items-start">
+            {{-- BREADCRUMBS --}}
+            <nav class="flex items-center gap-2 text-[12px] font-medium text-gray-500 mb-8 overflow-x-auto whitespace-nowrap pb-1">
+                <a href="{{ route('home') }}" class="text-emerald-500 hover:text-emerald-600 transition-colors">Home</a>
+                <svg class="w-3 h-3 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                <a href="{{ route('shop.public', ['category' => $itemShop->kategori]) }}" class="text-emerald-500 hover:text-emerald-600 transition-colors">{{ $itemShop->kategori ?? 'Umum' }}</a>
+                <svg class="w-3 h-3 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                <span class="text-gray-400 truncate">{{ $itemShop->nama_barang }}</span>
+            </nav>
+
+            <div class="grid lg:grid-cols-12 gap-10 items-start">
                 
-                {{-- LEFT COLUMN: IMAGES --}}
-                <div class="lg:col-span-7 space-y-6 lg:sticky lg:top-24" data-aos="fade-right">
-                    <div class="relative group rounded-[2.5rem] lg:rounded-[3rem] overflow-hidden shadow-2xl shadow-indigo-100 border-4 border-white bg-white">
+                {{-- LEFT: PRODUCT IMAGES --}}
+                <div class="lg:col-span-4 lg:sticky lg:top-24 space-y-4">
+                    <div class="aspect-square rounded-[2rem] overflow-hidden border border-gray-100 shadow-sm bg-gray-50">
                         <img src="{{ $itemShop->gambar ? asset($itemShop->gambar) : 'https://via.placeholder.com/800' }}" 
-                             class="w-full h-[400px] lg:h-[600px] object-cover transition-transform duration-700 group-hover:scale-105">
+                             class="w-full h-full object-cover shadow-inner">
+                    </div>
+                </div>
+
+                {{-- CENTER: PRODUCT INFO --}}
+                <div class="lg:col-span-5 space-y-8">
+                    <div>
+                        <h1 class="text-2xl lg:text-3xl font-bold text-gray-900 leading-tight mb-2">{{ $itemShop->nama_barang }}</h1>
                         
-                        {{-- Floating Badges --}}
-                        <div class="absolute top-6 left-6 flex flex-col gap-2">
-                            <span class="px-4 py-2 bg-black/30 backdrop-blur-md text-white rounded-xl text-[10px] font-black uppercase tracking-widest border border-white/20">
-                                {{ $itemShop->kategori ?? 'General' }}
-                            </span>
+                        <div class="flex items-center gap-3 text-sm">
+                            <span class="text-gray-500">Terjual <span class="text-gray-900 font-bold">{{ $itemShop->stok > 100 ? '1 rb+' : $itemShop->stok . ' terjual' }}</span></span>
+                            <div class="w-1 h-1 bg-gray-300 rounded-full"></div>
+                            <div class="flex items-center gap-1">
+                                <svg class="w-4 h-4 text-yellow-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+                                <span class="text-gray-900 font-bold">{{ number_format($itemShop->reviews()->avg('rating') ?? 5, 1) }}</span>
+                                <span class="text-gray-400">({{ $itemShop->reviews()->count() }} rating)</span>
+                            </div>
+                        </div>
+
+                        <div class="mt-4 text-4xl font-extrabold text-gray-900 flex items-center gap-1">
+                            <span class="text-xl font-bold mt-1">Rp</span>
+                            {{ number_format($itemShop->harga, 0, ',', '.') }}
+                        </div>
+                    </div>
+
+                    <div class="border-y border-gray-100 py-6">
+                        <div class="flex items-center gap-4">
+                            <img src="{{ $itemShop->user->avatar ? asset($itemShop->user->avatar) : 'https://ui-avatars.com/api/?name='.urlencode($itemShop->user->name ?? 'Admin').'&background=random' }}" 
+                                 class="w-12 h-12 rounded-full border border-gray-100">
+                            <div>
+                                <h3 class="font-bold text-gray-900">{{ $itemShop->user->name ?? 'Official Store' }}</h3>
+                                <p class="text-xs text-green-500 font-medium flex items-center gap-1">
+                                    <span class="w-1.5 h-1.5 bg-green-500 rounded-full"></span>
+                                    Online
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="space-y-4" x-data="{ tab: 'detail' }">
+                        <div class="flex border-b border-gray-200">
+                            <button @click="tab = 'detail'" :class="tab === 'detail' ? 'border-emerald-500 text-emerald-600' : 'border-transparent text-gray-500'" class="px-4 py-2 border-b-2 font-bold text-sm transition-all">Detail Produk</button>
+                            <button @click="tab = 'info'" :class="tab === 'info' ? 'border-emerald-500 text-emerald-600' : 'border-transparent text-gray-500'" class="px-4 py-2 border-b-2 font-bold text-sm transition-all">Info Penting</button>
+                        </div>
+                        
+                        <div x-show="tab === 'detail'" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 transform -translate-x-2" x-transition:enter-end="opacity-100 transform translate-x-0">
+                            <div class="text-sm space-y-3">
+                                <div class="flex gap-10">
+                                    <span class="text-gray-400 w-24">Kondisi</span>
+                                    <span class="text-gray-900 font-medium">Baru</span>
+                                </div>
+                                <div class="flex gap-10">
+                                    <span class="text-gray-400 w-24">Berat Satuan</span>
+                                    <span class="text-gray-900 font-medium">{{ $itemShop->berat ?? 1000 }} g</span>
+                                </div>
+                                <div class="flex gap-10">
+                                    <span class="text-gray-400 w-24">Kategori</span>
+                                    <a href="{{ route('shop.public', ['category' => $itemShop->kategori]) }}" class="text-emerald-500 font-bold hover:underline">{{ $itemShop->kategori ?? 'Umum' }}</a>
+                                </div>
+                                <div class="prose prose-sm text-gray-600 max-w-none pt-4">
+                                    {!! nl2br(e($itemShop->deskripsi)) !!}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div x-show="tab === 'info'" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 transform translate-x-2" x-transition:enter-end="opacity-100 transform translate-x-0" x-cloak>
+                            <div class="text-sm space-y-5">
+                                <div>
+                                    <h4 class="font-bold text-gray-900 mb-2">Kebijakan Pengembalian</h4>
+                                    <p class="text-gray-600 leading-relaxed text-xs">Produk dapat dikembalikan dalam waktu 2x24 jam setelah barang diterima jika terdapat kerusakan pabrik atau kesalahan pengiriman. Wajib menyertakan video unboxing tanpa terputus.</p>
+                                </div>
+                                <div>
+                                    <h4 class="font-bold text-gray-900 mb-2">Informasi Pengiriman</h4>
+                                    <p class="text-gray-600 leading-relaxed text-xs">Pesanan sebelum jam 15:00 WIB akan dikirim pada hari yang sama. Estimasi pengiriman tergantung pada lokasi dan kurir yang dipilih.</p>
+                                </div>
+                                <div class="p-4 bg-orange-50 rounded-2xl border border-orange-100 italic text-[11px] text-orange-700">
+                                    *Warna produk mungkin sedikit berbeda karena pencahayaan pada foto atau pengaturan layar monitor Anda.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- REVIEW PREVIEW IN CENTER --}}
+                    <div class="pt-8 border-t border-gray-100">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="font-bold text-gray-900">Ulasan Pembeli</h3>
+                            <button class="text-emerald-500 text-sm font-bold">Lihat Semua</button>
+                        </div>
+                        <div class="space-y-4">
+                            @forelse($itemShop->reviews()->latest()->take(2)->get() as $review)
+                                <div class="p-4 bg-gray-50 rounded-2xl">
+                                    <div class="flex items-center gap-2 mb-2">
+                                        <div class="flex text-yellow-400 h-3">
+                                            @for($i=1; $i<=5; $i++)
+                                                <svg class="w-3 h-3 {{ $i <= $review->rating ? 'fill-current' : 'text-gray-200' }}" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+                                            @endfor
+                                        </div>
+                                        <span class="text-[10px] text-gray-400">{{ $review->created_at->diffForHumans() }}</span>
+                                    </div>
+                                    <p class="text-sm font-bold text-gray-900 mb-1">{{ $review->user->name }}</p>
+                                    <p class="text-sm text-gray-600 line-clamp-2">{{ $review->comment }}</p>
+                                </div>
+                            @empty
+                                <p class="text-gray-400 text-sm italic">Belum ada ulasan untuk produk ini.</p>
+                            @endforelse
                         </div>
                     </div>
                 </div>
 
-                {{-- RIGHT COLUMN: INFO & ACTIONS --}}
-                <div class="lg:col-span-5 space-y-8" data-aos="fade-left">
-                    
-                    <div class="bg-white rounded-[2.5rem] p-8 shadow-xl shadow-gray-100 border border-gray-100">
-                        <div class="flex items-center gap-2 mb-4">
-                            <img src="{{ $itemShop->user->avatar ? asset($itemShop->user->avatar) : 'https://ui-avatars.com/api/?name='.urlencode($itemShop->user->name ?? 'Admin').'&background=random' }}" 
-                                 class="w-8 h-8 rounded-full border border-gray-100">
-                            <span class="text-xs font-bold text-gray-500">Sold by <span class="text-gray-900 font-extrabold">{{ $itemShop->user->name ?? 'Official Store' }}</span></span>
-                        </div>
-
-                        <h1 class="text-4xl lg:text-5xl font-black text-gray-900 leading-[1.1] tracking-tighter mb-4">
-                            {{ $itemShop->nama_barang }}
-                        </h1>
-
-                        <div class="flex items-center gap-4 mb-8">
-                             <div class="flex items-center gap-0.5">
-                                @php $avg = $itemShop->reviews()->avg('rating') ?? 0; @endphp
-                                @for($i=1; $i<=5; $i++)
-                                    @if($i <= round($avg))
-                                        <svg class="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
-                                    @else
-                                        <svg class="w-5 h-5 text-gray-200" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
-                                    @endif
-                                @endfor
-                                <span class="ml-2 text-sm font-black text-gray-900">{{ number_format($avg, 1) }}</span>
-                            </div>
-                            <span class="text-xs font-bold text-gray-400">({{ $itemShop->reviews()->count() }} Reviews)</span>
-                        </div>
-
-                        <div class="p-6 bg-gray-900 rounded-[2rem] text-white flex items-center justify-between mb-8 shadow-lg shadow-gray-300">
-                            <div>
-                                <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Current Price</p>
-                                <div class="text-3xl font-black tracking-tight">
-                                    <span class="text-lg text-gray-400 font-medium">Rp</span>{{ number_format($itemShop->harga, 0, ',', '.') }}
-                                </div>
-                            </div>
-                            <div class="w-12 h-12 bg-white/10 rounded-full flex items-center justify-center">
-                                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/></svg>
-                            </div>
-                        </div>
-
-                        <div class="prose prose-sm text-gray-500 mb-8">
-                            <h3 class="text-xs font-black text-gray-900 uppercase tracking-widest mb-2">Description</h3>
-                            <p class="leading-relaxed">{{ $itemShop->deskripsi }}</p>
-                        </div>
-
-                    <div x-data="{
-                        cart: JSON.parse(localStorage.getItem('minie_cart') || '[]'),
-                        saveCart() { localStorage.setItem('minie_cart', JSON.stringify(this.cart)); },
+                {{-- RIGHT: STICKY CHECKOUT CARD --}}
+                <div class="lg:col-span-3 lg:sticky lg:top-24 space-y-4" 
+                    x-data="{
+                        isFavorited: {{ Auth::check() && Auth::user()->favoriteItems()->where('item_shop_id', $itemShop->id)->exists() ? 'true' : 'false' }},
+                        quantity: 1,
                         item: {
                             id: {{ $itemShop->id }},
                             nama_barang: '{{ $itemShop->nama_barang }}',
@@ -118,87 +153,119 @@
                             gambar: '{{ asset($itemShop->gambar) }}',
                             stok: {{ $itemShop->stok }}
                         },
-                        
-                        addToCart() {
-                            if (this.item.stok <= 0) {
-                                Swal.fire('Stok Habis', 'Maaf bolo, stok sudah habis!', 'warning');
-                                return;
-                            }
-                            const exists = this.cart.find(c => c.id === this.item.id);
-                            if (exists) {
-                                Swal.fire('Sudah Ada', 'Barang sudah di keranjang bolo!', 'info');
-                                return;
-                            }
-                            this.cart.push({ ...this.item, quantity: 1, selected: true });
-                            this.saveCart();
-                            $dispatch('notify', 'Masuk keranjang!');
-                            window.dispatchEvent(new CustomEvent('cart-updated'));
+
+                        toggleFavorite() {
+                            @auth
+                                fetch('{{ route('favorite.toggle', $itemShop->id) }}', {
+                                    method: 'POST',
+                                    headers: {
+                                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                        'Accept': 'application/json'
+                                    }
+                                })
+                                .then(r => r.json())
+                                .then(data => {
+                                    this.isFavorited = data.status;
+                                    Swal.fire({
+                                        toast: true,
+                                        position: 'top-end',
+                                        icon: 'success',
+                                        title: data.message,
+                                        showConfirmButton: false,
+                                        timer: 1500,
+                                        customClass: { popup: 'rounded-2xl' }
+                                    });
+                                });
+                            @else
+                                window.location.href = '{{ route('login') }}';
+                            @endauth
                         },
 
+                        shareProduct() {
+                            if (navigator.share) {
+                                navigator.share({
+                                    title: '{{ $itemShop->nama_barang }}',
+                                    text: 'Cek produk keren ini di MiniQ-Store!',
+                                    url: window.location.href,
+                                }).catch(console.error);
+                            } else {
+                                navigator.clipboard.writeText(window.location.href);
+                                Swal.fire({
+                                    toast: true,
+                                    position: 'top-end',
+                                    icon: 'success',
+                                    title: 'Link disalin ke clipboard!',
+                                    showConfirmButton: false,
+                                    timer: 2000
+                                });
+                            }
+                        },
+                        
                         checkoutNow() {
                             if (this.item.stok <= 0) return;
-                            const exists = this.cart.find(c => c.id === this.item.id);
-                            if (!exists) {
-                                this.cart.push({ ...this.item, quantity: 1, selected: true });
-                                this.saveCart();
-                            } else {
-                                exists.selected = true;
-                                this.saveCart();
-                            }
-                            const toCheckout = this.cart.filter(i => i.id === this.item.id);
+                            $store.cart.add(this.item, this.quantity);
+                            
+                            // Ambil hanya item ini untuk dicheckout
+                            const toCheckout = $store.cart.items.filter(i => i.id === this.item.id);
                             localStorage.setItem('checkout_items', JSON.stringify(toCheckout));
                             window.location.href = '{{ route('checkout.index') }}';
                         }
                     }">
-                        @auth
-                            <div class="grid grid-cols-4 gap-4">
-                                <button @click="addToCart" class="col-span-2 py-5 bg-white border-2 border-indigo-600 text-indigo-600 hover:bg-indigo-50 rounded-2xl font-black uppercase text-xs tracking-widest transition-all active:scale-95">
-                                    + Keranjang
+                    
+                    <div class="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm space-y-6">
+                        <h4 class="font-bold text-gray-900">Atur jumlah dan catatan</h4>
+                        
+                        {{-- Quantity Selector --}}
+                        <div class="flex items-center gap-4">
+                            <div class="flex items-center border border-gray-200 rounded-lg p-1">
+                                <button @click="if(quantity > 1) quantity--" class="w-8 h-8 flex items-center justify-center text-emerald-500 hover:bg-emerald-50 rounded-md transition-colors">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"/></svg>
                                 </button>
-                                <button @click="checkoutNow" class="col-span-2 py-5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl font-black uppercase text-xs tracking-widest transition-all shadow-xl shadow-indigo-200 active:scale-95">
-                                    Beli Sekarang
+                                <input type="number" x-model="quantity" class="w-12 text-center border-none focus:ring-0 text-sm font-bold text-gray-900" readonly>
+                                <button @click="if(quantity < {{ $itemShop->stok }}) quantity++" class="w-8 h-8 flex items-center justify-center text-emerald-500 hover:bg-emerald-50 rounded-md transition-colors">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
                                 </button>
                             </div>
-                        @else
-                            <a href="{{ route('login') }}" class="block w-full py-5 bg-gray-900 text-white text-center rounded-2xl font-black uppercase text-xs tracking-widest hover:shadow-xl transition-all">
-                                Login to Buy
-                            </a>
-                        @endauth
-                    </div>
-                    </div>
-
-                    {{-- REVIEWS PREVIEW --}}
-                    <div class="bg-white rounded-[2.5rem] p-8 relative overflow-hidden shadow-xl border border-gray-100">
-                        <div class="absolute top-0 right-0 w-64 h-64 bg-indigo-50 rounded-full blur-3xl opacity-50 -mr-16 -mt-16"></div>
-                        
-                        <div class="relative z-10 flex items-center justify-between mb-8">
-                            <h3 class="font-black text-xl text-gray-900 uppercase tracking-tighter">Latest <br>Reviews</h3>
-                            <span class="text-xs font-bold text-gray-400">Wait for updates</span>
+                            <span class="text-sm font-medium text-gray-900">Stok: <span class="font-bold">{{ $itemShop->stok }}</span></span>
                         </div>
 
-                        <div class="space-y-4">
-                            @forelse($itemShop->reviews()->latest()->take(2)->get() as $review)
-                                <div class="bg-gray-50 p-4 rounded-2xl border border-gray-100 hover:bg-white hover:shadow-md transition-all">
-                                    <div class="flex items-center justify-between mb-2">
-                                        <span class="font-bold text-xs text-gray-900">{{ $review->user->name }}</span>
-                                        <div class="flex items-center gap-0.5 mt-1">
-                                            @for($i=1; $i<=5; $i++)
-                                                @if($i <= $review->rating)
-                                                    <svg class="w-3 h-3 text-yellow-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
-                                                @else
-                                                    <svg class="w-3 h-3 text-gray-200" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
-                                                @endif
-                                            @endfor
-                                        </div>
-                                    </div>
-                                    @if($review->photo)
-                                        <img src="{{ asset($review->photo) }}" class="w-full h-20 object-cover rounded-xl mb-2 opacity-80 hover:opacity-100 transition-opacity">
-                                    @endif
-                                    <p class="text-xs text-gray-500 line-clamp-2">"{{ $review->comment }}"</p>
-                                </div>
-                            @empty
-                                <div class="text-center py-6 text-gray-400 text-xs font-bold uppercase tracking-widest">No reviews yet</div>
-                            @endforelse
+                        {{-- Subtotal --}}
+                        <div class="flex justify-between items-end">
+                            <span class="text-sm text-gray-500 font-medium">Subtotal</span>
+                            <div class="text-lg font-bold text-gray-900">
+                                <span class="text-xs">Rp</span><span x-text="(quantity * {{ $itemShop->harga }}).toLocaleString('id-ID')"></span>
+                            </div>
+                        </div>
+
+                        {{-- Action Buttons --}}
+                        <div class="space-y-2 pt-2">
+                            @auth
+                                <button @click="$store.cart.add(item, quantity)" class="w-full py-2.5 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl font-bold text-sm transition-all shadow-sm">
+                                    + Keranjang
+                                </button>
+                                <button @click="checkoutNow" class="w-full py-2.5 bg-white border border-emerald-500 text-emerald-500 hover:bg-emerald-50 rounded-xl font-bold text-sm transition-all">
+                                    Beli Langsung
+                                </button>
+                            @else
+                                <a href="{{ route('login') }}" class="block w-full py-2.5 bg-gray-900 text-white text-center rounded-xl font-bold text-sm transition-all">
+                                    Login untuk Membeli
+                                </a>
+                            @endauth
+                        </div>
+
+                        {{-- Secondary Actions (Share & Wishlist) --}}
+                        <div class="flex items-center justify-center gap-6 pt-2 border-t border-gray-50">
+                            <button @click="toggleFavorite" class="flex items-center gap-2 text-xs font-bold transition-colors" :class="isFavorited ? 'text-rose-500' : 'text-gray-500 hover:text-rose-500'">
+                                <svg class="w-4 h-4 transition-transform group-hover:scale-110" :fill="isFavorited ? 'currentColor' : 'none'" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                                </svg>
+                                <span x-text="isFavorited ? 'Wishlist' : 'Wishlist'"></span>
+                            </button>
+                            <div class="w-px h-4 bg-gray-200"></div>
+                            <button @click="shareProduct" class="flex items-center gap-2 text-xs font-bold text-gray-500 hover:text-emerald-500 transition-colors">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"></path></svg>
+                                Share
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -206,21 +273,134 @@
             </div>
 
             {{-- FULL REVIEW SECTION --}}
-            <div class="mt-24 space-y-12" data-aos="fade-up">
+            <div class="mt-24 space-y-12" data-aos="fade-up" x-data="{
+                filters: {
+                    media: false,
+                    ratings: []
+                },
+                toggleRating(rating) {
+                    if (this.filters.ratings.includes(rating)) {
+                        this.filters.ratings = this.filters.ratings.filter(r => r !== rating);
+                    } else {
+                        this.filters.ratings.push(rating);
+                    }
+                },
+                shouldShow(itemRating, hasMedia) {
+                    const ratingMatch = this.filters.ratings.length === 0 || this.filters.ratings.includes(itemRating);
+                    const mediaMatch = !this.filters.media || hasMedia;
+                    return ratingMatch && mediaMatch;
+                }
+            }">
                 <div class="flex items-center gap-4 px-2">
                     <div class="h-12 w-1.5 bg-indigo-600 rounded-full"></div>
                     <div>
-                        <h2 class="text-3xl font-black text-gray-900 uppercase tracking-tighter leading-none">Customer <span class="text-indigo-600">Reviews</span></h2>
-                        <p class="text-xs font-bold text-gray-400 mt-1 uppercase tracking-widest">What people say about this product</p>
+                        <h2 class="text-3xl font-black text-gray-900 uppercase tracking-tighter leading-none">Ulasan <span class="text-indigo-600">Pembeli</span></h2>
+                        <p class="text-xs font-bold text-gray-400 mt-1 uppercase tracking-widest">Apa yang mereka katakan tentang produk ini</p>
                     </div>
                 </div>
 
+                @php
+                    $totalReviews = $itemShop->reviews()->count();
+                    $avgRating = $itemShop->reviews()->avg('rating') ?? 0;
+                    $stars = [];
+                    for($i=5; $i>=1; $i--) {
+                        $count = $itemShop->reviews()->where('rating', $i)->count();
+                        $stars[$i] = [
+                            'count' => $count,
+                            'percent' => $totalReviews > 0 ? ($count / $totalReviews) * 100 : 0
+                        ];
+                    }
+                @endphp
+
+                {{-- SUMMARY BOX --}}
+                <div class="bg-white p-8 rounded-[3rem] shadow-xl shadow-gray-100 border border-gray-50">
+                    <div class="grid md:grid-cols-3 gap-12 items-center">
+                        <div class="text-center md:border-r border-gray-100 pr-8">
+                            <div class="flex items-center justify-center gap-2 mb-2">
+                                <span class="text-6xl font-black text-gray-900 tracking-tighter">{{ number_format($avgRating, 1) }}</span>
+                                <span class="text-gray-400 font-bold text-xl">/ 5.0</span>
+                            </div>
+                            <div class="flex justify-center text-yellow-400 mb-4">
+                                @for($i=1; $i<=5; $i++)
+                                    <svg class="w-6 h-6 {{ $i <= round($avgRating) ? 'fill-current' : 'text-gray-200' }}" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+                                @endfor
+                            </div>
+                            <p class="text-sm font-bold text-gray-900">100% pembeli merasa puas</p>
+                            <p class="text-xs text-gray-400 mt-1">{{ $totalReviews }} rating • {{ $totalReviews }} ulasan</p>
+                        </div>
+
+                        <div class="md:col-span-2 space-y-3">
+                            @foreach($stars as $star => $data)
+                                <div class="flex items-center gap-4">
+                                    <div class="flex items-center gap-1 w-8">
+                                        <svg class="w-3.5 h-3.5 text-yellow-400 fill-current" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+                                        <span class="text-xs font-bold text-gray-600">{{ $star }}</span>
+                                    </div>
+                                    <div class="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden">
+                                        <div class="h-full bg-emerald-500 rounded-full transition-all duration-1000" style="width: {{ $data['percent'] }}%"></div>
+                                    </div>
+                                    <span class="text-xs font-bold text-gray-400 w-12 text-right">({{ $data['count'] }})</span>
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+                </div>
+
+                {{-- PHOTO GALLERY FROM REVIEWS --}}
+                @php $reviewPhotos = $itemShop->reviews()->whereNotNull('photo')->latest()->take(10)->get(); @endphp
+                @if($reviewPhotos->count() > 0)
+                    <div class="space-y-4">
+                        <h4 class="text-sm font-black uppercase tracking-widest text-gray-900 px-2">Foto dari Pembeli</h4>
+                        <div class="flex gap-4 overflow-x-auto pb-4 px-2 no-scrollbar">
+                            @foreach($reviewPhotos as $rp)
+                                <div class="flex-shrink-0 w-32 h-32 rounded-2xl overflow-hidden border-2 border-white shadow-md hover:scale-105 transition-transform cursor-pointer"
+                                     onclick="Swal.fire({imageUrl: '{{ asset($rp->photo) }}', showConfirmButton: false, customClass: {popup: 'rounded-3xl'}})">
+                                    <img src="{{ asset($rp->photo) }}" class="w-full h-full object-cover">
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+                @endif
+
                 <div class="grid md:grid-cols-3 gap-12 items-start">
-                    {{-- Form Review (Kiri) --}}
-                    <div class="md:col-span-1">
+                    {{-- Sidebar Filters & Form (Kiri) --}}
+                    <div class="md:col-span-1 space-y-8 sticky top-24">
+                        {{-- FILTER REVIEWS --}}
+                        <div class="bg-white p-6 rounded-[2rem] border border-gray-100 shadow-sm">
+                            <h4 class="font-bold text-gray-900 mb-6 flex items-center gap-2">
+                                <svg class="w-4 h-4 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 01-.293.707V17l-4 4v-6.586a1 1 0 01.293-.707L15.414 7.293A1 1 0 0015 6H5a1 1 0 00-1 1v2.586a1 1 0 01-.293.707L3.293 10.293A1 1 0 003 11v8a1 1 0 001 1h16a1 1 0 001-1v-8a1 1 0 00-.293-.707L16 6V4z"/></svg>
+                                Filter Ulasan
+                            </h4>
+                            
+                            <div class="space-y-6">
+                                <div>
+                                    <p class="text-[10px] font-black uppercase text-gray-400 mb-3 tracking-widest">Media</p>
+                                    <label class="flex items-center gap-3 cursor-pointer group">
+                                        <input type="checkbox" x-model="filters.media" class="w-5 h-5 rounded-lg border-gray-200 text-emerald-500 focus:ring-emerald-500 transition-all">
+                                        <span class="text-sm text-gray-600 group-hover:text-emerald-600 transition-colors">Dengan Foto & Video</span>
+                                    </label>
+                                </div>
+
+                                <div>
+                                    <p class="text-[10px] font-black uppercase text-gray-400 mb-3 tracking-widest">Rating</p>
+                                    <div class="space-y-2">
+                                        @for($i=5; $i>=1; $i--)
+                                            <label class="flex items-center gap-3 cursor-pointer group">
+                                                <input type="checkbox" @change="toggleRating({{ $i }})" class="w-5 h-5 rounded-lg border-gray-200 text-emerald-500 focus:ring-emerald-500">
+                                                <div class="flex items-center gap-1">
+                                                    <svg class="w-3.5 h-3.5 text-yellow-400 fill-current" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+                                                    <span class="text-sm text-gray-600 group-hover:text-gray-900 transition-colors">{{ $i }}</span>
+                                                </div>
+                                            </label>
+                                        @endfor
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
                         @auth
-                            <div class="bg-white p-8 rounded-[2.5rem] shadow-xl shadow-gray-200/50 border border-white sticky top-24">
-                                <h4 class="text-sm font-black uppercase tracking-widest mb-6">Write a Review</h4>
+                            <div class="bg-white p-8 rounded-[2rem] shadow-xl shadow-gray-200/50 border border-white">
+                                <h4 class="text-xs font-black uppercase tracking-widest mb-6 text-gray-900">Tulis Ulasan</h4>
                                 <form action="{{ route('reviews.store', $itemShop->id) }}" method="POST" enctype="multipart/form-data" class="space-y-5" 
                                     x-data="{ 
                                         rating: 5, 
@@ -339,47 +519,54 @@
                     </div>
 
                     {{-- List Review (Kanan) --}}
-                    <div class="md:col-span-2 space-y-6">
+                    <div class="md:col-span-2 space-y-8">
                         @forelse($itemShop->reviews()->latest()->get() as $review)
-                            <div class="group bg-white p-8 rounded-[2.5rem] border border-white shadow-lg shadow-gray-100 hover:shadow-xl transition-all duration-300">
-                                <div class="flex items-start gap-4">
+                            <div class="bg-white border-b border-gray-100 pb-8 last:border-0"
+                                 x-show="shouldShow({{ $review->rating }}, {{ $review->photo ? 'true' : 'false' }})"
+                                 x-transition:enter="transition ease-out duration-300"
+                                 x-transition:enter-start="opacity-0 transform -translate-y-2"
+                                 x-transition:enter-end="opacity-100 transform translate-y-0">
+                                <div class="flex items-center gap-1 text-xs mb-3">
+                                    <div class="flex text-yellow-400">
+                                        @for ($i = 1; $i <= 5; $i++)
+                                            <svg class="w-3.5 h-3.5 {{ $i <= $review->rating ? 'fill-current' : 'text-gray-200' }}" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+                                        @endfor
+                                    </div>
+                                    <span class="text-gray-400 ml-2 font-medium">{{ $review->created_at->diffForHumans() }}</span>
+                                </div>
+
+                                <div class="flex items-center gap-3 mb-4">
                                     <img src="{{ $review->user->avatar ? asset($review->user->avatar) : 'https://ui-avatars.com/api/?name=' . urlencode($review->user->name) . '&background=random' }}"
-                                         class="w-12 h-12 rounded-2xl object-cover shadow-md group-hover:scale-110 transition-transform">
-                                    <div class="flex-1">
-                                        <div class="flex justify-between items-start mb-2">
-                                            <div>
-                                                <h5 class="font-black text-gray-900 uppercase text-xs tracking-widest">{{ $review->user->name }}</h5>
-                                                <div class="flex items-center gap-0.5 mt-1">
-                                                    @for ($i = 1; $i <= 5; $i++)
-                                                        @if($i <= $review->rating)
-                                                            <svg class="w-3.5 h-3.5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
-                                                        @else
-                                                            <svg class="w-3.5 h-3.5 text-gray-200" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
-                                                        @endif
-                                                    @endfor
-                                                </div>
-                                            </div>
-                                            <span class="text-[10px] font-bold text-gray-300 uppercase tracking-widest">{{ $review->created_at->diffForHumans() }}</span>
+                                         class="w-10 h-10 rounded-full object-cover">
+                                    <span class="font-bold text-gray-900 text-sm tracking-tight">{{ $review->user->name }}</span>
+                                </div>
+
+                                <div class="pl-0 space-y-4">
+                                    <p class="text-gray-700 leading-relaxed text-sm">{{ $review->comment }}</p>
+                                    
+                                    @if($review->photo)
+                                        <div class="flex gap-2">
+                                            <img src="{{ asset($review->photo) }}" 
+                                                class="w-24 h-24 object-cover rounded-xl shadow-sm border border-gray-100 cursor-pointer hover:opacity-90 transition-opacity"
+                                                onclick="Swal.fire({imageUrl: '{{ asset($review->photo) }}', showConfirmButton: false, customClass: {popup: 'rounded-3xl'}})">
                                         </div>
-                                        <p class="text-gray-500 leading-relaxed text-sm mt-3 pl-4 border-l-2 border-indigo-100">"{{ $review->comment }}"</p>
-                                        
-                                        @if($review->photo)
-                                            <div class="mt-4 pl-4">
-                                                <img src="{{ asset($review->photo) }}" 
-                                                    class="w-32 h-32 object-cover rounded-2xl shadow-md border-4 border-white cursor-pointer hover:scale-105 transition-all"
-                                                    onclick="Swal.fire({imageUrl: '{{ asset($review->photo) }}', imageAlt: 'Review Photo', showConfirmButton: false, customClass: {popup: 'rounded-[2rem]'}})">
-                                            </div>
-                                        @endif
+                                    @endif
+
+                                    <div class="flex items-center gap-6 pt-2">
+                                        <button class="flex items-center gap-2 text-gray-400 hover:text-emerald-500 transition-colors group">
+                                            <svg class="w-4 h-4 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 10h4.704a2 2 0 011.94 1.515l.604 2.417a2 2 0 01-1.94 2.485H14.41l.592 2.366a1.117 1.117 0 01-1.45 1.342L10 17.586V10h4zM10 10V4.586a1 1 0 00-1.707-.707l-2.586 2.586a1 1 0 000 1.414l2.586 2.586A1 1 0 0010 9.414V10z"/></svg>
+                                            <span class="text-xs font-bold">Membantu</span>
+                                        </button>
+                                        <button class="text-gray-300 hover:text-gray-500 transition-colors">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"/></svg>
+                                        </button>
                                     </div>
                                 </div>
                             </div>
                         @empty
                             <div class="bg-gray-50 py-24 rounded-[3rem] border-2 border-dashed border-gray-200 text-center">
-                                <div class="w-16 h-16 bg-white rounded-full flex items-center justify-center mx-auto mb-4 shadow-sm">
-                                    <svg class="w-8 h-8 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
-                                </div>
-                                <p class="text-gray-400 font-black uppercase tracking-widest text-[10px]">No reviews yet.</p>
-                                <p class="text-gray-300 text-xs mt-1">Be the first to review this product!</p>
+                                <p class="text-gray-400 font-black uppercase tracking-widest text-[10px]">Belum ada ulasan.</p>
+                                <p class="text-gray-300 text-xs mt-1">Jadilah yang pertama mengulas produk ini!</p>
                             </div>
                         @endforelse
                     </div>

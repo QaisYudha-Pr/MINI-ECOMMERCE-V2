@@ -15,7 +15,7 @@ class ReviewController extends Controller
 
         $validated = $request->validate([
             'rating' => 'required|integer|min:1|max:5',
-            'comment' => 'required|string|min:10|max:1000',
+            'comment' => 'required|string|min:1|max:1000',
             'photo' => 'nullable|image|max:2048', // Max 2MB
             'cropped_photo' => 'nullable|string',
         ], [

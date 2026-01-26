@@ -9,6 +9,12 @@ use Illuminate\Support\Facades\Auth;
 
 class FavoriteController extends Controller
 {
+    public function index()
+    {
+        $favorites = Auth::user()->favoriteItems()->with('user')->get();
+        return view('shop.wishlist', compact('favorites'));
+    }
+
     public function toggle(ItemShop $item)
     {
         if (!Auth::check()) {

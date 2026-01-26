@@ -1,4 +1,5 @@
 <x-app-layout>
+    {{-- halaman selengkapnya --}}
     <style>
         @keyframes fadeInUp {
             from {
@@ -146,7 +147,7 @@
 
                     {{-- CONTENT --}}
                     <div class="p-4 flex flex-col flex-grow">
-                        <span class="text-[9px] uppercase font-bold tracking-widest text-[#00AA5B] mb-1.5">{{ $item->kategori ?? 'Umum' }}</span>
+                        <a href="{{ route('shop.public', ['category' => $item->kategori]) }}" class="text-[9px] uppercase font-bold tracking-widest text-[#00AA5B] mb-1.5 hover:underline">{{ $item->kategori ?? 'Umum' }}</a>
                         
                         <h3 class="font-bold text-xs text-gray-800 line-clamp-2 h-10 mb-1.5 group-hover:text-[#00AA5B] transition-colors leading-relaxed">
                             <a href="{{ route('shop.show', $item->id) }}">{{ $item->nama_barang }}</a>

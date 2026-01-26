@@ -1,16 +1,8 @@
 <nav x-data="{
     open: false,
     kategoriOpen: false,
-    cartCount: 0,
-    updateCartCount() {
-        try {
-            const cart = JSON.parse(localStorage.getItem('minie_cart') || '[]');
-            this.cartCount = cart.length;
-        } catch (e) { this.cartCount = 0; }
-    },
     init() {
-        this.updateCartCount();
-        window.addEventListener('cart-updated', () => this.updateCartCount());
+        // Alpine Store handles the cart now
     }
 }"
     class="bg-white border-b border-gray-100 sticky top-0 z-50 transition-all duration-300">
@@ -163,12 +155,12 @@
 
             {{-- RIGHT ICONS --}}
             <div class="flex items-center gap-2 md:gap-5">
-                <button @click="$dispatch('open-cart')" class="relative p-2 text-gray-600 hover:bg-gray-50 rounded-lg transition-colors">
+                <button @click="$store.cart.show = true" class="relative p-2 text-gray-600 hover:bg-gray-50 rounded-lg transition-colors">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
                     </svg>
-                    <template x-if="cartCount > 0">
-                        <span class="absolute top-1 right-1 bg-red-500 text-white text-[8px] font-bold w-4 h-4 rounded-full flex items-center justify-center" x-text="cartCount"></span>
+                    <template x-if="$store.cart.items.length > 0">
+                        <span class="absolute top-1 right-1 bg-red-500 text-white text-[8px] font-bold w-4 h-4 rounded-full flex items-center justify-center" x-text="$store.cart.items.length"></span>
                     </template>
                 </button>
 
@@ -192,7 +184,11 @@
 
                         <x-slot name="content">
                             <x-dropdown-link :href="route('dashboard')">{{ __('Dashboard') }}</x-dropdown-link>
+                            <x-dropdown-link :href="route('wishlist.index')">{{ __('Daftar Suka') }}</x-dropdown-link>
                             <x-dropdown-link :href="route('profile.edit')">{{ __('Profile') }}</x-dropdown-link>
+                            @role('admin')
+                                <x-dropdown-link :href="route('admin.cms.index')">{{ __('Admin Panel') }}</x-dropdown-link>
+                            @endrole
                             <form method="POST" action="{{ route('logout') }}">
                                 @csrf
                                 <x-dropdown-link :href="route('logout')" onclick="event.preventDefault(); this.closest('form').submit();">{{ __('Log Out') }}</x-dropdown-link>
@@ -247,6 +243,9 @@
             </x-responsive-nav-link>
             <x-responsive-nav-link :href="route('shop.public')" :active="request()->routeIs('shop.public')" class="rounded-2xl">
                 {{ __('Produk') }}
+            </x-responsive-nav-link>
+            <x-responsive-nav-link :href="route('wishlist.index')" :active="request()->routeIs('wishlist.*')" class="rounded-2xl">
+                {{ __('Daftar Suka') }}
             </x-responsive-nav-link>
 
             @auth

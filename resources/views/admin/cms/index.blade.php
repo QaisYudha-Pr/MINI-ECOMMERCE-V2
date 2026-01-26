@@ -25,6 +25,13 @@
                         <span>Halaman About</span>
                         <svg :class="tab === 'about' ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'" class="w-4 h-4 transition-all" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7"></path></svg>
                     </button>
+
+                    <button @click="tab = 'shipping'" 
+                        :class="tab === 'shipping' ? 'bg-[#00AA5B] text-white shadow-lg shadow-green-100 translate-x-2' : 'bg-white text-gray-500 hover:bg-gray-50 hover:text-gray-700'" 
+                        class="w-full px-6 py-4 rounded-2xl font-black uppercase text-[10px] tracking-[0.2em] text-left transition-all duration-300 flex items-center justify-between group">
+                        <span>Ongkir & Biaya</span>
+                        <svg :class="tab === 'shipping' ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'" class="w-4 h-4 transition-all" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7"></path></svg>
+                    </button>
                 </div>
 
                 <div class="flex-1">
@@ -98,6 +105,44 @@
                                         <input type="text" name="home_title" value="{{ $settings['home_title'] ?? 'Belanja Keren di Mojokerto' }}" class="w-full px-5 py-4 bg-gray-50 border-0 rounded-2xl text-sm font-bold focus:ring-2 focus:ring-[#00AA5B]/20 transition-all">
                                     </div>
                                     <button class="px-8 py-4 bg-gray-900 text-white rounded-2xl font-black uppercase text-[10px] tracking-widest hover:bg-black transition-all">Simpan Teks</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- SHIPPING SETTINGS --}}
+                    <div x-show="tab === 'shipping'" x-cloak x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-4" x-transition:enter-end="opacity-100 translate-y-0" class="space-y-8">
+                        <div class="bg-white rounded-[2rem] shadow-xl shadow-gray-100 overflow-hidden border border-gray-100">
+                            <div class="p-8 border-b border-gray-50 bg-gray-50/50">
+                                <h3 class="text-xl font-black text-gray-900 tracking-tight">Pengaturan Biaya & Jarak</h3>
+                                <p class="text-xs font-bold text-gray-400 uppercase tracking-widest mt-1">Atur tarif pengiriman otomatis bolo</p>
+                            </div>
+                            <div class="p-8">
+                                <form action="{{ route('admin.cms.update-text') }}" method="POST" class="grid md:grid-cols-2 gap-8">
+                                    @csrf
+                                    <div>
+                                        <label class="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Biaya Dasar Ongkir (Rp)</label>
+                                        <input type="number" name="shipping_base_fee" value="{{ $settings['shipping_base_fee'] ?? '5000' }}" class="w-full px-5 py-4 bg-gray-50 border-0 rounded-2xl text-sm font-bold focus:ring-2 focus:ring-[#00AA5B]/20 transition-all">
+                                        <p class="text-[9px] text-gray-400 mt-2 font-bold">Biaya minimal walaupun jarak dekat.</p>
+                                    </div>
+                                    <div>
+                                        <label class="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Biaya per Kilometer (Rp)</label>
+                                        <input type="number" name="shipping_per_km" value="{{ $settings['shipping_per_km'] ?? '2000' }}" class="w-full px-5 py-4 bg-gray-50 border-0 rounded-2xl text-sm font-bold focus:ring-2 focus:ring-[#00AA5B]/20 transition-all">
+                                        <p class="text-[9px] text-gray-400 mt-2 font-bold">Dihitung setelah jarak > 2 KM.</p>
+                                    </div>
+                                    <div>
+                                        <label class="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Biaya per Kilogram (Rp)</label>
+                                        <input type="number" name="shipping_per_kg" value="{{ $settings['shipping_per_kg'] ?? '1000' }}" class="w-full px-5 py-4 bg-gray-50 border-0 rounded-2xl text-sm font-bold focus:ring-2 focus:ring-[#00AA5B]/20 transition-all">
+                                        <p class="text-[9px] text-gray-400 mt-2 font-bold">Dikalikan dengan total berat pesanan.</p>
+                                    </div>
+                                    <div>
+                                        <label class="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Biaya Layanan (Rp)</label>
+                                        <input type="number" name="service_fee" value="{{ $settings['service_fee'] ?? '2500' }}" class="w-full px-5 py-4 bg-gray-50 border-0 rounded-2xl text-sm font-bold focus:ring-2 focus:ring-[#00AA5B]/20 transition-all">
+                                        <p class="text-[9px] text-gray-400 mt-2 font-bold">Biaya admin per transaksi.</p>
+                                    </div>
+                                    <div class="md:col-span-2 pt-6 border-t border-gray-50">
+                                        <button class="px-10 py-5 bg-gray-900 text-white rounded-2xl font-black uppercase text-[10px] tracking-[0.2em] hover:bg-black transition-all shadow-xl shadow-gray-200">Simpan Pengaturan Biaya</button>
+                                    </div>
                                 </form>
                             </div>
                         </div>

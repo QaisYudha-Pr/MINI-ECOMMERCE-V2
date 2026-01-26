@@ -49,16 +49,8 @@
             animation: blink 1s infinite;
         }
     </style>
-    <script>
-        document.addEventListener('alpine:init', () => {
-            Alpine.store('global', {
-                search: '',
-                category: 'all',
-                setSearch(val) { this.search = val },
-                setCategory(val) { this.category = val }
-            })
-        })
-    </script>
+
+    @include('layouts.partials.alpine-stores')
 </head>
 
 <body class="antialiased select-none" x-data="{ loading: true }" x-init="window.onload = () => { setTimeout(() => loading = false, 300) }">
@@ -107,6 +99,7 @@
             </template>
         </div>
         @include('layouts.navigation')
+        <x-cart-modal />
 
         @if (isset($header))
             <header class="bg-white/40 backdrop-blur-sm border-b border-gray-100">
@@ -138,42 +131,3 @@
 </body>
 
 </html>
-
-<script>
-    // 1. Alert untuk Pesan Sukses (Session Success)
-    @if(session('success'))
-        Swal.fire({
-            icon: 'success',
-            title: 'MANTAP BOLO!',
-            text: "{{ session('success') }}",
-            showConfirmButton: false,
-            timer: 2000,
-            customClass: {
-                popup: 'rounded-[2rem]'
-            }
-        });
-    @endif
-
-    // 2. Alert untuk Error Validasi (Laravel Validation Errors)
-    @if($errors->any())
-        Swal.fire({
-            icon: 'error',
-            title: 'WADUH ADA ERROR!',
-            html: `
-                <div class="text-left font-medium text-sm">
-                    <ul class="list-disc list-inside">
-                        @foreach($errors->all() as $error)
-                            <li>{{ $error }}</li>
-                        @endforeach
-                    </ul>
-                </div>
-            `,
-            confirmButtonText: 'SAYA PERBAIKI',
-            confirmButtonColor: '#00AA5B', // Theme Green
-            customClass: {
-                popup: 'rounded-[2rem]',
-                confirmButton: 'rounded-xl px-6 py-3 text-xs font-black uppercase tracking-widest'
-            }
-        });
-    @endif
-</script>

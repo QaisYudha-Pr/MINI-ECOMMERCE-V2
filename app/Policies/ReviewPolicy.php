@@ -9,7 +9,8 @@ class ReviewPolicy
 {
     public function create(User $user)
     {
-        return $user->hasAnyRole(['admin', 'user']);
+        // Izinkan semua yang login untuk memberikan review
+        return true;
     }
 
     public function delete(User $user, Review $review)

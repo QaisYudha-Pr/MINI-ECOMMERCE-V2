@@ -113,6 +113,13 @@
                                 <span id="summary-subtotal">Rp0</span>
                             </div>
                             <div class="flex justify-between">
+                                <div class="flex flex-col">
+                                    <span>Ongkir <span id="distance-display" class="text-[10px] text-indigo-400 lowercase italic"></span></span>
+                                    <span class="text-[9px] text-gray-500">Estimasi Pengantaran</span>
+                                </div>
+                                <span id="summary-shipping">Rp0</span>
+                            </div>
+                            <div class="flex justify-between">
                                 <span>Biaya Layanan</span>
                                 <span>Rp2.500</span>
                             </div>
@@ -144,6 +151,32 @@
         checkoutItems = checkoutItems.map(item => ({ ...item, quantity: item.quantity || 1 }));
 
         // 2. RENDER SUMMARY & ITEMS
+        function calculateShipping(buyerLat, buyerLng) {
+            if (!buyerLat || !buyerLng) return 0;
+            
+            // Temukan koordinat seller (ambil seller dari item pertama sebagai acuan utama/center)
+            // Atau jika multi-seller, bisa dijumlahkan. Di sini kita pakai item terjauh sebagai pemicu ongkir.
+            let maxDistance = 0;
+            checkoutItems.forEach(item => {
+                if (item.seller_lat && item.seller_lng) {
+                    const d = map.distance([buyerLat, buyerLng], [item.seller_lat, item.seller_lng]);
+                    if (d > maxDistance) maxDistance = d;
+                }
+            });
+
+            // Jika tidak ada data seller, default ke Mojokerto Center
+            if (maxDistance === 0) {
+                maxDistance = map.distance([buyerLat, buyerLng], mojokertoCoord);
+            }
+
+            const km = maxDistance / 1000;
+            document.getElementById('distance-display').innerText = `(${km.toFixed(1)} km)`;
+            
+            // Logika Ongkir: 3rb (0-2km), selanjutnya + 2rb/km
+            if (km <= 2) return 3000;
+            return 5000 + Math.ceil(km - 2) * 2000;
+        }
+
         function renderCheckout() {
             if (checkoutItems.length === 0) return window.location.href = '/';
             
@@ -173,8 +206,13 @@
                 </div>`;
             }).join('');
 
-            const grandTotal = subtotal + 2500;
+            const pos = marker.getLatLng();
+            const ongkir = calculateShipping(pos.lat, pos.lng);
+            const serviceFee = 2500;
+            const grandTotal = subtotal + ongkir + serviceFee;
+            
             document.getElementById('summary-subtotal').innerText = `Rp${subtotal.toLocaleString('id-ID')}`;
+            document.getElementById('summary-shipping').innerText = `Rp${ongkir.toLocaleString('id-ID')}`;
             document.getElementById('total-price-display').innerText = `Rp${grandTotal.toLocaleString('id-ID')}`;
         }
 
@@ -331,11 +369,13 @@
                 searchInput.value = '';
             }
             if (resultsBox) resultsBox.classList.add('hidden');
+            renderCheckout(); // RE-RENDER UNTUK UPDATE ONGKIR
         };
 
         async function updateAddress(lat, lng) {
             document.getElementById('lat').value = lat;
             document.getElementById('lng').value = lng;
+            renderCheckout(); // UPDATE HARGA LANGSUNG
             try {
                 const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}`);
                 const data = await res.json();
@@ -392,10 +432,14 @@
             btn.disabled = true;
             btn.innerHTML = '<span class="animate-pulse">SINKRONISASI STOK...</span>';
 
+            const pos = marker.getLatLng();
             const payload = {
                 alamat: alamat,
                 payment_method: document.querySelector('input[name="payment_method"]:checked').value,
-                cart: checkoutItems
+                cart: checkoutItems,
+                shipping_fee: calculateShipping(pos.lat, pos.lng),
+                lat: pos.lat,
+                lng: pos.lng
             };
 
             try {

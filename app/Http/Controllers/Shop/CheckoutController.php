@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Shop;
 use App\Http\Controllers\Controller;
 use App\Models\ItemShop;
 use App\Models\Transaction;
+use App\Models\SiteSetting;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -14,6 +15,20 @@ use Exception;
 
 class CheckoutController extends Controller
 {
+    public function index()
+    {
+        $settings = SiteSetting::whereIn('key', [
+            'shipping_base_fee',
+            'shipping_per_km',
+            'shipping_per_kg',
+            'service_fee'
+        ])->pluck('value', 'key');
+
+        return view('shop.checkout.index', [
+            'settings' => $settings
+        ]);
+    }
+
     public function store(Request $request)
     {
         $this->authorize('membeli-produk');
@@ -22,7 +37,9 @@ class CheckoutController extends Controller
 
             $subtotal = 0;
             $itemsSummary = [];
-            $biayaLayanan = 2500;
+            
+            $settings = SiteSetting::whereIn('key', ['service_fee'])->pluck('value', 'key');
+            $biayaLayanan = (int)($settings['service_fee'] ?? 2500);
 
             foreach ($request->cart as $cartItem) {
                 $item = ItemShop::where('id', $cartItem['id'])->lockForUpdate()->first();

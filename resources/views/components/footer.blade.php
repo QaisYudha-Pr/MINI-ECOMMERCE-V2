@@ -21,7 +21,7 @@
             <div class="col-span-1 space-y-6">
                 <h4 class="text-xs font-black uppercase tracking-[0.2em] text-gray-900">Belanja</h4>
                 <ul class="space-y-4 text-sm font-bold text-gray-500">
-                    <li><a href="#" class="hover:text-[#00AA5B] transition-colors">Semua Produk</a></li>
+                    <li><a href="/shop" class="hover:text-[#00AA5B] transition-colors">Semua Produk</a></li>
                     <li><a href="#" class="hover:text-[#00AA5B] transition-colors">Promo Spesial</a></li>
                     <li><a href="#" class="hover:text-[#00AA5B] transition-colors">Produk Terlaris</a></li>
                 </ul>

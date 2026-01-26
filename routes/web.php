@@ -59,6 +59,7 @@ Route::middleware('auth')->group(function () {
     });
  
     // Favorites
+    Route::get('/wishlist', [FavoriteController::class, 'index'])->name('wishlist.index');
     Route::post('/favorite/{item}', [FavoriteController::class, 'toggle'])->name('favorite.toggle');
  
     // Seller Registration
@@ -67,12 +68,14 @@ Route::middleware('auth')->group(function () {
  
     // Shop Interaction (Cart & Checkout)
     Route::prefix('checkout')->name('checkout.')->group(function () {
-        Route::get('/', fn() => view('shop.checkout.index'))->name('index');
+        Route::get('/', [CheckoutController::class, 'index'])->name('index');
         Route::post('/', [CartController::class, 'checkout'])->name('cart'); 
         Route::post('/process', [CheckoutController::class, 'store'])->name('process');
     });
  
     Route::get('/transactions', [CartController::class, 'index'])->name('transactions.index');
+    Route::get('/transactions/{transaction}', [CartController::class, 'show'])->name('transactions.show');
+    Route::post('/transactions/{transaction}/change-payment', [CartController::class, 'changePayment'])->name('transactions.changePayment');
     Route::post('/item-shop/{itemShop}/review', [ReviewController::class, 'store'])->name('reviews.store');
  
     /*

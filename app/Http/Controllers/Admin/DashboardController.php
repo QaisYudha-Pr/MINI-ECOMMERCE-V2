@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 use App\Exports\TransactionExport;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 
 class DashboardController extends Controller
@@ -22,17 +23,27 @@ class DashboardController extends Controller
             return Excel::download(new TransactionExport, 'transactions_report_' . date('Y-m-d') . '.xlsx');
         }
 
-        $user = auth()->user();
+        $user = Auth::user();
         $isAdmin = $user->hasRole('admin');
+        $isSeller = $user->hasRole('seller');
 
-        // 1. Basic Stats
+        // 1. Basic Stats (Admin/Seller)
         $totalItems = ItemShop::when(!$isAdmin, fn($q) => $q->where('user_id', $user->id))->count();
         $totalUsers = User::count();
         $totalReviews = Review::when(!$isAdmin, function($q) use ($user) {
             $q->whereHas('itemShop', fn($iq) => $iq->where('user_id', $user->id));
         })->count();
+
+        // 2. User Specific Stats (Regular User)
+        $userTransactionsCount = Transaction::where('user_id', $user->id)->count();
+        $userFavoritesCount = $user->favoriteItems()->count();
+        $userReviewsCount = Review::where('user_id', $user->id)->count();
+        $recentTransactions = Transaction::where('user_id', $user->id)
+            ->latest()
+            ->take(5)
+            ->get();
         
-        // 2. Fetch all successful transactions for detailed analysis
+        // 3. Fetch all successful transactions for detailed analysis
         $transactions = Transaction::where('status', 'success')->get();
 
         // 3. Category Filter Logic
@@ -165,7 +176,7 @@ class DashboardController extends Controller
             ]);
         }
 
-        $bestSellers = ItemShop::when(!$isAdmin, fn($q) => $q->where('user_id', $user->id))
+        $bestSellers = ItemShop::when(!$isAdmin && $isSeller, fn($q) => $q->where('user_id', $user->id))
             ->orderBy('total_terjual', 'desc')
             ->take(5)
             ->get();
@@ -182,7 +193,11 @@ class DashboardController extends Controller
             'revenueByOffer',
             'maxRevenue',
             'revenueByUser',
-            'revenueTimeline'
+            'revenueTimeline',
+            'userTransactionsCount',
+            'userFavoritesCount',
+            'userReviewsCount',
+            'recentTransactions'
         ));
     }
 }

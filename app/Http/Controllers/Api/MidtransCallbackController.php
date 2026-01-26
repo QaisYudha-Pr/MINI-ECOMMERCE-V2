@@ -20,7 +20,16 @@ class MidtransCallbackController extends Controller
             return response()->json(['message' => 'Invalid signature'], 403);
         }
 
-        $transaction = Transaction::where('invoice_number', $request->order_id)->first();
+        $orderId = $request->order_id;
+        $invoiceNumber = $orderId;
+        
+        // Cek apakah ada suffix timestamp (digunakan saat ganti pembayaran)
+        if (str_contains($orderId, '--')) {
+            $parts = explode('--', $orderId);
+            $invoiceNumber = $parts[0];
+        }
+
+        $transaction = Transaction::where('invoice_number', $invoiceNumber)->first();
 
         if (!$transaction) {
             if (str_contains($request->order_id, 'payment_notif_test')) {
@@ -29,6 +38,11 @@ class MidtransCallbackController extends Controller
             
             Log::error('Transaksi tidak ada di DB: ' . $request->order_id);
             return response()->json(['message' => 'Transaction not found'], 404);
+        }
+
+        // JIKA TRANSAKSI SUDAH SUKSES, JANGAN DIUBAH LAGI (Mencegah notifikasi expired dari token lama menimpa status sukses)
+        if ($transaction->status === 'success') {
+            return response()->json(['message' => 'Transaction already success'], 200);
         }
 
         $status = $request->transaction_status;

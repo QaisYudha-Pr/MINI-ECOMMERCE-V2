@@ -59,7 +59,6 @@
     <div x-data="{
         search: '',
         activeCategory: 'all',
-        cart: JSON.parse(localStorage.getItem('minie_cart') || '[]'),
     
         {{-- Data Items dari Database --}}
         items: {{ $items->filter(fn($i) => !empty(trim($i->kategori)))->map(function ($item) {
@@ -74,7 +73,7 @@
                     'nama_barang' => $item->nama_barang,
                     'harga' => $item->harga,
                     'gambar' => asset($item->gambar),
-                    'kategori' => strtolower($item->kategori),
+                    'kategori' => $item->kategori,
                     'stok' => $item->stok,
                     'rating' => number_format($item->ratings_avg ?? 0, 1, '.', ','),
                     'reviews_count' => $item->reviews_count ?? 0,
@@ -98,64 +97,6 @@
             return new Intl.NumberFormat('id-ID').format(num);
         },
     
-        {{-- Logika Tambah Ke Keranjang --}}
-        addToCart(item) {
-            if (item.stok <= 0) {
-                Swal.fire('Stok Habis', item.nama_barang + ' tidak tersedia', 'warning');
-                return;
-            }
-            const exists = this.cart.find(c => c.id === item.id);
-            if (exists) {
-                Swal.fire('Sudah Ada', item.nama_barang + ' sudah di keranjang bolo!', 'info');
-                return;
-            }
-            this.cart.push({ ...item, quantity: 1, selected: true });
-            this.saveCart();
-            $dispatch('notify', item.nama_barang + ' masuk keranjang!');
-            window.dispatchEvent(new CustomEvent('cart-updated'));
-        },
-    
-        get selectedTotalPrice() {
-            return this.cart
-                .filter(item => item.selected)
-                .reduce((sum, item) => sum + item.harga, 0);
-        },
-    
-        get selectedCount() {
-            return this.cart.filter(item => item.selected).length;
-        },
-    
-        {{-- Logika Hapus Dari Keranjang --}}
-        removeFromCart(index) {
-            this.cart.splice(index, 1);
-            this.saveCart();
-            $dispatch('notify', 'Barang dihapus');
-        },
-    
-        {{-- Logika Simpan --}}
-        saveCart() { localStorage.setItem('minie_cart', JSON.stringify(this.cart)); },
-    
-        {{-- ARAHKAN KE HALAMAN CHECKOUT BARU --}}
-        processCheckout() {
-            const toCheckout = this.cart.filter(i => i.selected);
-            if (toCheckout.length === 0) {
-                Swal.fire({ icon: 'warning', title: 'Pilih barang dulu bolo!', text: 'Centang barang yang mau dibayar di keranjang.' });
-                return;
-            }
-    
-            // Simpan sementara data yang mau di-CO ke localStorage khusus
-            localStorage.setItem('checkout_items', JSON.stringify(toCheckout));
-    
-            // Redirect ke route checkout yang ada form alamat & maps-nya
-            window.location.href = '{{ route('checkout.index') }}';
-        },
-    
-        removeSelected() {
-            this.cart = this.cart.filter(i => !i.selected);
-            this.saveCart();
-            $dispatch('notify', 'Item terpilih dihapus');
-        },
-    
         get categories() {
             const availableItems = this.items.filter(item => item.stok > 0);
             return ['all', ...new Set(availableItems.map(item => item.kategori))];
@@ -169,11 +110,7 @@
                 return isAvailable && matchSearch && matchCategory;
             });
         }
-    }" @remove-from-cart.window="removeFromCart($event.detail.index)"
-        @update-cart.window="cart[$event.detail.index].selected = $event.detail.selected; saveCart()"
-        @remove-selected.window="removeSelected()" @checkout-selected.window="processCheckout()"
-        @select-all-cart.window="cart.forEach(i => i.selected = $event.detail.selected); saveCart()"
-        class="bg-[#F8FAFC] min-h-screen pb-32">
+    }" class="bg-[#F8FAFC] min-h-screen pb-32">
 
         {{-- NEW: Tokopedia Style Banner Slider --}}
         <section class="max-w-7xl mx-auto px-4 sm:px-8 mt-6" data-aos="fade-down">
@@ -247,12 +184,12 @@
         <section class="max-w-7xl mx-auto px-8 mt-16" data-aos="fade-up">
             <div class="flex gap-4 overflow-x-auto no-scrollbar pb-4">
                 <template x-for="cat in categories" :key="cat">
-                    <button @click="activeCategory = cat"
+                    <a :href="'{{ route('shop.public') }}' + (cat === 'all' ? '' : '?category=' + encodeURIComponent(cat))"
                         :class="activeCategory === cat ? 'bg-[#00AA5B] text-white shadow-lg' :
                             'bg-white text-gray-500 border-gray-100'"
                         class="px-8 py-4 rounded-[2rem] border transition-all whitespace-nowrap">
                         <span class="text-[10px] font-black uppercase tracking-widest" x-text="cat"></span>
-                    </button>
+                    </a>
                 </template>
             </div>
         </section>
@@ -317,7 +254,7 @@
                                 </div>
                                 
                                 <!-- Quick Add Button -->
-                                <button @click="addToCart(item)" 
+                                <button @click="$store.cart.add(item)" 
                                     class="p-2 bg-gray-50 rounded-xl text-gray-400 hover:bg-[#00AA5B] hover:text-white transition-all shadow-sm">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/>

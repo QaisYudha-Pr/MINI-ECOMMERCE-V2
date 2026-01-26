@@ -10,9 +10,79 @@
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {{-- User Specific: Favorites Summary --}}
+            @if(!Auth::user()->hasRole('admin'))
+                @php
+                    $favCount = Auth::user()->favoriteItems()->count();
+                @endphp
+                <div class="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-xl shadow-slate-200/50 flex flex-col justify-between group">
+                    <div>
+                        <div class="flex items-center justify-between mb-6">
+                            <h4 class="text-xl font-black text-slate-900 tracking-tight">Daftar Suka</h4>
+                            <div class="w-10 h-10 bg-rose-50 rounded-2xl flex items-center justify-center text-rose-500">
+                                <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>
+                            </div>
+                        </div>
+                        
+                        <div class="py-6 text-center">
+                            @if($favCount > 0)
+                                <div class="text-4xl font-black text-slate-900 mb-1">{{ $favCount }}</div>
+                                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Produk Disimpan</p>
+                            @else
+                                <p class="text-xs font-bold text-slate-400 uppercase tracking-widest leading-relaxed">Belum ada barang<br>favorit bolo.</p>
+                            @endif
+                        </div>
+                    </div>
+
+                    <a href="{{ route('wishlist.index') }}" 
+                        class="w-full py-4 bg-rose-500 text-white rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] hover:bg-rose-600 transition-all text-center">
+                        Lihat Semua Suka
+                    </a>
+                </div>
+
+                {{-- User Specific: Cart Summary --}}
+                <div class="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-xl shadow-slate-200/50 flex flex-col justify-between" x-data>
+                    <div>
+                        <div class="flex items-center justify-between mb-6">
+                            <h4 class="text-xl font-black text-slate-900 tracking-tight">Keranjang Bolo</h4>
+                            <div class="w-10 h-10 bg-indigo-50 rounded-2xl flex items-center justify-center text-indigo-600">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+                            </div>
+                        </div>
+                        
+                        <div class="space-y-4 max-h-[200px] overflow-y-auto no-scrollbar mb-6">
+                            <template x-if="$store.cart.items.length === 0">
+                                <div class="text-center py-6">
+                                    <p class="text-xs font-bold text-slate-400 uppercase tracking-widest leading-relaxed">Keranjang kosong,<br>yuk jajan dulu!</p>
+                                </div>
+                            </template>
+                            
+                            <template x-for="item in $store.cart.items" :key="item.id">
+                                <div class="flex items-center gap-4 p-3 bg-slate-50/50 rounded-2xl border border-slate-100/50">
+                                    <img :src="item.gambar" class="w-10 h-10 rounded-xl object-cover">
+                                    <div class="flex-1 min-w-0">
+                                        <p class="text-[11px] font-black text-slate-800 truncate" x-text="item.nama_barang"></p>
+                                        <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest" x-text="`QTY: ${item.quantity}`"></p>
+                                    </div>
+                                    <div class="text-right">
+                                        <p class="text-[11px] font-black text-slate-900" x-text="new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(item.harga * item.quantity)"></p>
+                                    </div>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+
+                    <a href="{{ route('checkout.index') }}" 
+                        x-show="$store.cart.items.length > 0"
+                        class="w-full py-4 bg-slate-900 text-white rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] hover:bg-black transition-all text-center">
+                        Lanjut Checkout
+                    </a>
+                </div>
+            @endif
+
             {{-- Metrics/Stats or Action Cards --}}
             @if(Auth::user()->hasRole('seller') || Auth::user()->hasRole('admin'))
-                <div class="md:col-span-2 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div class="md:col-span-1 flex flex-col gap-4">
                      <!-- Card: Total Products -->
                     <div class="bg-white p-6 rounded-2xl border border-slate-100 flex items-center justify-between">
                         <div>
