@@ -44,7 +44,7 @@
                     {{-- ROLE (Spatie) --}}
                     <div class="group">
                         <label class="block text-sm font-black text-gray-700 uppercase tracking-widest mb-2 ml-1">Role Akses</label>
-                        <select name="role" class="w-full px-5 py-4 bg-gray-50 border-gray-200 rounded-2xl focus:ring-2 focus:ring-indigo-600 outline-none transition font-bold text-gray-700 cursor-pointer">
+                        <select name="role" id="role_select" class="w-full px-5 py-4 bg-gray-50 border-gray-200 rounded-2xl focus:ring-2 focus:ring-indigo-600 outline-none transition font-bold text-gray-700 cursor-pointer">
                             @php $currentRole = old('role', $user->roles->first()?->name); @endphp
                             <option value="user" {{ $currentRole == 'user' ? 'selected' : '' }}>User / Buyer</option>
                             <option value="seller" {{ $currentRole == 'seller' ? 'selected' : '' }}>Seller</option>
@@ -70,17 +70,17 @@
                         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                             @php
                             $allPermissions = \Spatie\Permission\Models\Permission::all();
-                            // Get permissions from old input if it exists, otherwise get all permissions user has (including from roles)
                             $userPermissions = old('permissions', $user->getAllPermissions()->pluck('name')->toArray());
                             @endphp
 
                             @foreach($allPermissions as $permission)
-                            <label class="flex items-start gap-3 p-4 bg-white rounded-xl border-2 border-gray-100 hover:border-indigo-300 transition-all cursor-pointer group">
+                            <label class="permission-item flex items-start gap-3 p-4 bg-white rounded-xl border-2 border-transparent hover:border-indigo-300 transition-all cursor-pointer group shadow-sm">
                                 <input type="checkbox"
                                     name="permissions[]"
                                     value="{{ $permission->name }}"
+                                    data-permission="{{ $permission->name }}"
                                     {{ in_array($permission->name, $userPermissions) ? 'checked' : '' }}
-                                    class="mt-1 w-5 h-5 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500 cursor-pointer">
+                                    class="permission-checkbox mt-1 w-5 h-5 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500 cursor-pointer transition-all">
                                 <div class="flex-1">
                                     <div class="font-bold text-sm text-gray-900 group-hover:text-indigo-600 transition-colors">
                                         {{ ucwords(str_replace('-', ' ', $permission->name)) }}
@@ -135,4 +135,44 @@
             </form>
         </div>
     </div>
+
+    @push('scripts')
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const roleSelect = document.getElementById('role_select');
+            const checkboxes = document.querySelectorAll('.permission-checkbox');
+
+            const rolePermissions = {
+                'admin': ['tambah-user', 'edit-user', 'hapus-user', 'lihat-user', 'tambah-produk', 'edit-produk', 'hapus-produk', 'lihat-produk', 'edit-permissions', 'lihat-permissions', 'membeli-produk'],
+                'seller': ['tambah-produk', 'edit-produk', 'hapus-produk', 'lihat-produk', 'membeli-produk'],
+                'user': ['lihat-produk', 'membeli-produk']
+            };
+
+            function updatePermissions(isInitial = false) {
+                const selectedRole = roleSelect.value;
+                const allowed = rolePermissions[selectedRole] || [];
+
+                checkboxes.forEach(cb => {
+                    const name = cb.getAttribute('data-permission');
+                    const item = cb.closest('.permission-item');
+                    
+                    if (allowed.includes(name)) {
+                        if(!isInitial) cb.checked = true;
+                        item.classList.add('border-indigo-600', 'bg-indigo-50/20');
+                        item.classList.remove('border-transparent');
+                    } else {
+                        if(!isInitial) cb.checked = false;
+                        item.classList.remove('border-indigo-600', 'bg-indigo-50/20');
+                        item.classList.add('border-transparent');
+                    }
+                });
+            }
+
+            roleSelect.addEventListener('change', () => updatePermissions(false));
+            
+            // On Edit, we only highlight but don't force check unless they change the role
+            updatePermissions(true);
+        });
+    </script>
+    @endpush
 </x-admin-layout>

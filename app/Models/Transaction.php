@@ -11,7 +11,8 @@ class Transaction extends Model
 
     protected $fillable = [
         'user_id', 'invoice_number', 'total_price', 'status', 
-        'payment_method', 'alamat', 'items_details', 'snap_token', 'shipping_fee'
+        'payment_method', 'alamat', 'items_details', 'snap_token', 'shipping_fee',
+        'courier_name', 'courier_service', 'destination_area_id'
     ];
 
     protected $casts = [

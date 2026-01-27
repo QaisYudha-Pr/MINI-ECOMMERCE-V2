@@ -10,12 +10,22 @@ class HomeController extends Controller
 {
     public function index()
     {
+        // 8 Latest Items
         $items = ItemShop::where('stok', '>', 0)
             ->withCount('reviews')
             ->withAvg('reviews as ratings_avg', 'rating')
-            ->latest()
+            ->orderBy('id', 'desc')
+            ->take(8)
             ->get();
 
-        return view('shop.home', compact('items'));
+        // Trusted Sellers (Ide 3)
+        $trustedSellers = \App\Models\User::role('seller')
+            ->withCount('itemShops')
+            ->whereHas('itemShops')
+            ->latest()
+            ->take(6)
+            ->get();
+
+        return view('shop.home', compact('items', 'trustedSellers'));
     }
 }

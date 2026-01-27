@@ -16,6 +16,7 @@ use App\Http\Controllers\Shop\ItemShopController as ShopItemShopController;
 use App\Http\Controllers\Shop\CartController;
 use App\Http\Controllers\Shop\CheckoutController;
 use App\Http\Controllers\Api\MidtransCallbackController;
+use App\Http\Controllers\ShippingController;
  
 /*
 |--------------------------------------------------------------------------
@@ -78,6 +79,12 @@ Route::middleware('auth')->group(function () {
     Route::post('/transactions/{transaction}/change-payment', [CartController::class, 'changePayment'])->name('transactions.changePayment');
     Route::post('/item-shop/{itemShop}/review', [ReviewController::class, 'store'])->name('reviews.store');
  
+    // Shipping Routes
+    Route::prefix('shipping')->name('shipping.')->group(function () {
+        Route::get('/search-area', [ShippingController::class, 'searchArea'])->name('search-area');
+        Route::post('/get-rates', [ShippingController::class, 'getRates'])->name('get-rates');
+    });
+
     /*
     |--------------------------------------------------------------------------
     | Admin & Management Routes
@@ -87,6 +94,8 @@ Route::middleware('auth')->group(function () {
  
         // Product Management (Resource for internal use)
         Route::middleware('role_or_permission:seller|admin|tambah-produk|edit-produk|hapus-produk')->group(function () {
+            Route::get('item-shop/export', [AdminItemShopController::class, 'export'])->name('item-shop.export');
+            Route::post('item-shop/{itemShop}/quick-stock', [AdminItemShopController::class, 'quickStock'])->name('item-shop.quick-stock');
             Route::resource('item-shop', AdminItemShopController::class)->except(['show']);
         });
  
@@ -104,6 +113,12 @@ Route::middleware('auth')->group(function () {
             Route::post('/update-logo', [CmsController::class, 'updateLogo'])->name('update-logo');
             Route::post('/update-text', [CmsController::class, 'updateText'])->name('update-text');
             Route::post('/update-images', [CmsController::class, 'updateImages'])->name('update-images');
+
+            // Courier Management
+            Route::post('/couriers', [CmsController::class, 'storeCourier'])->name('couriers.store');
+            Route::put('/couriers/{courier}', [CmsController::class, 'updateCourier'])->name('couriers.update');
+            Route::post('/couriers/{courier}/toggle', [CmsController::class, 'toggleCourier'])->name('couriers.toggle');
+            Route::delete('/couriers/{courier}', [CmsController::class, 'deleteCourier'])->name('couriers.delete');
         });
  
         Route::get('/', fn() => '<h1>Hai min</h1>')->middleware('role:admin');

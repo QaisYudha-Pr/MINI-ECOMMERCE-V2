@@ -80,8 +80,9 @@ class CheckoutController extends Controller
                 'status' => 'pending',
                 'payment_method' => $request->payment_method,
                 'alamat' => $request->alamat,
-                'items_details' => $itemsSummary,
-            ]);
+                'items_details' => $itemsSummary,                'courier_name' => $request->courier_name,
+                'courier_service' => $request->courier_service,
+                'destination_area_id' => $request->destination_area_id,            ]);
 
             $snapToken = null;
 

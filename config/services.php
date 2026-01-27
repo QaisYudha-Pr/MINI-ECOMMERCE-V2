@@ -41,8 +41,14 @@ return [
         'is_production' => env('MIDTRANS_IS_PRODUCTION', false),
     ],
 
-    'google' => [
-        'maps_api_key' => env('GOOGLE_MAPS_API_KEY'),
+    // 'google' => [
+    //     'maps_api_key' => env('GOOGLE_MAPS_API_KEY'),
+    // ],
+
+    'biteship' => [
+        'key' => env('BITESHIP_API_KEY'),
+        'url' => env('BITESHIP_BASE_URL', 'https://api.biteship.com'),
+        'origin_area_id' => env('BITESHIP_ORIGIN_AREA_ID', 'idn_6221_5011'), // Default Jakarta if not set
     ],
 
 ];

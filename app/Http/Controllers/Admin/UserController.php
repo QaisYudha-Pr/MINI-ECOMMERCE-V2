@@ -34,7 +34,7 @@ class UserController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:8|confirmed',
-            'roles' => 'array',
+            'role' => 'nullable|string|exists:roles,name',
             'permissions' => 'array',
         ]);
 
@@ -44,15 +44,15 @@ class UserController extends Controller
             'password' => Hash::make($validated['password']),
         ]);
 
-        if ($request->has('roles')) {
-            $user->assignRole($request->roles);
+        if ($request->filled('role')) {
+            $user->assignRole($request->role);
         }
 
         if ($request->has('permissions')) {
-            $user->givePermissionTo($request->permissions);
+            $user->syncPermissions($request->permissions);
         }
 
-        return redirect()->route('users.index')->with('success', 'User created successfully.');
+        return redirect()->route('users.index')->with('success', 'User berhasil ditambahkan.');
     }
 
     public function edit(User $user)
@@ -70,7 +70,7 @@ class UserController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users,email,' . $user->id,
-            'roles' => 'array',
+            'role' => 'nullable|string|exists:roles,name',
             'permissions' => 'array',
         ]);
 
@@ -79,14 +79,17 @@ class UserController extends Controller
             'email' => $validated['email'],
         ]);
 
-        if ($request->has('password')) {
+        if ($request->filled('password')) {
             $user->update(['password' => Hash::make($request->password)]);
         }
 
-        $user->syncRoles($request->roles ?? []);
+        if ($request->filled('role')) {
+            $user->syncRoles($request->role);
+        }
+        
         $user->syncPermissions($request->permissions ?? []);
 
-        return redirect()->route('users.index')->with('success', 'User updated successfully.');
+        return redirect()->route('users.index')->with('success', 'User berhasil diperbarui.');
     }
 
     public function destroy(User $user)

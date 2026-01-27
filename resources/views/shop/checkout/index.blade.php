@@ -92,7 +92,7 @@
                                     </div>
                                     <div>
                                         <h2 class="text-2xl font-black text-gray-900 tracking-tight uppercase">Lokasi Pengiriman</h2>
-                                        <p class="text-[10px] font-black text-indigo-500 uppercase tracking-widest mt-1">Pastikan titik di peta sudah akurat bolo</p>
+                                        <p class="text-[10px] font-black text-indigo-500 uppercase tracking-widest mt-1">Titik peta & Area pengiriman</p>
                                     </div>
                                 </div>
                                 
@@ -122,13 +122,21 @@
                                     </div>
                                 </div>
 
-                                <div class="flex items-center gap-5 p-4 bg-white/40 backdrop-blur-md rounded-[2.5rem] border-2 border-white shadow-xl shadow-slate-200/20 group hover:bg-white/60 transition-all duration-300">
-                                    <div class="w-12 h-12 bg-orange-500 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-orange-200 shrink-0">
-                                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                {{-- Biteship Area Search --}}
+                                <div class="relative group">
+                                    <div class="absolute inset-y-0 left-4 flex items-center pointer-events-none z-20">
+                                        <div class="w-12 h-12 bg-indigo-600 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-indigo-200 group-focus-within:scale-105 transition-all duration-300">
+                                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg>
+                                        </div>
                                     </div>
-                                    <div class="flex flex-col justify-center">
-                                        <p class="text-[10px] font-black text-orange-600 uppercase tracking-[0.1em] leading-none mb-1.5">Butuh Bantuan?</p>
-                                        <p class="text-[10px] font-bold text-slate-500 leading-tight">Geser marker merah ke titik rumahmu bolo.</p>
+                                    <input type="text" id="area-search" 
+                                        class="w-full h-full bg-white border-2 border-slate-100 focus:border-indigo-600 focus:ring-4 focus:ring-indigo-500/10 rounded-[2.5rem] pl-20 pr-8 py-6 text-sm transition-all outline-none font-black placeholder:text-slate-400 shadow-xl shadow-slate-200/20 leading-none" 
+                                        placeholder="Konfirmasi Kecamatan/Kota..." autocomplete="off">
+                                    <input type="hidden" name="destination_area_id" id="destination_area_id">
+                                    
+                                    {{-- Area Results Dropdown --}}
+                                    <div id="area-results" class="absolute z-[100] w-full mt-2 bg-white rounded-2xl shadow-2xl border border-slate-100 hidden max-h-60 overflow-y-auto">
+                                        {{-- Results dynamic --}}
                                     </div>
                                 </div>
                             </div>
@@ -172,6 +180,28 @@
 
                         <div id="product-list" class="space-y-6">
                             {{-- Items will be rendered here --}}
+                        </div>
+                    </div>
+
+                    {{-- 3. Kurir & Pengiriman Section --}}
+                    <div class="bg-white rounded-[3rem] p-10 shadow-xl shadow-slate-200/50 border border-white">
+                        <div class="flex items-center gap-5 mb-10">
+                            <div class="w-14 h-14 bg-indigo-600 rounded-2xl flex items-center justify-center text-white shadow-xl shadow-indigo-100 rotate-3">
+                                <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg>
+                            </div>
+                            <div>
+                                <h2 class="text-2xl font-black text-gray-900 tracking-tight uppercase">Pilih Kurir</h2>
+                                <p class="text-[10px] font-black text-indigo-500 uppercase tracking-widest mt-1">Metode pengiriman yang tersedia</p>
+                            </div>
+                        </div>
+
+                        <div class="space-y-8">
+                            {{-- Courier List --}}
+                            <div id="courier-container" class="space-y-4 opacity-50 pointer-events-none">
+                                <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest text-center py-4 border-2 border-dashed border-slate-100 rounded-[2rem]">
+                                    Pilih area lokasi dulu bolo
+                                </p>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -257,20 +287,11 @@
                                         <span id="summary-ongkir" class="font-black text-sm text-indigo-400 tracking-tight">Rp0</span>
                                     </div>
                                     
-                                    {{-- Shipping Breakdown Details (THE MATH) --}}
-                                    <div id="shipping-math-breakdown" class="bg-white/5 rounded-2xl p-4 space-y-2 border border-white/5">
-                                        <div class="flex justify-between text-[9px] uppercase tracking-widest font-bold text-slate-500">
-                                            <span>Base Fee (Minimal)</span>
-                                            <span id="math-base">Rp0</span>
-                                        </div>
-                                        <div class="flex justify-between text-[9px] uppercase tracking-widest font-bold text-slate-500">
-                                            <span>Jarak (<span id="rate-km">Rp0</span>/km)</span>
-                                            <span id="math-distance">Rp0</span>
-                                        </div>
-                                        <div class="flex justify-between text-[9px] uppercase tracking-widest font-bold text-slate-500">
-                                            <span>Beban Berat (<span id="rate-kg">Rp0</span>/kg)</span>
-                                            <span id="math-weight">Rp0</span>
-                                        </div>
+                                    {{-- Info tambahan --}}
+                                    <div class="bg-white/5 rounded-2xl p-4 space-y-2 border border-white/5">
+                                        <p class="text-[9px] text-slate-400 font-bold uppercase tracking-widest leading-relaxed">
+                                            Biaya pengiriman dihitung otomatis berdasarkan jarak dan berat paket bolo.
+                                        </p>
                                     </div>
                                 </div>
                             </div>
@@ -373,10 +394,10 @@
                     </div>
 
                     <div class="flex flex-row sm:flex-col items-center gap-6">
-                        <div class="flex items-center gap-4 bg-white p-2 rounded-2xl border-2 border-slate-100 shadow-sm">
-                            <button type="button" onclick="updateQty(${index}, -1)" class="w-10 h-10 flex items-center justify-center rounded-xl bg-slate-50 hover:bg-red-50 hover:text-red-500 transition-colors font-black text-lg">-</button>
-                            <span class="font-black text-slate-800 min-w-[30px] text-center text-lg">${item.quantity}</span>
-                            <button type="button" onclick="updateQty(${index}, 1)" class="w-10 h-10 flex items-center justify-center rounded-xl bg-slate-50 hover:bg-emerald-50 hover:text-emerald-500 transition-colors font-black text-lg">+</button>
+                        <div class="flex items-center gap-1 bg-slate-100 p-1.5 rounded-[1.5rem] border-2 border-slate-200/50 shadow-inner">
+                            <button type="button" onclick="updateQty(${index}, -1)" class="w-10 h-10 flex items-center justify-center rounded-xl bg-white hover:bg-red-500 hover:text-white hover:scale-105 transition-all duration-300 font-black text-lg shadow-sm">-</button>
+                            <span class="font-black text-slate-800 min-w-[40px] text-center text-lg">${item.quantity}</span>
+                            <button type="button" onclick="updateQty(${index}, 1)" class="w-10 h-10 flex items-center justify-center rounded-xl bg-indigo-600 text-white hover:bg-indigo-700 hover:scale-105 transition-all duration-300 font-black text-lg shadow-md shadow-indigo-100">+</button>
                         </div>
                         <div class="text-right shrink-0">
                             <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Subtotal Item</p>
@@ -468,10 +489,27 @@
                 if (data.length > 0) {
                     const { lat, lon } = data[0];
                     selectLocation(lat, lon, address, false);
+
+                    // OTOMATIS SYNC KE BITESHIP/AREA SEARCH
+                    try {
+                        const revRes = await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lon}`, {
+                            headers: { 'User-Agent': 'MiniQ-Store-App' }
+                        });
+                        const revData = await revRes.json();
+                        if (revData && revData.address) {
+                            const addr = revData.address;
+                            const keyword = addr.subdistrict || addr.village || addr.city_district || addr.city || addr.town;
+                            if (keyword) {
+                                document.getElementById('area-search').value = keyword;
+                                performAreaSearch(keyword, true); 
+                            }
+                        }
+                    } catch (e) { console.error("Reverse sync failed", e); }
+
                     Swal.fire({
                         icon: 'success',
                         title: 'Alamat Dipasang',
-                        text: 'Peta otomatis bergeser ke lokasi simpananmu bolo!',
+                        text: 'Peta & Area otomatis sinkron bolo!',
                         toast: true, position: 'top-end', showConfirmButton: false, timer: 3000
                     });
                 }
@@ -660,6 +698,14 @@
                 const data = await res.json();
                 if (data && data.display_name) {
                     alamatArea.value = data.display_name;
+
+                    // OTOMATIS SYNC KE BITESHIP
+                    const addr = data.address;
+                    const keyword = addr.subdistrict || addr.village || addr.city_district || addr.city || addr.town;
+                    if (keyword) {
+                        areaSearch.value = keyword;
+                        performAreaSearch(keyword, true); 
+                    }
                 }
             } catch(e) {
                 console.error("Reverse geocoding failed");
@@ -682,34 +728,84 @@
                     : "text-[8px] bg-indigo-500/20 px-2 py-0.5 rounded-full text-indigo-300 font-black border border-indigo-500/10 uppercase";
             }
 
-            // 2. Hitung Total Berat
-            let totalWeightGrams = 0;
-            checkoutItems.forEach(item => {
-                totalWeightGrams += (parseFloat(item.berat) || 1000) * parseInt(item.quantity);
-            });
-            const totalWeightKg = totalWeightGrams / 1000;
+            // 2. Fetch Rates from Backend (consistently)
+            fetchShippingRates(destinationAreaInput.value, lat, lng);
+        }
 
-            // 3. Logika Ongkir Dinamis (Berdasarkan Setting Admin)
-            const baseFee = parseFloat(config.shipping_base_fee);
-            const distanceFee = km > 2 ? Math.ceil(km - 2) * parseFloat(config.shipping_per_km) : 0;
-            const weightFee = Math.ceil(totalWeightKg) * parseFloat(config.shipping_per_kg);
-
-            globalShippingFee = baseFee + distanceFee + weightFee;
-
-            // 4. Update Math Breakdown UI
-            const mathBase = document.getElementById('math-base');
-            const mathDist = document.getElementById('math-distance');
-            const mathWeight = document.getElementById('math-weight');
-            const rateKm = document.getElementById('rate-km');
-            const rateKg = document.getElementById('rate-kg');
+        function renderCouriers(rates = []) {
+            courierContainer.classList.remove('opacity-50', 'pointer-events-none');
             
-            if(mathBase) mathBase.innerText = `Rp${baseFee.toLocaleString('id-ID')}`;
-            if(mathDist) mathDist.innerText = `+ Rp${distanceFee.toLocaleString('id-ID')} (${km > 2 ? Math.ceil(km-2) + 'km' : 'free'})`;
-            if(mathWeight) mathWeight.innerText = `+ Rp${weightFee.toLocaleString('id-ID')} (${Math.ceil(totalWeightKg)}kg)`;
-            if(rateKm) rateKm.innerText = `Rp${config.shipping_per_km.toLocaleString('id-ID')}`;
-            if(rateKg) rateKg.innerText = `Rp${config.shipping_per_kg.toLocaleString('id-ID')}`;
+            if (rates.length === 0) {
+                courierContainer.innerHTML = `
+                    <div class="p-6 rounded-[2rem] border-2 border-dashed border-slate-100 flex flex-col items-center justify-center text-center">
+                        <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Kurir Tidak Tersedia</p>
+                        <p class="text-[9px] font-bold text-slate-300 uppercase px-10">Pilih lokasi di peta atau cari area untuk memunculkan pilihan kurir.</p>
+                    </div>`;
+                return;
+            }
 
-            renderCheckout();
+            let ratesHtml = rates.map((rate, index) => {
+                const isChecked = index === 0 ? 'checked' : '';
+                const themeClass = rate.type === 'local' ? 'indigo' : 'slate';
+                const badgeColor = rate.type === 'local' ? 'text-emerald-500' : 'text-indigo-500';
+                
+                return `
+                    <label class="relative cursor-pointer group block">
+                        <input type="radio" name="courier_option" value="${rate.price}" 
+                            data-courier="${rate.courier_name}" 
+                            data-service="${rate.service}" 
+                            class="peer hidden" 
+                            ${isChecked}
+                            onchange="setShippingFee(${rate.price})">
+                        <div class="p-6 rounded-[2rem] border-2 border-slate-50 peer-checked:border-indigo-600 peer-checked:bg-indigo-50/50 transition-all duration-300 flex flex-col group-hover:bg-slate-50">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center gap-4">
+                                    <div class="w-10 h-10 rounded-full bg-white border-2 border-slate-100 flex items-center justify-center peer-checked:border-indigo-600">
+                                        <div class="w-4 h-4 rounded-full bg-indigo-600 opacity-0 peer-checked:opacity-100 transition-opacity"></div>
+                                    </div>
+                                    <div>
+                                        <div class="flex items-center gap-2">
+                                            <p class="text-sm font-black text-slate-800 uppercase">${rate.courier_name} - ${rate.service}</p>
+                                            <span class="text-[8px] font-black uppercase px-2 py-0.5 bg-slate-100 rounded-full ${badgeColor}">${rate.type}</span>
+                                        </div>
+                                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">${rate.duration} ${rate.description ? '• ' + rate.description : ''}</p>
+                                    </div>
+                                </div>
+                                <p class="text-sm font-black text-indigo-600">IDR ${new Intl.NumberFormat('id-ID').format(rate.price)}</p>
+                            </div>
+
+                            ${rate.type === 'local' && rate.breakdown ? `
+                            <div class="mt-4 pt-4 border-t border-slate-100/50 grid grid-cols-2 sm:grid-cols-4 gap-4">
+                                <div class="flex flex-col">
+                                    <span class="text-[7px] font-black text-slate-400 uppercase tracking-widest">Ongkir</span>
+                                    <span class="text-[9px] font-black text-slate-700">Rp${rate.breakdown.base_fee.toLocaleString('id-ID')}</span>
+                                </div>
+                                <div class="flex flex-col">
+                                    <span class="text-[7px] font-black text-slate-400 uppercase tracking-widest">Jarak (${rate.breakdown.distance_km}km)</span>
+                                    <span class="text-[9px] font-black text-slate-700">Rp${rate.breakdown.distance_fee.toLocaleString('id-ID')}</span>
+                                </div>
+                                <div class="flex flex-col">
+                                    <span class="text-[7px] font-black text-slate-400 uppercase tracking-widest">Beban (${rate.breakdown.weight_kg}kg)</span>
+                                    <span class="text-[9px] font-black text-slate-700">Rp${rate.breakdown.weight_fee.toLocaleString('id-ID')}</span>
+                                </div>
+                                <div class="flex flex-col">
+                                    <span class="text-[7px] font-black text-slate-400 uppercase tracking-widest">Admin/Layanan</span>
+                                    <span class="text-[9px] font-black text-indigo-600">Rp${(rate.breakdown.handling_fee + (rate.breakdown.service_extra || 0)).toLocaleString('id-ID')}</span>
+                                </div>
+                            </div>
+                            ` : ''}
+                        </div>
+                    </label>
+                `;
+            }).join('');
+
+            courierContainer.innerHTML = ratesHtml;
+            
+            // Auto calculate for the first one if checked
+            const selectedOption = document.querySelector('input[name="courier_option"]:checked');
+            if (selectedOption) {
+                setShippingFee(parseFloat(selectedOption.value));
+            }
         }
 
         marker.on('dragend', () => {
@@ -749,6 +845,118 @@
             }
         }
 
+        // --- BITESHIP INTEGRATION ---
+        const areaSearch = document.getElementById('area-search');
+        const areaResults = document.getElementById('area-results');
+        const courierContainer = document.getElementById('courier-container');
+        const destinationAreaInput = document.getElementById('destination_area_id');
+        let areaSearchTimer;
+
+        async function performAreaSearch(query, isAuto = false) {
+            if (query.length < 3) {
+                areaResults.classList.add('hidden');
+                return;
+            }
+
+            // Only show loader if manual search
+            if (!isAuto) {
+                areaResults.innerHTML = '<div class="px-6 py-4 text-xs text-slate-400 animate-pulse">Mencari area...</div>';
+                areaResults.classList.remove('hidden');
+            }
+
+            try {
+                const res = await fetch(`{{ route('shipping.search-area') }}?q=${encodeURIComponent(query)}`);
+                const data = await res.json();
+
+                if (data.length > 0) {
+                    areaResults.classList.remove('hidden');
+                    areaResults.innerHTML = data.map(area => `
+                        <div class="px-6 py-4 hover:bg-slate-50 cursor-pointer border-b border-slate-50 last:border-0" 
+                             onclick="selectArea('${area.id}', '${area.name}')">
+                            <p class="text-sm font-black text-slate-800">${area.name}</p>
+                            <p class="text-[9px] font-bold text-indigo-500 uppercase tracking-widest">ID: ${area.id}</p>
+                        </div>
+                    `).join('');
+                } else {
+                    if (isAuto) {
+                        areaResults.classList.add('hidden');
+                    } else {
+                        areaResults.classList.remove('hidden');
+                        areaResults.innerHTML = `
+                            <div class="px-6 py-8 text-center bg-slate-50/50">
+                                <div class="w-10 h-10 bg-white rounded-full flex items-center justify-center mx-auto mb-3 shadow-sm">
+                                    <i class="fa-solid fa-map-location-dot text-slate-400"></i>
+                                </div>
+                                <p class="text-[10px] font-black text-slate-800 uppercase tracking-tighter">Layanan Nasional Tidak Tersedia</p>
+                                <p class="text-[9px] font-bold text-slate-400 uppercase leading-tight px-10">Area pelosok/tidak tercover Biteship. Silahkan gunakan <span class="text-indigo-600">SADEWA Delivery</span> melalui PIN Peta.</p>
+                            </div>`;
+                    }
+                }
+            } catch (e) {
+                console.error("Area search failed", e);
+                areaResults.classList.add('hidden');
+            }
+        }
+
+        window.selectArea = (id, name) => {
+            areaSearch.value = name;
+            destinationAreaInput.value = id;
+            areaResults.classList.add('hidden');
+            
+            // Re-fetch with new area ID
+            const pos = marker.getLatLng();
+            fetchShippingRates(id, pos.lat, pos.lng);
+        };
+
+        async function fetchShippingRates(areaId = null, lat = null, lng = null) {
+            // Keep current couriers visible but show loading overlay for extras
+            const existingRates = courierContainer.innerHTML;
+            if (!existingRates.includes('animate-spin')) {
+                courierContainer.innerHTML = existingRates + '<div id="rates-loading" class="flex items-center justify-center p-4"><div class="w-6 h-6 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin"></div></div>';
+            }
+            
+            try {
+                const res = await fetch(`{{ route('shipping.get-rates') }}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': "{{ csrf_token() }}"
+                    },
+                    body: JSON.stringify({
+                        destination_area_id: areaId,
+                        lat: lat,
+                        lng: lng,
+                        items: checkoutItems.map(item => ({
+                            name: item.nama_barang,
+                            price: item.harga,
+                            quantity: item.quantity,
+                            weight: (parseFloat(item.berat) || 1) // In KG
+                        }))
+                    })
+                });
+
+                const rates = await res.json();
+                renderCouriers(rates);
+            } catch (e) {
+                console.error("Rates fetch failed", e);
+                // Fallback or keep current if error
+            }
+        }
+
+        window.setShippingFee = (fee) => {
+            // override manual shipping logic
+            globalShippingFee = fee;
+            
+            // Re-render to update grand total
+            renderCheckout();
+        }
+
+        areaSearch.addEventListener('input', (e) => {
+            clearTimeout(areaSearchTimer);
+            areaSearchTimer = setTimeout(() => performAreaSearch(e.target.value), 500);
+        });
+
         // 5. SUBMIT HANDLER
         document.getElementById('checkout-form').addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -760,11 +968,16 @@
             btn.disabled = true;
             btn.innerHTML = '<span class="animate-pulse">SINKRONISASI STOK...</span>';
 
+            const selectedCourier = document.querySelector('input[name="courier_option"]:checked');
+
             const payload = {
                 alamat: alamat,
                 payment_method: document.querySelector('input[name="payment_method"]:checked').value,
                 cart: checkoutItems,
-                shipping_fee: globalShippingFee
+                shipping_fee: globalShippingFee,
+                destination_area_id: destinationAreaInput.value,
+                courier_name: selectedCourier ? selectedCourier.getAttribute('data-courier') : null,
+                courier_service: selectedCourier ? selectedCourier.getAttribute('data-service') : null
             };
 
             try {

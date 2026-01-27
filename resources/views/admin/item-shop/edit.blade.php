@@ -56,7 +56,7 @@
                     <div class="space-y-4">
                         <label class="block text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-2 text-center">Visual Visual</label>
                         <div id="drop-zone" class="relative group/img overflow-hidden rounded-[2.5rem] bg-gray-50 border-2 border-dashed border-gray-200 min-h-[400px] flex items-center justify-center cursor-pointer">
-                            <img id="previewImg" src="{{ asset($itemShop->gambar) }}" class="max-h-[380px] w-full object-cover">
+                            <img id="previewImg" src="{{ old('gambar', asset($itemShop->gambar)) }}" class="max-h-[380px] w-full object-cover">
                             <div id="overlay-text" class="absolute inset-0 bg-indigo-900/20 opacity-0 group-hover/img:opacity-100 transition-all flex items-center justify-center backdrop-blur-[2px]">
                                 <span class="text-[10px] font-black uppercase tracking-widest bg-white text-gray-900 px-4 py-2 rounded-full shadow-xl">Update Image</span>
                             </div>

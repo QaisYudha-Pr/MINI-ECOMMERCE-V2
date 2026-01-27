@@ -11,6 +11,9 @@
     <title>{{ config('app.name', 'MiniQ-Store') }}</title>
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.css" integrity="sha512-7jtCDYBTwPkuQMfLgcDahS6Y3H898SL9jG7tO3T7M3E6v0pU9M6Q8E4e9Y6x1Y3E6v0pU9M6Q8E4e9Y6x1Y3w==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js" integrity="sha512-9Ajt0f69f46b2e3e57f5c53b28b2e3e57f5c53b28b2e3e57f5c53b28b2e3e57f5c53b2e3e57f5c53==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=plus-jakarta-sans:400,500,600,700,800,900" rel="stylesheet" />
     @vite(['resources/css/app.css', 'resources/js/app.js'])

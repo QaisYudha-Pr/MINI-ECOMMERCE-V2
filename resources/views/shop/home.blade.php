@@ -58,10 +58,9 @@
     {{-- 2. Alpine.js Root Container --}}
     <div x-data="{
         search: '',
-        activeCategory: 'all',
     
         {{-- Data Items dari Database --}}
-        items: {{ $items->filter(fn($i) => !empty(trim($i->kategori)))->map(function ($item) {
+        items: {{ $items->map(function ($item) {
                 // Ensure we use the real avatar path and fallback properly
                 $avatar = $item->user->avatar ?? null;
                 $sellerAvatar = $avatar 
@@ -96,24 +95,10 @@
         formatPrice(num) {
             return new Intl.NumberFormat('id-ID').format(num);
         },
-    
-        get categories() {
-            const availableItems = this.items.filter(item => item.stok > 0);
-            return ['all', ...new Set(availableItems.map(item => item.kategori))];
-        },
-    
-        get filteredItems() {
-            return this.items.filter(item => {
-                const isAvailable = item.stok > 0;
-                const matchSearch = item.nama_barang.toLowerCase().includes(this.search.toLowerCase());
-                const matchCategory = this.activeCategory === 'all' || item.kategori === this.activeCategory;
-                return isAvailable && matchSearch && matchCategory;
-            });
-        }
     }" class="bg-[#F8FAFC] min-h-screen pb-32">
 
         {{-- NEW: Tokopedia Style Banner Slider --}}
-        <section class="max-w-7xl mx-auto px-4 sm:px-8 mt-6" data-aos="fade-down">
+        <section class="max-w-7xl mx-auto px-4 sm:px-8 mt-6">
             <div class="swiper bannerSwiper rounded-[2.5rem] overflow-hidden shadow-2xl relative group">
                 <div class="swiper-wrapper">
                     <div class="swiper-slide">
@@ -143,7 +128,7 @@
         </section>
 
         {{-- 3. BENEFIT SECTION (REPLACING SEARCH STRIP) --}}
-        <section class="max-w-7xl mx-auto px-8 mt-12" data-aos="fade-up">
+        <section class="max-w-7xl mx-auto px-8 mt-12">
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <!-- Benefit 1 -->
                 <div class="group bg-white p-6 rounded-[2rem] border border-gray-100 shadow-sm hover:shadow-md transition-all flex items-center gap-5">
@@ -180,27 +165,57 @@
             </div>
         </section>
 
-        {{-- 4. KATEGORI --}}
-        <section class="max-w-7xl mx-auto px-8 mt-16" data-aos="fade-up">
-            <div class="flex gap-4 overflow-x-auto no-scrollbar pb-4">
-                <template x-for="cat in categories" :key="cat">
-                    <a :href="'{{ route('shop.public') }}' + (cat === 'all' ? '' : '?category=' + encodeURIComponent(cat))"
-                        :class="activeCategory === cat ? 'bg-[#00AA5B] text-white shadow-lg' :
-                            'bg-white text-gray-500 border-gray-100'"
-                        class="px-8 py-4 rounded-[2rem] border transition-all whitespace-nowrap">
-                        <span class="text-[10px] font-black uppercase tracking-widest" x-text="cat"></span>
-                    </a>
-                </template>
+        {{-- 4. TRUSTED SELLERS (IDE 3) --}}
+        <section class="max-w-7xl mx-auto px-8 mt-16">
+            <div class="flex items-center justify-between mb-8">
+                <div>
+                    <h2 class="text-2xl font-black text-slate-900 tracking-tight">Toko Pilihan Bolo</h2>
+                    <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mt-1">Belanja aman dari seller terpercaya</p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-6">
+                @foreach($trustedSellers as $seller)
+                <div class="group bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm hover:shadow-xl transition-all duration-500 flex items-center gap-6 relative overflow-hidden">
+                    {{-- Decorative Circle --}}
+                    <div class="absolute -right-4 -top-4 w-24 h-24 bg-indigo-50 rounded-full opacity-50 group-hover:scale-150 transition-transform duration-700"></div>
+
+                    <div class="relative z-10 w-20 h-20 shrink-0">
+                        <img src="{{ $seller->avatar ? (Str::startsWith($seller->avatar, ['http://', 'https://']) ? $seller->avatar : asset($seller->avatar)) : 'https://ui-avatars.com/api/?name=' . urlencode($seller->nama_toko ?? $seller->name) . '&color=7F9CF5&background=EBF4FF' }}" 
+                             class="w-full h-full rounded-[2rem] object-cover shadow-md border-2 border-white">
+                        <div class="absolute -bottom-1 -right-1 w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center text-white border-2 border-white shadow-sm">
+                            <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"></path></svg>
+                        </div>
+                    </div>
+
+                    <div class="relative z-10 flex-grow">
+                        <h4 class="text-base font-black text-slate-900 group-hover:text-indigo-600 transition-colors line-clamp-1">{{ $seller->nama_toko ?? $seller->name }}</h4>
+                        <div class="flex flex-col gap-1 mt-1">
+                            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{{ $seller->item_shops_count }} Produk Tersedia</span>
+                            <div class="flex items-center gap-1">
+                                <span class="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></span>
+                                <span class="text-[9px] font-black text-green-600 uppercase tracking-tighter">Verified Seller</span>
+                            </div>
+                        </div>
+                        <a href="{{ route('shop.public', ['search' => $seller->nama_toko ?? $seller->name]) }}" class="inline-flex mt-4 text-[9px] font-black uppercase tracking-[0.2em] text-indigo-600 hover:text-indigo-800 transition-colors">
+                            Kunjungi Toko →
+                        </a>
+                    </div>
+                </div>
+                @endforeach
             </div>
         </section>
 
         {{-- 5. PRODUK GRID --}}
-        <section class="max-w-7xl mx-auto px-8 mt-12">
+        <section class="max-w-7xl mx-auto px-8 mt-24">
+            <div class="mb-10 text-center">
+                <h2 class="text-3xl font-black text-slate-900 tracking-tight">Baru Masuk Bolo!</h2>
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-[0.3em] mt-2">Jangan Sampai Kehabisan Stok</p>
+            </div>
+            
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-                <template x-for="(item, index) in filteredItems" :key="item.id">
-                    <div class="group bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-lg transition-all duration-300 flex flex-col h-full relative"
-                        data-aos="fade-up" :data-aos-delay="index * 50">
-
+                <template x-for="(item, index) in items" :key="item.id">
+                    <div class="group bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-lg transition-all duration-300 flex flex-col h-full relative">
                         <!-- Image Section -->
                         <div class="relative aspect-square overflow-hidden bg-gray-50">
                             <img :src="item.gambar"
@@ -265,22 +280,29 @@
                     </div>
                 </template>
             </div>
+
+            {{-- Button: Lihat Semua Produk --}}
+            <div class="mt-16 text-center">
+                <a href="{{ route('shop.public') }}" 
+                    class="inline-flex items-center gap-3 px-10 py-5 bg-white border-2 border-slate-100 rounded-3xl text-[11px] font-black uppercase tracking-[0.2em] text-slate-800 hover:border-[#00AA5B] hover:text-[#00AA5B] transition-all duration-300 group shadow-sm hover:shadow-xl hover:-translate-y-1">
+                    Lihat Semua Produk
+                    <svg class="w-4 h-4 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
+                    </svg>
+                </a>
+            </div>
         </section>
 
         {{-- 6. MODAL & FOOTER --}}
         @include('components.cart-modal')
     </div>
 
-    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
-        AOS.init({
-            duration: 800,
-            once: true
-        });
-
+       
         // Initialize Swiper
         document.addEventListener('DOMContentLoaded', function() {
+            // Banner Swiper
             new Swiper('.bannerSwiper', {
                 loop: true,
                 autoplay: {
@@ -292,6 +314,14 @@
                     clickable: true,
                 },
                 speed: 1000,
+            });
+
+            // Flash Sale Swiper
+            new Swiper('.flashSaleSwiper', {
+                slidesPerView: 'auto',
+                spaceBetween: 20,
+                grabCursor: true,
+                speed: 800,
             });
         });
     </script>
