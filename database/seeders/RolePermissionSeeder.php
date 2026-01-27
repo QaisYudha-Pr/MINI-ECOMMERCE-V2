@@ -25,8 +25,8 @@ class RolePermissionSeeder extends Seeder
             'lihat-produk',
             'edit-permissions',
             'lihat-permissions',
-            'membeli-produk'
-
+            'membeli-produk',
+            'mengantar-pesanan'
         ];
 
         foreach ($permissions as $permission) {
@@ -51,6 +51,11 @@ class RolePermissionSeeder extends Seeder
             'guard_name' => 'web',
         ]);
 
+        $roleCourier = Role::firstOrCreate([
+            'name' => 'courier',
+            'guard_name' => 'web',
+        ]);
+
         $permissions = Permission::all();
         // Admin gets everything
         $roleAdmin->syncPermissions($permissions);
@@ -67,6 +72,11 @@ class RolePermissionSeeder extends Seeder
         $roleUser->syncPermissions([
             'lihat-produk',
             'membeli-produk',
+        ]);
+
+        // Courier gets delivery
+        $roleCourier->syncPermissions([
+            'mengantar-pesanan',
         ]);
     }
 }

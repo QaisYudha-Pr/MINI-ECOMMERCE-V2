@@ -16,6 +16,7 @@ use App\Http\Controllers\Shop\ItemShopController as ShopItemShopController;
 use App\Http\Controllers\Shop\CartController;
 use App\Http\Controllers\Shop\CheckoutController;
 use App\Http\Controllers\Api\MidtransCallbackController;
+use App\Http\Controllers\Admin\WithdrawalController;
 use App\Http\Controllers\ShippingController;
  
 /*
@@ -76,6 +77,7 @@ Route::middleware('auth')->group(function () {
  
     Route::get('/transactions', [CartController::class, 'index'])->name('transactions.index');
     Route::get('/transactions/{transaction}', [CartController::class, 'show'])->name('transactions.show');
+    Route::post('/transactions/{transaction}/confirm', [CartController::class, 'confirmReceipt'])->name('transactions.confirm');
     Route::post('/transactions/{transaction}/change-payment', [CartController::class, 'changePayment'])->name('transactions.changePayment');
     Route::post('/item-shop/{itemShop}/review', [ReviewController::class, 'store'])->name('reviews.store');
  
@@ -85,6 +87,12 @@ Route::middleware('auth')->group(function () {
         Route::post('/get-rates', [ShippingController::class, 'getRates'])->name('get-rates');
     });
 
+    // Courier Specific Routes (DIPISAH DARI ADMIN)
+    Route::middleware(['auth', 'role:courier'])->prefix('courier')->name('courier.')->group(function () {
+        Route::get('/deliveries', [\App\Http\Controllers\Courier\DeliveryController::class, 'index'])->name('deliveries.index');
+        Route::post('/deliveries/{transaction}/complete', [\App\Http\Controllers\Courier\DeliveryController::class, 'complete'])->name('deliveries.complete');
+    });
+
     /*
     |--------------------------------------------------------------------------
     | Admin & Management Routes
@@ -92,6 +100,13 @@ Route::middleware('auth')->group(function () {
     */
     Route::prefix('admin')->group(function () {
  
+        // Transaction Management
+        Route::middleware('role:admin|seller')->group(function () {
+            Route::get('transactions', [\App\Http\Controllers\Admin\TransactionController::class, 'index'])->name('admin.transactions.index');
+            Route::post('transactions/{transaction}/resi', [\App\Http\Controllers\Admin\TransactionController::class, 'updateResi'])->name('admin.transactions.resi');
+            Route::post('transactions/{transaction}/assign-courier', [\App\Http\Controllers\Admin\TransactionController::class, 'updateCourier'])->name('admin.transactions.assign');
+        });
+
         // Product Management (Resource for internal use)
         Route::middleware('role_or_permission:seller|admin|tambah-produk|edit-produk|hapus-produk')->group(function () {
             Route::get('item-shop/export', [AdminItemShopController::class, 'export'])->name('item-shop.export');
@@ -105,6 +120,13 @@ Route::middleware('auth')->group(function () {
             Route::get('seller-requests', [SellerValidationController::class, 'index'])->name('admin.sellers.index');
             Route::post('seller-requests/{user}/approve', [SellerValidationController::class, 'approve'])->name('admin.sellers.approve');
             Route::post('seller-requests/{user}/reject', [SellerValidationController::class, 'reject'])->name('admin.sellers.reject');
+        });
+
+        // Withdrawals
+        Route::middleware('role:admin|seller')->prefix('withdrawals')->name('admin.withdrawals.')->group(function () {
+            Route::get('/', [WithdrawalController::class, 'index'])->name('index');
+            Route::post('/', [WithdrawalController::class, 'store'])->name('store');
+            Route::put('/{withdrawal}', [WithdrawalController::class, 'update'])->name('update');
         });
 
         // CMS Settings

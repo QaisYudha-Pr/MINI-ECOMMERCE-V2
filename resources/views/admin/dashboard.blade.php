@@ -97,6 +97,25 @@
                         </div>
                     </div>
 
+                    @if(Auth::user()->hasRole('seller'))
+                    <!-- Card: Wallet Balance -->
+                    <div class="bg-slate-900 p-6 rounded-2xl border border-slate-800 flex items-center justify-between shadow-xl shadow-slate-200 group overflow-hidden relative">
+                        <div class="relative z-10">
+                            <div class="text-slate-400 text-[10px] font-black uppercase tracking-[0.2em] mb-1">Saldo Tersedia</div>
+                            <div class="text-2xl font-black text-white">RP {{ number_format(Auth::user()->balance, 0, ',', '.') }}</div>
+                            <a href="{{ route('admin.withdrawals.index') }}" 
+                                class="mt-3 text-[9px] font-bold text-indigo-400 uppercase tracking-widest hover:text-indigo-300 flex items-center gap-2">
+                                Tarik Saldo
+                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
+                            </a>
+                        </div>
+                        <div class="w-12 h-12 bg-white/10 rounded-xl flex items-center justify-center text-indigo-400 relative z-10">
+                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg>
+                        </div>
+                        <div class="absolute -right-4 -bottom-4 w-24 h-24 bg-indigo-500/10 rounded-full blur-2xl group-hover:scale-150 transition-transform"></div>
+                    </div>
+                    @endif
+
                     <!-- Card: Total Earnings -->
                     <div class="bg-white p-6 rounded-2xl border border-slate-100 flex items-center justify-between transition-transform hover:scale-[1.02] shadow-sm">
                         <div>

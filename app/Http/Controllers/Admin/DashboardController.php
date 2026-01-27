@@ -18,6 +18,13 @@ class DashboardController extends Controller
 {
     public function __invoke(Request $request)
     {
+        $user = Auth::user();
+
+        // Redirect Courier to their specific page
+        if ($user->hasRole('courier')) {
+            return redirect()->route('courier.deliveries.index');
+        }
+
         // Handle Export Request
         if ($request->has('export') && $request->get('export') === 'excel') {
             return Excel::download(new TransactionExport, 'transactions_report_' . date('Y-m-d') . '.xlsx');
@@ -43,8 +50,8 @@ class DashboardController extends Controller
             ->take(5)
             ->get();
         
-        // 3. Fetch all successful transactions for detailed analysis
-        $transactions = Transaction::where('status', 'success')->get();
+        // 3. Fetch all paid/completed transactions for detailed analysis
+        $transactions = Transaction::whereIn('status', ['success', 'shipped', 'completed'])->get();
 
         // 3. Category Filter Logic
         $selectedCategory = $request->get('category', 'all');

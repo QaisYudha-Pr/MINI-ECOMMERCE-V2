@@ -48,6 +48,7 @@ class User extends Authenticatable
         'longitude',
         'seller_status',
         'seller_document',
+        'balance',
     ];
 
     /**

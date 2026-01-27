@@ -144,6 +144,14 @@
                     </a>
                 </li>
                 <li>
+                    <a href="{{ route('admin.transactions.index') }}" class="flex items-center p-3 text-slate-700 rounded-xl hover:bg-slate-50 group {{ request()->routeIs('admin.transactions.*') ? 'bg-indigo-50 text-indigo-700' : '' }}">
+                        <svg class="w-5 h-5 transition duration-75 {{ request()->routeIs('admin.transactions.*') ? 'text-indigo-700' : 'text-slate-400 group-hover:text-slate-900' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                        </svg>
+                        <span class="ms-3">Orders Management</span>
+                    </a>
+                </li>
+                <li>
                     <a href="{{ route('dashboard') }}" class="flex items-center p-3 text-slate-700 rounded-xl hover:bg-slate-50 group {{ request()->routeIs('income.*') ? 'bg-indigo-50 text-indigo-700' : '' }}">
                         <svg class="w-5 h-5 transition duration-75 {{ request()->routeIs('income.*') ? 'text-indigo-700' : 'text-slate-400 group-hover:text-slate-900' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -195,8 +203,22 @@
                 </li>
                 @endunlessrole
 
+                @if(Auth::user()->hasRole('courier'))
+                <div class="pt-4 pb-2">
+                    <span class="px-3 text-xs font-semibold text-slate-400 uppercase tracking-wider">Kurir Panel</span>
+                </div>
+                <li>
+                    <a href="{{ route('courier.deliveries.index') }}" class="flex items-center p-3 text-slate-700 rounded-xl hover:bg-slate-50 group {{ request()->routeIs('courier.deliveries.*') ? 'bg-indigo-50 text-indigo-700' : '' }}">
+                        <svg class="w-5 h-5 transition duration-75 {{ request()->routeIs('courier.deliveries.*') ? 'text-indigo-700' : 'text-slate-400 group-hover:text-slate-900' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0" />
+                        </svg>
+                        <span class="ms-3">Tugas Pengiriman</span>
+                    </a>
+                </li>
+                @endif
+
                 {{-- BECOME SELLER --}}
-                @if(!Auth::user()->hasRole('seller') && !Auth::user()->hasRole('admin'))
+                @if(!Auth::user()->hasRole('seller') && !Auth::user()->hasRole('admin') && !Auth::user()->hasRole('courier'))
                 <div class="pt-4 pb-2">
                     <span class="px-3 text-xs font-semibold text-slate-400 uppercase tracking-wider">Peluang Bisnis</span>
                 </div>

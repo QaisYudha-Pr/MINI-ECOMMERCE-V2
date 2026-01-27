@@ -41,10 +41,9 @@ class UserSeeder extends Seeder
             'alamat' => 'Kecamatan Magersari, Mojokerto',
             'latitude' => -7.4682,
             'longitude' => 112.4501,
-            'seller_status' => 'approved',
+            'seller_status' => 'none',
         ]);
         $user->assignRole('user');
-        $user->assignRole('seller');
 
         // Tambah satu seller khusus untuk testing variasi lokasi
         $seller = User::create([
@@ -59,5 +58,15 @@ class UserSeeder extends Seeder
         ]);
         $seller->assignRole('user');
         $seller->assignRole('seller');
+
+        $courier = User::create([
+            'name' => 'Kurir Bolo',
+            'email' => 'kurir@gmail.com',
+            'password' => bcrypt('kurir1234'),
+            'alamat' => 'Pool Kurir Mojokerto',
+            'latitude' => -7.4726,
+            'longitude' => 112.4382,
+        ]);
+        $courier->assignRole('courier');
     }
 }

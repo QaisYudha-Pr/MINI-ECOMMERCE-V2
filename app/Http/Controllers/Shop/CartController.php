@@ -154,4 +154,19 @@ class CartController extends Controller
             return back()->with('error', 'Gagal ganti pembayaran: ' . $e->getMessage());
         }
     }
+
+    public function confirmReceipt(Transaction $transaction)
+    {
+        if ($transaction->user_id !== Auth::id()) {
+            abort(403);
+        }
+
+        if ($transaction->status !== 'shipped') {
+            return back()->with('error', 'Pesanan belum dikirim bolo!');
+        }
+
+        $transaction->completeTransaction();
+
+        return back()->with('success', 'Terima kasih bolo! Pesanan telah selesai.');
+    }
 }

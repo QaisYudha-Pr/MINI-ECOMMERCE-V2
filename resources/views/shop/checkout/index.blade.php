@@ -190,7 +190,7 @@
                                 <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg>
                             </div>
                             <div>
-                                <h2 class="text-2xl font-black text-gray-900 tracking-tight uppercase">Pilih Kurir</h2>
+                                <h2 class="text-2xl font-black text-gray-900 tracking-tight uppercase">Pilih Layanan</h2>
                                 <p class="text-[10px] font-black text-indigo-500 uppercase tracking-widest mt-1">Metode pengiriman yang tersedia</p>
                             </div>
                         </div>
@@ -266,7 +266,7 @@
                                 </div>
                                 
                                 <div class="flex justify-between items-center group">
-                                    <span class="text-xs font-bold text-slate-400 uppercase tracking-widest">Biaya Layanan</span>
+                                    <span class="text-xs font-bold text-slate-400 uppercase tracking-widest">Biaya Admin</span>
                                     <span class="font-black text-sm">Rp{{ number_format($settings['service_fee'] ?? 2500, 0, ',', '.') }}</span>
                                 </div>
 

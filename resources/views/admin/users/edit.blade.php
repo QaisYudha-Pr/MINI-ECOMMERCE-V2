@@ -49,6 +49,7 @@
                             <option value="user" {{ $currentRole == 'user' ? 'selected' : '' }}>User / Buyer</option>
                             <option value="seller" {{ $currentRole == 'seller' ? 'selected' : '' }}>Seller</option>
                             <option value="admin" {{ $currentRole == 'admin' ? 'selected' : '' }}>Administrator</option>
+                            <option value="courier" {{ $currentRole == 'courier' ? 'selected' : '' }}>Courier / Kurir</option>
                         </select>
                         @error('role') <p class="text-red-500 text-xs mt-2 font-bold">{{ $message }}</p> @enderror
                     </div>
@@ -145,7 +146,8 @@
             const rolePermissions = {
                 'admin': ['tambah-user', 'edit-user', 'hapus-user', 'lihat-user', 'tambah-produk', 'edit-produk', 'hapus-produk', 'lihat-produk', 'edit-permissions', 'lihat-permissions', 'membeli-produk'],
                 'seller': ['tambah-produk', 'edit-produk', 'hapus-produk', 'lihat-produk', 'membeli-produk'],
-                'user': ['lihat-produk', 'membeli-produk']
+                'user': ['lihat-produk', 'membeli-produk'],
+                'courier': ['mengantar-pesanan']
             };
 
             function updatePermissions(isInitial = false) {

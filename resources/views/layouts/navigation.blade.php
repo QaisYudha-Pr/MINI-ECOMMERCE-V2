@@ -187,7 +187,7 @@
                             <x-dropdown-link :href="route('wishlist.index')">{{ __('Daftar Suka') }}</x-dropdown-link>
                             <x-dropdown-link :href="route('profile.edit')">{{ __('Profile') }}</x-dropdown-link>
                             @role('admin')
-                                <x-dropdown-link :href="route('admin.cms.index')">{{ __('Admin Panel') }}</x-dropdown-link>
+                                <x-dropdown-link :href="route('admin.cms.index')">{{ __('Admin Settings') }}</x-dropdown-link>
                             @endrole
                             <form method="POST" action="{{ route('logout') }}">
                                 @csrf

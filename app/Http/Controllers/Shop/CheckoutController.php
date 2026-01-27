@@ -61,6 +61,7 @@ class CheckoutController extends Controller
 
                 $itemsSummary[] = [
                     'id' => $item->id,
+                    'seller_id' => $item->user_id, // Tambahkan seller_id
                     'nama_barang' => $item->nama_barang,
                     'kategori' => $item->kategori,
                     'harga' => (int)$item->harga,

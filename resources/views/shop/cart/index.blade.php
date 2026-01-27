@@ -24,6 +24,8 @@
                                     $statusClasses = [
                                         'pending' => 'bg-yellow-100 text-yellow-600',
                                         'success' => 'bg-green-100 text-green-600',
+                                        'shipped' => 'bg-blue-100 text-blue-600',
+                                        'completed' => 'bg-indigo-100 text-indigo-600',
                                         'failed' => 'bg-red-100 text-red-600',
                                         'expired' => 'bg-gray-100 text-gray-600',
                                     ];
@@ -34,6 +36,17 @@
                                 </span>
                             </div>
                         </div>
+
+                        {{-- Resi Display --}}
+                        @if($trx->resi)
+                            <div class="mb-4 p-4 bg-gray-50 rounded-2xl border border-gray-100">
+                                <span class="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-1">Tracking Number (Resi)</span>
+                                <div class="flex items-center gap-2">
+                                    <span class="text-sm font-black text-gray-900">{{ $trx->resi }}</span>
+                                    <span class="text-[10px] bg-indigo-100 text-indigo-600 px-2 py-0.5 rounded-md font-bold uppercase">{{ $trx->courier_name }}</span>
+                                </div>
+                            </div>
+                        @endif
 
                         <div class="border-t border-b border-gray-50 py-6 my-6">
                             <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-4">Items Purchased</p>
@@ -61,6 +74,17 @@
                             </div>
 
                             <div class="flex gap-3">
+                                {{-- Tombol Konfirmasi Barang Diterima --}}
+                                @if($trx->status == 'shipped')
+                                    <form action="{{ route('transactions.confirm', $trx->id) }}" method="POST">
+                                        @csrf
+                                        <button type="submit" onclick="return confirm('Apakah barang sudah diterima dengan baik bolo?')"
+                                            class="px-6 py-3 bg-green-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-green-700 transition-colors shadow-lg shadow-green-200">
+                                            Confirm Received
+                                        </button>
+                                    </form>
+                                @endif
+
                                 {{-- Tombol Bayar Sekarang (Muncul hanya jika pending) --}}
                                 @if($trx->status == 'pending' && $trx->snap_token)
                                     <button onclick="payNow('{{ $trx->snap_token }}')" 
