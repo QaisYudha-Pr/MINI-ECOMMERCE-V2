@@ -7,6 +7,8 @@ use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\Facades\Schema;
 use App\Models\SiteSetting;
+use App\Models\Notification;
+use Illuminate\Support\Facades\Auth;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -34,5 +36,19 @@ class AppServiceProvider extends ServiceProvider
             $settings = SiteSetting::all()->pluck('value', 'key')->toArray();
             View::share('siteSettings', $settings);
         }
+
+        // Global Notifications for All Users
+        View::composer('layouts.admin', function ($view) {
+            if (Auth::check()) {
+                $user = Auth::user();
+                $notifications = Notification::where('user_id', $user->id)
+                    ->where('is_read', false)
+                    ->latest()
+                    ->take(10)
+                    ->get();
+                
+                $view->with('globalNotifications', $notifications);
+            }
+        });
     }
 }

@@ -50,6 +50,13 @@ class DashboardController extends Controller
             ->take(5)
             ->get();
         
+        // 2.5 Store Rating (Custom Metric for Seller/Admin)
+        if ($isSeller) {
+            $storeRating = Review::whereHas('itemShop', fn($q) => $q->where('user_id', $user->id))->avg('rating') ?: 0;
+        } else {
+            $storeRating = Review::avg('rating') ?: 0;
+        }
+        
         // 3. Fetch all paid/completed transactions for detailed analysis
         $transactions = Transaction::whereIn('status', ['success', 'shipped', 'completed'])->get();
 
@@ -188,7 +195,14 @@ class DashboardController extends Controller
             ->take(5)
             ->get();
 
-        return view('admin.dashboard', compact(
+        // 8. Notifications from Database
+        $notifications = \App\Models\Notification::where('user_id', $user->id)
+            ->where('is_read', false)
+            ->latest()
+            ->take(10)
+            ->get();
+
+        return view('dashboard', compact(
             'totalItems',
             'totalUsers',
             'totalReviews',
@@ -204,7 +218,21 @@ class DashboardController extends Controller
             'userTransactionsCount',
             'userFavoritesCount',
             'userReviewsCount',
-            'recentTransactions'
+            'recentTransactions',
+            'storeRating',
+            'notifications'
         ));
+    }
+
+    /**
+     * Mark all notifications as read
+     */
+    public function markAsRead()
+    {
+        \App\Models\Notification::where('user_id', Auth::id())
+            ->where('is_read', false)
+            ->update(['is_read' => true]);
+
+        return back()->with('success', 'Semua notifikasi ditandai telah dibaca.');
     }
 }

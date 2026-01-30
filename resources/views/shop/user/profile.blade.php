@@ -54,14 +54,24 @@
                             </div>
                         </div>
 
+                        @role('seller')
+                        <div class="mt-6">
+                            <button onclick="document.getElementById('banner-input').click()" class="w-full px-6 py-3 bg-slate-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-black transition-all shadow-lg flex items-center justify-center gap-2">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                                Change Shop Banner
+                            </button>
+                            <p class="text-[9px] text-gray-400 font-bold mt-2 uppercase tracking-tighter italic">* Banner akan tampil di halaman utama tokomu</p>
+                        </div>
+                        @endrole
+
                         <div class="mt-10 pt-10 border-t border-gray-100 grid grid-cols-2 gap-4">
                             <div class="p-4 bg-gray-50 rounded-[2rem]">
-                                <span class="block text-2xl font-black text-gray-900 leading-none">12</span>
+                                <span class="block text-2xl font-black text-gray-900 leading-none">{{ auth()->user()->transactions()->count() }}</span>
                                 <span class="text-[9px] font-bold text-gray-400 uppercase tracking-widest mt-1 block">Orders</span>
                             </div>
                             <div class="p-4 bg-gray-50 rounded-[2rem]">
-                                <span class="block text-2xl font-black text-gray-900 leading-none">05</span>
-                                <span class="text-[9px] font-bold text-gray-400 uppercase tracking-widest mt-1 block">Reviews</span>
+                                <span class="block text-2xl font-black text-gray-900 leading-none">{{ $followedSellers->count() }}</span>
+                                <span class="text-[9px] font-bold text-gray-400 uppercase tracking-widest mt-1 block">Following</span>
                             </div>
                         </div>
                     </div>
@@ -70,6 +80,42 @@
                 {{-- KANAN: FORMS --}}
                 <div class="lg:col-span-2 space-y-10">
                     <div class="bg-white/80 backdrop-blur-md p-8 sm:p-12 rounded-[3.5rem] shadow-2xl shadow-gray-200/50 border border-white" data-aos="fade-up" data-aos-delay="100">
+                        <div class="max-w-3xl">
+                            <div class="mb-12">
+                                <h3 class="text-xl font-black text-gray-900 uppercase tracking-[0.2em]">Toko <span class="text-indigo-600">Diikuti</span></h3>
+                                <div class="w-16 h-1 bg-indigo-600 mt-2 rounded-full"></div>
+                                <p class="text-sm text-gray-500 mt-4 font-medium italic">Daftar toko yang kamu ikuti untuk melihat update produk terbaru.</p>
+                            </div>
+                            
+                            @if($followedSellers->count() > 0)
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    @foreach($followedSellers as $followed)
+                                        <div class="flex items-center justify-between p-4 bg-gray-50 rounded-3xl border border-gray-100 hover:border-indigo-200 transition-all group">
+                                            <div class="flex items-center gap-3">
+                                                <div class="w-10 h-10 rounded-full overflow-hidden border-2 border-white shadow-sm">
+                                                    <img src="{{ $followed->avatar ? asset($followed->avatar) : 'https://ui-avatars.com/api/?name='.urlencode($followed->nama_toko ?? $followed->name).'&background=4f46e5&color=fff' }}" class="w-full h-full object-cover">
+                                                </div>
+                                                <div>
+                                                    <h4 class="text-xs font-black text-gray-900 line-clamp-1 uppercase tracking-wider">{{ $followed->nama_toko ?? $followed->name }}</h4>
+                                                    <p class="text-[9px] font-bold text-gray-400 uppercase tracking-tighter">{{ $followed->item_shops_count }} Produk</p>
+                                                </div>
+                                            </div>
+                                            <a href="{{ route('shop.public', ['seller_id' => $followed->id]) }}" class="p-2.5 bg-white text-indigo-600 rounded-xl hover:bg-indigo-600 hover:text-white transition-all shadow-sm">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
+                                            </a>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            @else
+                                <div class="text-center py-10 bg-gray-50 rounded-[2.5rem] border-2 border-dashed border-gray-200">
+                                    <p class="text-xs font-bold text-gray-400 uppercase tracking-widest">Kamu belum mengikuti toko manapun bolo.</p>
+                                    <a href="{{ route('shop.public') }}" class="inline-block mt-4 text-[10px] font-black text-indigo-600 uppercase tracking-widest hover:underline">Cari Toko Favoritmu</a>
+                                </div>
+                            @endif
+                        </div>
+                    </div>
+
+                    <div class="bg-white/80 backdrop-blur-md p-8 sm:p-12 rounded-[3.5rem] shadow-2xl shadow-gray-200/50 border border-white" data-aos="fade-up" data-aos-delay="200">
                         <div class="max-w-3xl">
                             <div class="mb-12">
                                 <h3 class="text-xl font-black text-gray-900 uppercase tracking-[0.2em]">Personal <span class="text-indigo-600">Information</span></h3>
@@ -109,16 +155,30 @@
         </div>
     </div>
 
-    {{-- Modal Crop Avatar --}}
-    <div x-data="{ open: false }" x-init="$watch('open', value => { if (!value) document.getElementById('avatar-input').value = '' })"
-        @open-crop-modal.window="open = true"
+    {{-- Modal Crop --}}
+    <div x-data="{ 
+            open: false, 
+            title: 'Avatar',
+            mode: 'avatar', // avatar | banner
+            init() {
+                window.addEventListener('open-crop-modal', (e) => {
+                    this.title = e.detail.title || 'Avatar';
+                    this.mode = e.detail.mode || 'avatar';
+                    this.open = true;
+                });
+            }
+        }" 
+        x-init="init()"
+        @keydown.escape.window="open = false"
         id="cropModal" class="fixed inset-0 z-[100] hidden items-center justify-center bg-gray-900/80 backdrop-blur-sm"
-        :class="{ 'flex': open, 'hidden': !open }">
+        :class="{ 'flex': open, 'hidden': !open }" x-cloak>
         
-        <div class="bg-white rounded-[2.5rem] p-6 w-full max-w-lg shadow-2xl m-4 relative animate-fade-in-up">
-            <h3 class="text-xl font-black text-gray-900 uppercase tracking-widest mb-4 text-center">Crop Your <span class="text-indigo-600">Avatar</span></h3>
+        <div class="bg-white rounded-[2.5rem] p-6 w-full max-w-2xl shadow-2xl m-4 relative animate-fade-in-up">
+            <h3 class="text-xl font-black text-gray-900 uppercase tracking-widest mb-4 text-center">
+                Crop Your <span class="text-indigo-600" x-text="title"></span>
+            </h3>
             
-            <div class="relative w-full h-[400px] bg-gray-100 rounded-2xl overflow-hidden mb-6 border-2 border-dashed border-gray-300">
+            <div class="relative w-full h-[300px] sm:h-[400px] bg-gray-100 rounded-2xl overflow-hidden mb-6 border-2 border-dashed border-gray-300">
                 <img id="image-to-crop" class="max-w-full block" src="">
             </div>
 
@@ -138,6 +198,12 @@
         @csrf
         @method('PATCH')
         <input type="file" name="avatar" id="avatar-input" accept="image/*">
+    </form>
+
+    <form id="banner-form" action="{{ route('profile.banner.update') }}" method="POST" enctype="multipart/form-data" class="hidden">
+        @csrf
+        @method('PATCH')
+        <input type="file" name="banner" id="banner-input" accept="image/*">
     </form>
 
     {{-- CropperJS CSS & JS --}}
@@ -295,84 +361,96 @@
         });
 
         const avatarInput = document.getElementById('avatar-input');
+        const bannerInput = document.getElementById('banner-input');
         const imageToCrop = document.getElementById('image-to-crop');
         const btnCropUpload = document.getElementById('btn-crop-upload');
         let cropper;
+        let currentMode = 'avatar'; // default
 
-        // Trigger input file saat tombol diklik (sudah ada label yang handle ini, jadi listener change aja)
-        avatarInput.addEventListener('change', function(e) {
-            const files = e.target.files;
-            if (files && files.length > 0) {
-                const file = files[0];
-                const reader = new FileReader();
-                
-                reader.onload = function(e) {
-                    imageToCrop.src = e.target.result;
+        const handleImageSelect = (input, mode) => {
+            input.addEventListener('change', function(e) {
+                const files = e.target.files;
+                if (files && files.length > 0) {
+                    currentMode = mode;
+                    const file = files[0];
+                    const reader = new FileReader();
                     
-                    // Buka Modal via Alpine event
-                    window.dispatchEvent(new CustomEvent('open-crop-modal'));
+                    reader.onload = function(e) {
+                        imageToCrop.src = e.target.result;
+                        
+                        // Buka Modal via Alpine event
+                        window.dispatchEvent(new CustomEvent('open-crop-modal', {
+                            detail: { 
+                                title: mode === 'avatar' ? 'Avatar' : 'Shop Banner',
+                                mode: mode 
+                            }
+                        }));
 
-                    // Destroy old cropper if exists
-                    if (cropper) {
-                        cropper.destroy();
-                    }
+                        // Destroy old cropper if exists
+                        if (cropper) cropper.destroy();
 
-                    // Init Cropper
-                    setTimeout(() => {
-                        cropper = new Cropper(imageToCrop, {
-                            aspectRatio: 1,
-                            viewMode: 1,
-                            dragMode: 'move',
-                            autoCropArea: 1,
-                            background: false,
-                        });
-                    }, 200);
-                };
-                
-                reader.readAsDataURL(file);
-            }
-        });
+                        // Init Cropper
+                        setTimeout(() => {
+                            cropper = new Cropper(imageToCrop, {
+                                aspectRatio: mode === 'avatar' ? 1 : (16 / 6), // Banner lebih lebar
+                                viewMode: 1,
+                                dragMode: 'move',
+                                autoCropArea: 1,
+                                background: false,
+                            });
+                        }, 200);
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+        };
+
+        handleImageSelect(avatarInput, 'avatar');
+        handleImageSelect(bannerInput, 'banner');
 
         btnCropUpload.addEventListener('click', function() {
             if (!cropper) return;
 
-            const canvas = cropper.getCroppedCanvas({
-                width: 400,
-                height: 400,
-            });
+            const config = currentMode === 'avatar' 
+                ? { width: 400, height: 400 } 
+                : { width: 1200, height: 450 }; // Banner resolution
+
+            const canvas = cropper.getCroppedCanvas(config);
 
             canvas.toBlob(function(blob) {
                 const formData = new FormData();
-                formData.append('avatar', blob, 'avatar.png'); // Kirim sebagai file
-                formData.append('_method', 'PATCH'); // Spoofing PATCH
+                const fieldName = currentMode === 'avatar' ? 'avatar' : 'banner';
+                const uploadUrl = currentMode === 'avatar' 
+                    ? "{{ route('profile.avatar.update') }}" 
+                    : "{{ route('profile.banner.update') }}";
+
+                formData.append(fieldName, blob, `${fieldName}.png`);
+                formData.append('_method', 'PATCH');
                 formData.append('_token', '{{ csrf_token() }}');
 
-                // Tampilkan loading di button
                 btnCropUpload.innerText = 'UPLOADING...';
                 btnCropUpload.disabled = true;
 
-                fetch("{{ route('profile.avatar.update') }}", {
+                fetch(uploadUrl, {
                     method: 'POST',
                     body: formData,
                 })
                 .then(response => {
-                    if (response.ok) {
-                        return response; // Bisa redirect/reload
-                    }
+                    if (response.ok) return response;
                     throw new Error('Upload failed');
                 })
                 .then(() => {
                     Swal.fire({
                         icon: 'success',
-                        title: 'Avatar Updated!',
-                        text: 'Foto profil berhasil diperbarui, bolo.',
+                        title: 'Updated!',
+                        text: `${currentMode.charAt(0).toUpperCase() + currentMode.slice(1)} berhasil diperbarui!`,
                         timer: 1500,
                         showConfirmButton: false
                     }).then(() => window.location.reload());
                 })
                 .catch(err => {
                     console.error(err);
-                    Swal.fire('Error', 'Gagal upload foto, coba lagi ya.', 'error');
+                    Swal.fire('Error', 'Gagal upload, coba lagi ya.', 'error');
                     btnCropUpload.innerText = 'CROP & UPLOAD';
                     btnCropUpload.disabled = false;
                 });

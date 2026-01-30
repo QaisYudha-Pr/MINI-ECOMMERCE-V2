@@ -18,6 +18,7 @@ use App\Http\Controllers\Shop\CheckoutController;
 use App\Http\Controllers\Api\MidtransCallbackController;
 use App\Http\Controllers\Admin\WithdrawalController;
 use App\Http\Controllers\ShippingController;
+use App\Http\Controllers\FollowController;
  
 /*
 |--------------------------------------------------------------------------
@@ -49,6 +50,8 @@ Route::middleware('auth')->group(function () {
  
     // Dashboard for both Admin and User
     Route::get('/dashboard', DashboardController::class)->name('dashboard');
+    Route::post('/notifications/mark-as-read', [DashboardController::class, 'markAsRead'])->name('notifications.mark-as-read');
+    Route::get('/how-to', fn() => view('admin.how-to'))->name('how-to');
     Route::redirect('/admin/dashboard', '/dashboard');
     Route::redirect('/user/dashboard', '/dashboard');
 
@@ -58,7 +61,15 @@ Route::middleware('auth')->group(function () {
         Route::patch('/', [ProfileController::class, 'update'])->name('update');
         Route::delete('/', [ProfileController::class, 'destroy'])->name('destroy');
         Route::patch('/avatar', [ProfileController::class, 'updateAvatar'])->name('avatar.update');
+        Route::patch('/banner', [ProfileController::class, 'updateBanner'])->name('banner.update');
     });
+
+    // Follow system
+    Route::post('/follow/{user}', [FollowController::class, 'toggle'])->name('follow.toggle');
+    Route::post('/notifications/read-all', function() {
+        auth()->user()->notifications()->where('is_read', false)->update(['is_read' => true]);
+        return response()->json(['status' => 'success']);
+    })->name('notifications.read-all');
  
     // Favorites
     Route::get('/wishlist', [FavoriteController::class, 'index'])->name('wishlist.index');
@@ -79,6 +90,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/transactions/{transaction}', [CartController::class, 'show'])->name('transactions.show');
     Route::post('/transactions/{transaction}/confirm', [CartController::class, 'confirmReceipt'])->name('transactions.confirm');
     Route::post('/transactions/{transaction}/change-payment', [CartController::class, 'changePayment'])->name('transactions.changePayment');
+    
+    Route::get('/my-reviews', [ReviewController::class, 'index'])->name('reviews.index');
     Route::post('/item-shop/{itemShop}/review', [ReviewController::class, 'store'])->name('reviews.store');
  
     // Shipping Routes

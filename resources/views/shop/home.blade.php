@@ -69,6 +69,7 @@
 
                 return [
                     'id' => $item->id,
+                    'user_id' => $item->user_id,
                     'nama_barang' => $item->nama_barang,
                     'harga' => $item->harga,
                     'gambar' => asset($item->gambar),
@@ -169,8 +170,8 @@
         <section class="max-w-7xl mx-auto px-8 mt-16">
             <div class="flex items-center justify-between mb-8">
                 <div>
-                    <h2 class="text-2xl font-black text-slate-900 tracking-tight">Toko Pilihan Bolo</h2>
-                    <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mt-1">Belanja aman dari seller terpercaya</p>
+                    <h2 class="text-2xl font-black text-slate-900 tracking-tight">{{ $settings['trusted_sellers_title'] ?? 'Toko Pilihan Bolo' }}</h2>
+                    <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mt-1">{{ $settings['trusted_sellers_subtitle'] ?? 'Belanja aman dari seller terpercaya' }}</p>
                 </div>
             </div>
 
@@ -197,7 +198,7 @@
                                 <span class="text-[9px] font-black text-green-600 uppercase tracking-tighter">Verified Seller</span>
                             </div>
                         </div>
-                        <a href="{{ route('shop.public', ['search' => $seller->nama_toko ?? $seller->name]) }}" class="inline-flex mt-4 text-[9px] font-black uppercase tracking-[0.2em] text-indigo-600 hover:text-indigo-800 transition-colors">
+                        <a href="{{ route('shop.public', ['seller_id' => $seller->id]) }}" class="inline-flex mt-4 text-[9px] font-black uppercase tracking-[0.2em] text-indigo-600 hover:text-indigo-800 transition-colors">
                             Kunjungi Toko →
                         </a>
                     </div>

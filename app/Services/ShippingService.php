@@ -36,6 +36,7 @@ class ShippingService
             // Map Biteship rates to a common format if needed
             foreach ($biteshipRates as $rate) {
                 $rates[] = [
+                    'courier_service_id' => null, // Not a local agency
                     'courier_name' => $rate['courier_name'],
                     'service' => $rate['service'],
                     'price' => $rate['price'],
@@ -53,7 +54,7 @@ class ShippingService
      */
     public function getLocalRates($lat, $lng, array $items)
     {
-        if (!$lat || !$lng) {
+        if (!$lat || !$lng || empty($items)) {
             return [];
         }
 
@@ -69,44 +70,68 @@ class ShippingService
         $perKg = (float)($settings['shipping_per_kg'] ?? 1000);
         $handlingFee = (float)($settings['shipping_handling_fee'] ?? 0);
 
-        // Koordinat Toko (Default Mojokerto)
-        $originLat = -7.4726; 
-        $originLng = 112.4381;
+        // AMBIL LOKASI PENJUAL (Dari Item Pertama)
+        // Kita asumsikan pengiriman dihitung dari toko penjual
+        $firstItem = $items[0];
+        $seller = null;
+
+        // Jika item membawa user_id (seller), ambil koordinat aslinya
+        if (isset($firstItem['seller_id'])) {
+            $seller = \App\Models\User::find($firstItem['seller_id']);
+        }
+
+        // Kalau seller punya koordinat, pakai itu. Kalau nggak, pakai default Mojokerto.
+        $originLat = $seller && $seller->latitude ? (float)$seller->latitude : -7.4726; 
+        $originLng = $seller && $seller->longitude ? (float)$seller->longitude : 112.4381;
 
         $distance = $this->calculateDistance($lat, $lng, $originLat, $originLng);
         
         $totalWeightKg = 0;
         foreach ($items as $item) {
             $rawWeight = (float)($item['weight'] ?? 1);
+            // Standarisasi: Jika > 20 asumsikan Gram (misal 1000g), jika <= 20 asumsikan KG
             $weightInKg = $rawWeight > 20 ? $rawWeight / 1000 : $rawWeight;
             $totalWeightKg += $weightInKg * (int)($item['quantity'] ?? 1);
         }
 
+        // Hitung Biaya Berdasarkan Jarak & Berat
         $distanceFee = $distance > 2 ? ceil($distance - 2) * $perKm : 0;
         $weightFee = ceil($totalWeightKg) * $perKg;
         
-        // Harga dasar sebelum tambahan spesifik kurir
-        $basePrice = $baseFee + $distanceFee + $weightFee + $handlingFee;
-
         // AMBIL KURIR DARI DATABASE
         $activeCouriers = \App\Models\Courier::where('is_active', true)->get();
         $rates = [];
 
         foreach ($activeCouriers as $courier) {
+            $isDisabled = false;
+            $disableReason = '';
+
             // Cek jika ada batasan jarak
             if ($courier->max_distance && $distance > $courier->max_distance) {
-                continue;
+                $isDisabled = true;
+                $disableReason = 'Jarak melebihi batas maksimum';
             }
 
-            $finalPrice = ($basePrice * $courier->multiplier) + $courier->base_extra_cost;
+            // Cek jika ada batasan berat
+            if ($courier->max_weight && $totalWeightKg > $courier->max_weight) {
+                $isDisabled = true;
+                $disableReason = 'Berat melebihi batas maksimum';
+            }
+
+            // Rumus: (Ongkir Dasar * Multiplier) + Extra Fee Kurir + Layanan Sistem
+            $freight = $baseFee + $distanceFee + $weightFee;
+            $finalPrice = ($freight * $courier->multiplier) + ($courier->base_extra_cost ?? 0) + $handlingFee;
 
             $rates[] = [
+                'courier_service_id' => $courier->id,
                 'courier_name' => $courier->name,
                 'service' => $courier->service_name,
                 'price' => (int)$finalPrice,
                 'duration' => $courier->estimated_time ?? 'N/A',
                 'type' => 'local',
                 'description' => $courier->description,
+                'disabled' => $isDisabled,
+                'reason' => $disableReason,
                 'breakdown' => [
                     'base_fee' => (int)$baseFee,
                     'distance_km' => round($distance, 1),
@@ -114,7 +139,8 @@ class ShippingService
                     'weight_kg' => round($totalWeightKg, 1),
                     'weight_fee' => (int)$weightFee,
                     'handling_fee' => (int)$handlingFee,
-                    'service_extra' => (int)$courier->base_extra_cost,
+                    'service_extra' => (int)($courier->base_extra_cost ?? 0),
+                    'multiplier' => $courier->multiplier,
                     'total' => (int)$finalPrice
                 ]
             ];

@@ -14,8 +14,12 @@ class ProfileController extends Controller
 {
     public function edit(Request $request): View
     {
+        $user = $request->user();
+        $followedSellers = $user->following()->withCount(['itemShops'])->get();
+        
         return view('shop.user.profile', [
-            'user' => $request->user(),
+            'user' => $user,
+            'followedSellers' => $followedSellers,
         ]);
     }
 
@@ -37,6 +41,30 @@ class ProfileController extends Controller
             $file->move(public_path('uploads/avatars'), $filename);
 
             $user->avatar = 'uploads/avatars/' . $filename;
+            $user->save();
+        }
+
+        return back()->with('status', 'profile-updated');
+    }
+
+    public function updateBanner(Request $request)
+    {
+        $request->validate([
+            'banner' => ['required', 'image', 'max:2048'],
+        ]);
+
+        $user = $request->user();
+
+        if ($request->hasFile('banner')) {
+            if ($user->banner && file_exists(public_path($user->banner))) {
+                unlink(public_path($user->banner));
+            }
+
+            $file = $request->file('banner');
+            $filename = 'banner_' . $user->id . '_' . time() . '.' . $file->getClientOriginalExtension();
+            $file->move(public_path('uploads/banners'), $filename);
+
+            $user->banner = 'uploads/banners/' . $filename;
             $user->save();
         }
 

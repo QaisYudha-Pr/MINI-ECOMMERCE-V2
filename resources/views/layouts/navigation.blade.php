@@ -164,6 +164,86 @@
                     </template>
                 </button>
 
+                @auth
+                {{-- NOTIFICATION BELL --}}
+                <div class="relative" x-data="{ 
+                    open: false,
+                    readAll() {
+                        fetch('{{ route('notifications.read-all') }}', {
+                            method: 'POST',
+                            headers: {
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                'Accept': 'application/json'
+                            }
+                        });
+                    }
+                }">
+                    <button @click="open = !open; if(open) readAll()" 
+                        class="relative p-2 text-gray-600 hover:bg-gray-50 rounded-lg transition-colors group">
+                        <svg class="w-5 h-5 group-hover:text-[#00AA5B] transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                        </svg>
+                        @php
+                            $unreadCount = auth()->user()->notifications()->where('is_read', false)->count();
+                        @endphp
+                        @if($unreadCount > 0)
+                            <span class="absolute top-1 right-1 bg-[#00AA5B] text-white text-[8px] font-bold w-4 h-4 rounded-full flex items-center justify-center animate-bounce border-2 border-white">{{ $unreadCount }}</span>
+                        @endif
+                    </button>
+
+                    <div x-show="open" @click.away="open = false" x-cloak
+                        x-transition:enter="transition ease-out duration-200"
+                        x-transition:enter-start="opacity-0 translate-y-2"
+                        x-transition:enter-end="opacity-100 translate-y-0"
+                        class="absolute right-0 mt-3 w-80 bg-white border border-gray-100 shadow-2xl rounded-2xl overflow-hidden z-[100]">
+                        <div class="p-4 border-b border-gray-50 flex justify-between items-center bg-gray-50/50">
+                            <h3 class="text-[10px] font-black uppercase tracking-widest text-gray-900">Notifikasi</h3>
+                            @if($unreadCount > 0)
+                                <span class="bg-[#00AA5B]/10 text-[#00AA5B] text-[8px] font-black px-2 py-0.5 rounded-full uppercase">{{ $unreadCount }} Baru</span>
+                            @endif
+                        </div>
+                        <div class="max-h-96 overflow-y-auto no-scrollbar">
+                            @php
+                                $notifs = auth()->user()->notifications()->latest()->take(10)->get();
+                            @endphp
+                            @forelse($notifs as $notif)
+                                <div class="p-4 border-b border-gray-50 hover:bg-gray-50 transition-colors {{ !$notif->is_read ? 'bg-green-50/30' : '' }}">
+                                    <div class="flex gap-4">
+                                        <div class="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 {{ $notif->type === 'follow' ? 'bg-[#00AA5B]/10 text-[#00AA5B]' : 'bg-indigo-50 text-indigo-600' }}">
+                                            @if($notif->type === 'follow')
+                                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/></svg>
+                                            @else
+                                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                            @endif
+                                        </div>
+                                        <div class="flex-grow">
+                                            <p class="text-[11px] font-black text-gray-900 leading-tight mb-1 uppercase tracking-tight">{{ $notif->title }}</p>
+                                            <p class="text-[10px] text-gray-500 font-bold leading-relaxed">{{ $notif->message }}</p>
+                                            <div class="flex items-center gap-2 mt-2">
+                                                <div class="h-1 w-1 bg-gray-300 rounded-full"></div>
+                                                <p class="text-[9px] text-gray-400 font-black uppercase tracking-tighter">{{ $notif->created_at->diffForHumans() }}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            @empty
+                                <div class="px-6 py-10 text-center">
+                                    <div class="w-12 h-12 bg-gray-50 rounded-2xl flex items-center justify-center mx-auto mb-4 text-gray-300">
+                                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" /></svg>
+                                    </div>
+                                    <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest leading-relaxed">Belum ada kabar<br>untuk kamu bolo</p>
+                                </div>
+                            @endforelse
+                            @if($notifs->count() > 0)
+                                <a href="#" class="block py-3 text-center bg-gray-50 text-[9px] font-black text-[#00AA5B] hover:bg-[#00AA5B] hover:text-white transition-all uppercase tracking-[0.2em] border-t border-gray-100">
+                                    Lihat Semua Notifikasi
+                                </a>
+                            @endif
+                        </div>
+                    </div>
+                </div>
+                @endauth
+
                 <div class="h-6 w-[1px] bg-gray-200 hidden md:block"></div>
 
                 @auth

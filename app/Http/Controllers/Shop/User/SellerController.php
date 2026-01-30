@@ -32,6 +32,7 @@ class SellerController extends Controller
 
         $request->validate([
             'nama_toko' => 'required|string|max:255|unique:users,nama_toko',
+            'phone' => 'required|string|max:20',
             'seller_document' => 'required|image|mimes:jpeg,png,jpg|max:2048',
         ]);
 
@@ -45,6 +46,7 @@ class SellerController extends Controller
 
         $user->update([
             'nama_toko' => $request->nama_toko,
+            'phone' => $request->phone,
             'seller_document' => $documentPath,
             'seller_status' => 'pending',
         ]);

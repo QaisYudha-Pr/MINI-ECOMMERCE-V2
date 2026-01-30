@@ -29,7 +29,10 @@
                                         <div>
                                             <p class="text-sm font-bold text-gray-900">{{ $seller->name }}</p>
                                             <p class="text-xs font-black text-[#00AA5B] mt-0.5 uppercase tracking-tighter italic">"{{ $seller->nama_toko }}"</p>
-                                            <p class="text-[10px] text-gray-400 mt-1">{{ $seller->email }}</p>
+                                            <div class="flex flex-col gap-0.5 mt-1">
+                                                <p class="text-[10px] text-gray-400">{{ $seller->email }}</p>
+                                                <p class="text-[10px] font-bold text-slate-500">{{ $seller->phone ?? '-' }}</p>
+                                            </div>
                                         </div>
                                     </div>
                                 </td>

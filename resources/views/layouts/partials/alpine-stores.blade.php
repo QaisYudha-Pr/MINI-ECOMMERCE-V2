@@ -19,36 +19,51 @@
                 });
             },
 
-            add(item, qty = 1) {
+            add(item, qty = 1, silent = false) {
                 const exists = this.items.find(i => i.id === item.id);
+                const numericQty = parseInt(qty) || 1;
+                const numericPrice = Number(item.harga) || 0;
+
                 if (exists) {
-                    Swal.fire({
-                        icon: 'info',
-                        title: 'Sudah Ada!',
-                        text: item.nama_barang + ' sudah ada di keranjang bolo!',
-                        customClass: { popup: 'rounded-[2rem]' }
-                    });
+                    exists.quantity = (parseInt(exists.quantity) || 0) + numericQty;
+                    
+                    if (item.stok && exists.quantity > item.stok) {
+                        exists.quantity = item.stok;
+                    }
+
+                    this.save();
+                    
+                    if (!silent) {
+                        Swal.fire({
+                            toast: true,
+                            position: 'top-end',
+                            icon: 'success',
+                            title: 'Jumlah diperbarui di keranjang!',
+                            showConfirmButton: false,
+                            timer: 2000
+                        });
+                    }
                     return;
                 }
+                
                 this.items.push({ 
                     ...item, 
-                    quantity: qty, 
+                    harga: numericPrice, 
+                    quantity: numericQty, 
                     selected: true 
                 });
                 this.save();
-                this.show = true;
                 
-                const Toast = Swal.mixin({
-                    toast: true,
-                    position: 'top-end',
-                    showConfirmButton: false,
-                    timer: 3000,
-                    timerProgressBar: true
-                });
-                Toast.fire({
-                    icon: 'success',
-                    title: item.nama_barang + ' masuk keranjang!'
-                });
+                if (!silent) {
+                    Swal.fire({
+                        toast: true,
+                        position: 'top-end',
+                        icon: 'success',
+                        title: item.nama_barang + ' masuk keranjang!',
+                        showConfirmButton: false,
+                        timer: 2000
+                    });
+                }
             },
 
             remove(index) {
@@ -62,14 +77,24 @@
             },
 
             save() {
-                localStorage.setItem('minie_cart', JSON.stringify(this.items));
-                window.dispatchEvent(new CustomEvent('cart-updated'));
+                // Optimization: Use requestIdleCallback if available for non-blocking save
+                const persist = () => {
+                    localStorage.setItem('minie_cart', JSON.stringify(this.items));
+                    window.dispatchEvent(new CustomEvent('cart-updated'));
+                };
+
+                if (window.requestIdleCallback) {
+                    window.requestIdleCallback(persist);
+                } else {
+                    setTimeout(persist, 0);
+                }
             },
 
             get total() {
+                // Faster reduction without too many parseInt calls if already clean
                 return this.items
                     .filter(i => i.selected)
-                    .reduce((sum, item) => sum + (item.harga * (item.quantity || 1)), 0);
+                    .reduce((sum, item) => sum + (Number(item.harga) * (Number(item.quantity) || 1)), 0);
             },
 
             get selectedCount() {

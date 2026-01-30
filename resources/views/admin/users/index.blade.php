@@ -48,8 +48,13 @@
                                         @endif
                                     </div>
                                     <div>
-                                        <h4 class="font-bold text-gray-900 group-hover:text-[#00AA5B] transition-colors leading-none mb-1">{{ $user->name }}</h4>
-                                        <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">{{ $user->email }}</p>
+                                        <div class="flex items-center gap-2 mb-1">
+                                            <h4 class="font-bold text-gray-900 group-hover:text-indigo-600 transition-colors leading-none uppercase tracking-tighter">{{ $user->name }}</h4>
+                                            @if($user->seller_status === 'approved')
+                                                <svg class="w-3.5 h-3.5 text-blue-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.64.304 1.24.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
+                                            @endif
+                                        </div>
+                                        <p class="text-[9px] font-black text-gray-400 uppercase tracking-widest">{{ $user->email }}</p>
                                     </div>
                                 </div>
                             </td>
@@ -57,14 +62,21 @@
                                 <div class="flex flex-wrap gap-2">
                                     @php $roles = $user->getRoleNames(); @endphp
                                     @if($roles->isEmpty())
-                                        <span class="px-3 py-1 bg-gray-50 text-gray-400 rounded-lg text-[9px] font-black uppercase tracking-widest border border-gray-100">User</span>
+                                        <span class="px-3 py-1 bg-gray-50 text-gray-400 rounded-lg text-[9px] font-black uppercase tracking-widest border border-gray-100">User Client</span>
                                     @else
                                         @foreach($roles as $role)
-                                        <span class="px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest shadow-sm
+                                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest shadow-sm
                                             {{ $role == 'admin' ? 'bg-indigo-50 text-indigo-600 border border-indigo-100' : 
-                                               ($role == 'seller' ? 'bg-green-50 text-[#00AA5B] border border-green-100' : 'bg-slate-50 text-slate-600 border border-slate-100') }}">
+                                               ($role == 'seller' ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' : 
+                                               ($role == 'courier' ? 'bg-orange-50 text-orange-600 border border-orange-100' : 'bg-slate-50 text-slate-600 border border-slate-100')) }}">
+                                            <span class="w-1 h-1 rounded-full {{ $role == 'admin' ? 'bg-indigo-400' : ($role == 'seller' ? 'bg-emerald-400' : 'bg-orange-400') }}"></span>
                                             {{ $role }}
                                         </span>
+                                        @if($role == 'courier' && $user->courierAgency)
+                                            <span class="px-3 py-1 bg-white text-gray-400 rounded-lg text-[8px] font-black uppercase tracking-widest border border-gray-100 shadow-sm italic">
+                                                {{ $user->courierAgency->name }}
+                                            </span>
+                                        @endif
                                         @endforeach
                                     @endif
                                 </div>

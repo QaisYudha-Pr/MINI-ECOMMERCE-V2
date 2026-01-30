@@ -14,7 +14,7 @@ class UserController extends Controller
     public function index()
     {
         $this->authorize('viewAny', User::class);
-        $users = User::with('roles')->latest()->paginate(10);
+        $users = User::with(['roles', 'courierAgency'])->latest()->paginate(10);
         return view('admin.users.index', compact('users'));
     }
 
@@ -23,7 +23,8 @@ class UserController extends Controller
         $this->authorize('create', User::class);
         $roles = Role::all();
         $permissions = Permission::all();
-        return view('admin.users.create', compact('roles', 'permissions'));
+        $couriers = \App\Models\Courier::all();
+        return view('admin.users.create', compact('roles', 'permissions', 'couriers'));
     }
 
     public function store(Request $request)
@@ -35,6 +36,7 @@ class UserController extends Controller
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:8|confirmed',
             'role' => 'nullable|string|exists:roles,name',
+            'courier_agency_id' => 'nullable|exists:couriers,id',
             'permissions' => 'array',
         ]);
 
@@ -42,6 +44,7 @@ class UserController extends Controller
             'name' => $validated['name'],
             'email' => $validated['email'],
             'password' => Hash::make($validated['password']),
+            'courier_agency_id' => $validated['courier_agency_id'] ?? null,
         ]);
 
         if ($request->filled('role')) {
@@ -60,7 +63,8 @@ class UserController extends Controller
         $this->authorize('update', $user);
         $roles = Role::all();
         $permissions = Permission::all();
-        return view('admin.users.edit', compact('user', 'roles', 'permissions'));
+        $couriers = \App\Models\Courier::all();
+        return view('admin.users.edit', compact('user', 'roles', 'permissions', 'couriers'));
     }
 
     public function update(Request $request, User $user)
@@ -71,12 +75,14 @@ class UserController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users,email,' . $user->id,
             'role' => 'nullable|string|exists:roles,name',
+            'courier_agency_id' => 'nullable|exists:couriers,id',
             'permissions' => 'array',
         ]);
 
         $user->update([
             'name' => $validated['name'],
             'email' => $validated['email'],
+            'courier_agency_id' => $validated['courier_agency_id'] ?? null,
         ]);
 
         if ($request->filled('password')) {

@@ -69,6 +69,65 @@
             </div>
 
             <div class="flex items-center gap-4">
+                {{-- Global Notifications --}}
+                @if(Auth::user()->hasRole('admin') || Auth::user()->hasRole('seller'))
+                <x-dropdown align="right" width="80">
+                    <x-slot name="trigger">
+                        <button class="relative p-2.5 text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 rounded-xl transition-all duration-300 group">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+                            @if($globalNotifications->count() > 0)
+                            <span class="absolute top-2 right-2 w-2.5 h-2.5 bg-rose-500 border-2 border-white rounded-full animate-pulse"></span>
+                            @endif
+                        </button>
+                    </x-slot>
+
+                    <x-slot name="content">
+                        <div class="w-80 p-4">
+                            <div class="flex items-center justify-between mb-4 border-b border-slate-50 pb-4">
+                                <div>
+                                    <h3 class="text-xs font-black text-slate-900 uppercase tracking-widest">Notifikasi</h3>
+                                    <span class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">{{ $globalNotifications->count() }} Baru</span>
+                                </div>
+                                @if($globalNotifications->count() > 0)
+                                <form action="{{ route('notifications.mark-as-read') }}" method="POST">
+                                    @csrf
+                                    <button type="submit" class="text-[9px] font-black text-indigo-600 uppercase tracking-widest hover:text-slate-900 transition-colors">Mark as Read</button>
+                                </form>
+                                @endif
+                            </div>
+                            <div class="space-y-3 max-h-[300px] overflow-y-auto no-scrollbar">
+                                @forelse($globalNotifications as $notif)
+                                <div class="flex items-start gap-4 p-3 rounded-2xl hover:bg-slate-50 transition-all group/item">
+                                    <div class="w-10 h-10 bg-indigo-600/10 rounded-xl flex items-center justify-center text-indigo-600 shrink-0 group-hover/item:bg-indigo-600 group-hover/item:text-white transition-all">
+                                        @if($notif->type == 'success')
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
+                                        @else
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                        @endif
+                                    </div>
+                                    <div class="min-w-0">
+                                        <p class="text-[11px] font-black text-slate-900 truncate tracking-tight">{{ $notif->title }}</p>
+                                        <p class="text-[9px] font-bold text-slate-400 mt-0.5">{{ $notif->message }}</p>
+                                        <p class="text-[8px] font-black text-indigo-500 uppercase tracking-widest mt-1">{{ $notif->created_at->diffForHumans() }}</p>
+                                    </div>
+                                </div>
+                                @empty
+                                <div class="py-10 text-center">
+                                    <div class="w-12 h-12 bg-slate-50 rounded-2xl flex items-center justify-center text-slate-200 mx-auto mb-3">
+                                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+                                    </div>
+                                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Belum ada notifikasi bolo</p>
+                                </div>
+                                @endforelse
+                            </div>
+                            @if(Auth::user()->hasRole('admin') || Auth::user()->hasRole('seller'))
+                            <a href="{{ route('admin.transactions.index') }}" class="block mt-4 text-center py-2.5 bg-slate-50 hover:bg-slate-900 text-slate-400 hover:text-white rounded-xl text-[9px] font-black uppercase tracking-widest transition-all">Lihat Semua Pesanan</a>
+                            @endif
+                        </div>
+                    </x-slot>
+                </x-dropdown>
+                @endif
+
                 {{-- User Dropdown --}}
                 <x-dropdown align="right" width="48">
                     <x-slot name="trigger">
@@ -133,8 +192,39 @@
                     </a>
                 </li>
 
+                {{-- User Section --}}
+                @unless(Auth::user()->hasRole('seller') || Auth::user()->hasRole('admin'))
+                <div class="pt-4 pb-2">
+                    <span class="px-3 text-xs font-semibold text-slate-400 uppercase tracking-wider">Shopping Hub</span>
+                </div>
+                <li>
+                    <a href="{{ route('shop.public') }}" class="flex items-center p-3 text-slate-700 rounded-xl hover:bg-slate-50 group {{ request()->routeIs('shop.public') ? 'bg-indigo-50 text-indigo-700' : '' }}">
+                        <svg class="w-5 h-5 transition duration-75 {{ request()->routeIs('shop.public') ? 'text-indigo-700' : 'text-slate-400 group-hover:text-slate-900' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                        </svg>
+                        <span class="ms-3">Jelajah Toko</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ route('wishlist.index') }}" class="flex items-center p-3 text-slate-700 rounded-xl hover:bg-slate-50 group {{ request()->routeIs('wishlist.*') ? 'bg-indigo-50 text-indigo-700' : '' }}">
+                        <svg class="w-5 h-5 transition duration-75 {{ request()->routeIs('wishlist.*') ? 'text-indigo-700' : 'text-slate-400 group-hover:text-slate-900' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                        </svg>
+                        <span class="ms-3">Barang Favorit</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ route('reviews.index') }}" class="flex items-center p-3 text-slate-700 rounded-xl hover:bg-slate-50 group {{ request()->routeIs('reviews.index') ? 'bg-indigo-50 text-indigo-700' : '' }}">
+                        <svg class="w-5 h-5 transition duration-75 {{ request()->routeIs('reviews.index') ? 'text-indigo-700' : 'text-slate-400 group-hover:text-slate-900' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.382-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+                        </svg>
+                        <span class="ms-3">Ulasan Saya</span>
+                    </a>
+                </li>
+                @endunless
+
                 {{-- Seller Centre --}}
-                @if(Auth::user()->hasRole('seller') || Auth::user()->hasRole('admin') || Auth::user()->hasPermissionTo('lihat-produk'))
+                @if(Auth::user()->hasRole('seller') || Auth::user()->hasRole('admin'))
                 <div class="pt-4 pb-2">
                     <span class="px-3 text-xs font-semibold text-slate-400 uppercase tracking-wider">Seller Centre</span>
                 </div>
@@ -258,13 +348,48 @@
     </aside>
 
     {{-- Main Content --}}
-    <div class="p-8 lg:ml-64 pt-28 min-h-screen bg-[#f8fafc]">
-        @if (isset($header))
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-8">
-                {{ $header }}
-            </div>
-        @endif
-        <main>
+    <div class="lg:ml-64 pt-16 min-h-screen bg-[#F8FAFC]">
+        <main class="p-4 lg:p-8 pt-8">
+            {{-- Modern Breadcrumbs --}}
+            <nav class="flex mb-8 items-center justify-between" aria-label="Breadcrumb">
+                <ol class="inline-flex items-center space-x-1 md:space-x-2">
+                    <li class="inline-flex items-center">
+                        <a href="{{ route('dashboard') }}" class="inline-flex items-center text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 hover:text-indigo-600 transition-colors">
+                            <svg class="w-3.5 h-3.5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
+                            Main
+                        </a>
+                    </li>
+                    @php
+                        $segments = Request::segments();
+                        $currentUrl = '';
+                    @endphp
+                    @foreach($segments as $segment)
+                        @php $currentUrl .= '/'.$segment; @endphp
+                        @if($segment != 'admin')
+                        <li>
+                            <div class="flex items-center">
+                                <span class="text-slate-300 mx-1">/</span>
+                                <a href="{{ url($currentUrl) }}" class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 hover:text-indigo-600 transition-colors">
+                                    {{ str_replace('-', ' ', $segment) }}
+                                </a>
+                            </div>
+                        </li>
+                        @endif
+                    @endforeach
+                </ol>
+
+                <div class="hidden md:flex items-center gap-2">
+                    <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-lg shadow-emerald-200 animate-pulse"></span>
+                    <span class="text-[9px] font-black uppercase tracking-[0.2em] text-slate-400">Live Server</span>
+                </div>
+            </nav>
+
+            @if (isset($header))
+                <div class="max-w-7xl mx-auto mb-8">
+                    {{ $header }}
+                </div>
+            @endif
+
             {{ $slot }}
         </main>
     </div>

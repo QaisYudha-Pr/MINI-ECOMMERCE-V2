@@ -138,6 +138,8 @@ class CmsController extends Controller
             'service_name' => 'required|string|max:255',
             'multiplier' => 'required|numeric|min:0',
             'base_extra_cost' => 'required|numeric|min:0',
+            'max_distance' => 'nullable|numeric|min:0',
+            'max_weight' => 'nullable|numeric|min:0',
             'icon' => 'nullable|string|max:255',
             'description' => 'required|string|max:255',
         ]);
@@ -154,6 +156,8 @@ class CmsController extends Controller
             'service_name' => 'required|string|max:255',
             'multiplier' => 'required|numeric|min:0',
             'base_extra_cost' => 'required|numeric|min:0',
+            'max_distance' => 'nullable|numeric|min:0',
+            'max_weight' => 'nullable|numeric|min:0',
             'icon' => 'nullable|string|max:255',
             'description' => 'required|string|max:255',
         ]);

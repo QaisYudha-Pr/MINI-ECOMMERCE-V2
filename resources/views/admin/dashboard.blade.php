@@ -1,15 +1,39 @@
 <x-admin-layout>
     <div class="space-y-6">
         {{-- Welcome Section --}}
-        <div class="bg-white overflow-hidden shadow-sm sm:rounded-2xl p-8 border border-slate-100 relative">
+        <div class="bg-indigo-600 overflow-hidden shadow-2xl shadow-indigo-200 sm:rounded-[2.5rem] p-10 relative group">
              <div class="relative z-10">
-                <h3 class="text-2xl font-bold text-slate-900">Welcome, {{ Auth::user()->name }} 👋</h3>
-                <p class="text-slate-500 mt-2">Here is what's happening with your account today.</p>
+                <span class="inline-block px-4 py-1.5 rounded-full bg-white/20 backdrop-blur-md text-white text-[10px] font-black uppercase tracking-[0.2em] mb-4">
+                    Dashboard Overview
+                </span>
+                <h3 class="text-4xl font-black text-white tracking-tighter leading-tight">
+                    Halo @if(Auth::user()->hasRole('seller')) Juragan @else Bolo @endif, <br>
+                    {{ Auth::user()->name }}! 🚀
+                </h3>
+                <p class="text-indigo-100 mt-4 text-sm font-medium max-w-md">Senang melihatmu kembali. Berikut adalah ringkasan aktivitas tokomu hari ini.</p>
+                
+                <div class="flex flex-wrap gap-4 mt-8">
+                    <a href="{{ route('home') }}" class="px-6 py-3 bg-white text-indigo-600 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-slate-50 transition-all shadow-lg shadow-black/10 active:scale-95">
+                        Lihat Toko
+                    </a>
+                    @if(Auth::user()->hasRole('seller'))
+                    <a href="{{ route('item-shop.create') }}" class="px-6 py-3 bg-indigo-500/30 text-white border border-white/20 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-indigo-500/50 transition-all active:scale-95">
+                        Tambah Produk
+                    </a>
+                    @endif
+                </div>
             </div>
-            <div class="absolute right-0 top-0 h-full w-1/3 bg-gradient-to-l from-indigo-50 to-transparent hidden md:block"></div>
+            
+            {{-- Abstract Ornaments --}}
+            <div class="absolute right-[-5%] top-[-10%] w-64 h-64 bg-white/10 rounded-full blur-3xl transition-all duration-700"></div>
+            <div class="absolute right-[10%] bottom-[-20%] w-48 h-48 bg-indigo-400/20 rounded-full blur-2xl"></div>
+            
+            <div class="absolute right-12 top-1/2 -translate-y-1/2 hidden lg:block opacity-20 transition-opacity duration-500">
+                <svg class="w-48 h-48 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M11 7V13L16.2 16.1L17 14.9L12.5 12.2V7H11M12 2C6.5 2 2 6.5 2 12S6.5 22 12 22 22 17.5 22 12 17.5 2 12 2M12 20C7.59 20 4 16.41 4 12S7.59 4 12 4 20 7.59 20 12 16.41 20 12 20Z"/></svg>
+            </div>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
             @if(!Auth::user()->hasRole('admin'))
                 {{-- User Specific: Favorites Summary --}}
                 @php
@@ -19,7 +43,7 @@
                     <div>
                         <div class="flex items-center justify-between mb-6">
                             <h4 class="text-xl font-black text-slate-900 tracking-tight">Daftar Suka</h4>
-                            <div class="w-10 h-10 bg-rose-50 rounded-2xl flex items-center justify-center text-rose-500 transition-transform group-hover:scale-110">
+                            <div class="w-10 h-10 bg-rose-50 rounded-2xl flex items-center justify-center text-rose-500">
                                 <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>
                             </div>
                         </div>
@@ -85,104 +109,117 @@
 
             {{-- Metrics/Stats or Action Cards --}}
             @if(Auth::user()->hasRole('seller') || Auth::user()->hasRole('admin'))
-                <div class="{{ Auth::user()->hasRole('admin') ? 'md:col-span-2' : 'md:col-span-1' }} grid grid-cols-1 {{ Auth::user()->hasRole('admin') ? 'sm:grid-cols-3' : '' }} gap-4">
+                <div class="{{ Auth::user()->hasRole('admin') ? 'md:col-span-2' : 'md:col-span-1' }} grid grid-cols-1 {{ Auth::user()->hasRole('admin') ? 'sm:grid-cols-2 lg:grid-cols-3' : '' }} gap-4">
                      <!-- Card: Total Items -->
-                    <div class="bg-white p-6 rounded-2xl border border-slate-100 flex items-center justify-between shadow-sm">
+                    <div class="bg-white p-6 rounded-[2rem] border border-slate-100 flex items-center justify-between shadow-xl shadow-slate-200/50">
                         <div>
-                            <div class="text-slate-500 text-xs font-bold uppercase tracking-wider mb-1">Total Items</div>
-                            <div class="text-2xl font-black text-slate-900">{{ $totalItems }}</div>
+                            <div class="text-slate-400 text-[10px] font-black uppercase tracking-[0.15em] mb-1">Total Items</div>
+                            <div class="text-2xl font-black text-slate-900 leading-none">{{ $totalItems }}</div>
                         </div>
-                        <div class="w-12 h-12 bg-indigo-50 rounded-xl flex items-center justify-center text-indigo-600">
+                        <div class="w-12 h-12 bg-indigo-50 rounded-2xl flex items-center justify-center text-indigo-600">
                              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
                         </div>
                     </div>
 
                     @if(Auth::user()->hasRole('seller'))
                     <!-- Card: Wallet Balance -->
-                    <div class="bg-slate-900 p-6 rounded-2xl border border-slate-800 flex items-center justify-between shadow-xl shadow-slate-200 group overflow-hidden relative">
+                    <div class="bg-white p-6 rounded-[2rem] border border-slate-100 flex items-center justify-between shadow-xl shadow-slate-200/50 group overflow-hidden relative">
                         <div class="relative z-10">
                             <div class="text-slate-400 text-[10px] font-black uppercase tracking-[0.2em] mb-1">Saldo Tersedia</div>
-                            <div class="text-2xl font-black text-white">RP {{ number_format(Auth::user()->balance, 0, ',', '.') }}</div>
+                            <div class="text-2xl font-black text-slate-900 leading-none">RP {{ number_format(Auth::user()->balance, 0, ',', '.') }}</div>
                             <a href="{{ route('admin.withdrawals.index') }}" 
-                                class="mt-3 text-[9px] font-bold text-indigo-400 uppercase tracking-widest hover:text-indigo-300 flex items-center gap-2">
+                                class="mt-3 text-[9px] font-bold text-indigo-600 uppercase tracking-widest hover:text-indigo-800 flex items-center gap-2 transition-colors">
                                 Tarik Saldo
                                 <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
                             </a>
                         </div>
-                        <div class="w-12 h-12 bg-white/10 rounded-xl flex items-center justify-center text-indigo-400 relative z-10">
+                        <div class="w-12 h-12 bg-indigo-50 rounded-2xl flex items-center justify-center text-indigo-600 relative z-10">
                              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg>
                         </div>
-                        <div class="absolute -right-4 -bottom-4 w-24 h-24 bg-indigo-500/10 rounded-full blur-2xl group-hover:scale-150 transition-transform"></div>
                     </div>
                     @endif
 
-                    <!-- Card: Total Earnings -->
-                    <div class="bg-white p-6 rounded-2xl border border-slate-100 flex items-center justify-between transition-transform hover:scale-[1.02] shadow-sm">
+                    <!-- Card: Store Rating -->
+                    <div class="bg-white p-6 rounded-[2rem] border border-slate-100 flex items-center justify-between shadow-xl shadow-slate-200/50">
                         <div>
-                            <div class="text-slate-500 text-xs font-bold uppercase tracking-wider mb-1">Total Pendapatan</div>
-                            <div class="text-2xl font-black text-indigo-600">RP {{ number_format($totalEarnings, 0, ',', '.') }}</div>
+                            <div class="text-slate-400 text-[10px] font-black uppercase tracking-[0.15em] mb-1">Rating Toko</div>
+                            <div class="flex items-center gap-2 mt-1">
+                                <div class="text-2xl font-black text-slate-900 leading-none">{{ number_format($storeRating, 1) }}</div>
+                                <div class="flex items-center text-amber-400">
+                                    <svg class="w-4 h-4 fill-current" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                                </div>
+                            </div>
                         </div>
-                        <div class="w-12 h-12 bg-indigo-50 rounded-xl flex items-center justify-center text-indigo-600">
+                        <div class="w-12 h-12 bg-indigo-50 rounded-2xl flex items-center justify-center text-indigo-600">
+                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.175 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.382-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/></svg>
+                        </div>
+                    </div>
+
+                    <!-- Card: Total Earnings -->
+                    <div class="bg-white p-6 rounded-[2rem] border border-slate-100 flex items-center justify-between shadow-xl shadow-slate-200/50">
+                        <div>
+                            <div class="text-slate-400 text-[10px] font-black uppercase tracking-[0.15em] mb-1">Total Pendapatan</div>
+                            <div class="text-2xl font-black text-slate-900 leading-none">RP {{ number_format($totalEarnings, 0, ',', '.') }}</div>
+                        </div>
+                        <div class="w-12 h-12 bg-indigo-50 rounded-2xl flex items-center justify-center text-indigo-600">
                              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                         </div>
                     </div>
 
                     <!-- Card: Orders -->
-                    <div class="bg-white p-6 rounded-2xl border border-slate-100 flex items-center justify-between shadow-sm">
+                    <div class="bg-white p-6 rounded-[2rem] border border-slate-100 flex items-center justify-between shadow-xl shadow-slate-200/50">
                          <div>
-                            <div class="text-slate-500 text-xs font-bold uppercase tracking-wider mb-1">Pesanan Sukses</div>
-                            <div class="text-2xl font-black text-slate-900">{{ $totalOrdersCount }}</div>
+                            <div class="text-slate-400 text-[10px] font-black uppercase tracking-[0.15em] mb-1">Pesanan Sukses</div>
+                            <div class="text-2xl font-black text-slate-900 leading-none">{{ $totalOrdersCount }}</div>
                         </div>
-                         <div class="w-12 h-12 bg-green-50 rounded-xl flex items-center justify-center text-green-600">
+                         <div class="w-12 h-12 bg-indigo-50 rounded-2xl flex items-center justify-center text-indigo-600">
                              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
                         </div>
                     </div>
                 </div>
 
-                {{-- Quick Action (Responsive adjustment) --}}
-                <div class="bg-indigo-600 rounded-2xl p-6 text-white flex flex-col justify-between relative overflow-hidden h-full shadow-lg shadow-indigo-100/50">
+                {{-- Quick Action: New Product Card --}}
+                <div class="bg-indigo-600 rounded-[2.5rem] p-8 text-white flex flex-col justify-between relative overflow-hidden h-full shadow-2xl shadow-indigo-100">
                      <div class="relative z-10">
-                        <h4 class="font-bold text-lg mb-2">New Product</h4>
-                        <p class="text-indigo-100 text-sm mb-6">Tambahkan Produk baru dalam tokomu.</p>
-                        <a href="{{ route('item-shop.create') }}" class="inline-flex w-full items-center justify-center px-4 py-3 bg-white text-indigo-600 rounded-xl font-bold text-sm hover:bg-slate-50 transition-colors shadow-lg active:scale-95">
-                            + Add Item
+                        <div class="w-12 h-12 bg-white/20 backdrop-blur-md rounded-2xl flex items-center justify-center mb-6">
+                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
+                        </div>
+                        <h4 class="font-black text-2xl mb-2 tracking-tight">Barang Baru?</h4>
+                        <p class="text-indigo-100 text-xs font-medium mb-8 leading-relaxed opacity-80 uppercase tracking-tight">Tambah koleksi tokomu bolo!</p>
+                        
+                        <a href="{{ route('item-shop.create') }}" class="inline-flex items-center justify-center px-6 py-4 bg-white text-indigo-600 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] hover:bg-slate-50 transition-all shadow-xl active:scale-95 leading-none">
+                            Upload Produk
                         </a>
                      </div>
-                     <div class="absolute -bottom-10 -right-10 w-32 h-32 bg-white opacity-10 rounded-full blur-2xl"></div>
+                     <div class="absolute -bottom-8 -right-8 w-40 h-40 bg-white/10 rounded-full blur-3xl"></div>
                 </div>
             @else
-                <div class="md:col-span-3 grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div class="md:col-span-3 grid grid-cols-1 sm:grid-cols-3 gap-6">
                      <!-- Card: User Transactions -->
-                    <div class="bg-white p-6 rounded-2xl border border-slate-100 flex items-center justify-between">
-                        <div>
-                            <div class="text-slate-500 text-xs font-bold uppercase tracking-wider mb-1 text-blue-600">Total Pesanan</div>
-                            <div class="text-2xl font-black text-slate-900">{{ $userTransactionsCount }}</div>
+                    <div class="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-xl shadow-slate-200/50 flex flex-col items-center text-center">
+                        <div class="w-14 h-14 bg-indigo-50 rounded-[1.5rem] flex items-center justify-center text-indigo-600 mb-6">
+                             <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
                         </div>
-                        <div class="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center text-blue-600">
-                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
-                        </div>
+                        <div class="text-slate-400 text-[10px] font-black uppercase tracking-[0.2em] mb-1">Total Pesanan</div>
+                        <div class="text-4xl font-black text-slate-900 leading-none">{{ $userTransactionsCount }}</div>
                     </div>
 
                     <!-- Card: User Favorites -->
-                    <div class="bg-white p-6 rounded-2xl border border-slate-100 flex items-center justify-between">
-                        <div>
-                            <div class="text-slate-500 text-xs font-bold uppercase tracking-wider mb-1 text-rose-600">Favorit</div>
-                            <div class="text-2xl font-black text-rose-600">{{ $userFavoritesCount }}</div>
+                    <div class="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-xl shadow-slate-200/50 flex flex-col items-center text-center">
+                        <div class="w-14 h-14 bg-indigo-50 rounded-[1.5rem] flex items-center justify-center text-indigo-600 mb-6">
+                             <svg class="w-7 h-7 fill-current" viewBox="0 0 24 24"><path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>
                         </div>
-                        <div class="w-12 h-12 bg-rose-50 rounded-xl flex items-center justify-center text-rose-600">
-                             <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>
-                        </div>
+                        <div class="text-slate-400 text-[10px] font-black uppercase tracking-[0.2em] mb-1">Favorit</div>
+                        <div class="text-4xl font-black text-slate-900 leading-none">{{ $userFavoritesCount }}</div>
                     </div>
 
                     <!-- Card: User Reviews -->
-                    <div class="bg-white p-6 rounded-2xl border border-slate-100 flex items-center justify-between">
-                         <div>
-                            <div class="text-slate-500 text-xs font-bold uppercase tracking-wider mb-1 text-amber-600">Ulasan Saya</div>
-                            <div class="text-2xl font-black text-slate-900">{{ $userReviewsCount }}</div>
+                    <div class="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-xl shadow-slate-200/50 flex flex-col items-center text-center relative overflow-hidden">
+                         <div class="w-14 h-14 bg-indigo-50 rounded-[1.5rem] flex items-center justify-center text-indigo-600 mb-6">
+                             <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.175 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.382-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/></svg>
                         </div>
-                         <div class="w-12 h-12 bg-amber-50 rounded-xl flex items-center justify-center text-amber-600">
-                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.175 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.382-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/></svg>
-                        </div>
+                        <div class="text-slate-400 text-[10px] font-black uppercase tracking-[0.2em] mb-1">Ulasan Saya</div>
+                        <div class="text-4xl font-black text-slate-900 leading-none">{{ $userReviewsCount }}</div>
                     </div>
                 </div>
             @endif
@@ -313,58 +350,59 @@
         {{-- For Regular User --}}
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {{-- Recent Activity --}}
-            <div class="lg:col-span-2 bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
-                <div class="p-6 border-b border-slate-50 flex justify-between items-center">
+            <div class="lg:col-span-2 bg-white rounded-[2.5rem] border border-slate-100 shadow-xl shadow-slate-200/50 overflow-hidden">
+                <div class="p-8 border-b border-slate-50 flex justify-between items-center">
                     <div>
-                        <h4 class="font-bold text-slate-900 text-lg">Pesanan Terbaru</h4>
-                        <p class="text-xs text-slate-500">Monitor transaksi belanja Anda</p>
+                        <h4 class="font-black text-slate-900 text-lg uppercase tracking-tight">Pesanan Terbaru</h4>
+                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Monitor transaksi belanja Anda</p>
                     </div>
-                    <a href="#" class="text-xs font-bold text-indigo-600 hover:underline">Lihat Semua</a>
+                    <a href="{{ route('transactions.index') }}" class="px-5 py-2.5 bg-indigo-50 text-indigo-600 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-indigo-600 hover:text-white transition-all">Lihat Semua</a>
                 </div>
                 <div class="overflow-x-auto">
                     <table class="w-full text-left">
                         <thead>
                             <tr class="bg-slate-50/50">
-                                <th class="px-6 py-4 text-[10px] font-black uppercase text-slate-400">Order ID</th>
-                                <th class="px-6 py-4 text-[10px] font-black uppercase text-slate-400">Total</th>
-                                <th class="px-6 py-4 text-[10px] font-black uppercase text-slate-400">Status</th>
-                                <th class="px-6 py-4 text-[10px] font-black uppercase text-slate-400">Tanggal</th>
+                                <th class="px-8 py-5 text-[10px] font-black uppercase tracking-widest text-slate-400">Order ID</th>
+                                <th class="px-8 py-5 text-[10px] font-black uppercase tracking-widest text-slate-400">Total Belanja</th>
+                                <th class="px-8 py-5 text-[10px] font-black uppercase tracking-widest text-slate-400">Status</th>
+                                <th class="px-8 py-5 text-[10px] font-black uppercase tracking-widest text-slate-400">Waktu</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-50">
                             @forelse($recentTransactions as $tx)
-                            <tr class="hover:bg-slate-50/50 transition-colors">
-                                <td class="px-6 py-4">
-                                    <span class="text-xs font-bold text-slate-700">#{{ strtoupper(substr($tx->invoice_number, 0, 8)) }}</span>
+                            <tr class="hover:bg-slate-50/50 transition-colors group">
+                                <td class="px-8 py-6">
+                                    <div class="text-xs font-black text-slate-700 group-hover:text-indigo-600 transition-colors">#{{ strtoupper(substr($tx->invoice_number, 0, 10)) }}</div>
                                 </td>
-                                <td class="px-6 py-4">
-                                    <span class="text-xs font-black text-slate-900">RP {{ number_format($tx->total_price, 0, ',', '.') }}</span>
+                                <td class="px-8 py-6">
+                                    <div class="text-xs font-black text-slate-900 leading-none">RP {{ number_format($tx->total_price, 0, ',', '.') }}</div>
                                 </td>
-                                <td class="px-6 py-4">
+                                <td class="px-8 py-6">
                                     @php
                                         $statusClasses = [
                                             'success' => 'bg-emerald-50 text-emerald-600',
                                             'pending' => 'bg-amber-50 text-amber-600',
                                             'failed' => 'bg-rose-50 text-rose-600',
+                                            'completed' => 'bg-indigo-50 text-indigo-600',
                                         ];
                                         $statusClass = $statusClasses[$tx->status] ?? 'bg-slate-50 text-slate-600';
                                     @endphp
-                                    <span class="px-2.5 py-1 rounded-full text-[10px] font-black uppercase {{ $statusClass }}">
-                                        {{ $tx->status }}
+                                    <span class="px-3 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest {{ $statusClass }}">
+                                        {{ str_replace('_', ' ', $tx->status) }}
                                     </span>
                                 </td>
-                                <td class="px-6 py-4 text-xs text-slate-500">
+                                <td class="px-8 py-6 text-[10px] font-bold text-slate-400 uppercase tracking-widest">
                                     {{ $tx->created_at->diffForHumans() }}
                                 </td>
                             </tr>
                             @empty
                             <tr>
-                                <td colspan="4" class="px-6 py-12 text-center">
+                                <td colspan="4" class="px-8 py-16 text-center">
                                     <div class="flex flex-col items-center">
-                                        <div class="w-12 h-12 bg-slate-50 rounded-xl flex items-center justify-center text-slate-300 mb-3">
-                                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
+                                        <div class="w-16 h-16 bg-slate-50 rounded-2xl flex items-center justify-center text-slate-300 mb-4">
+                                            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
                                         </div>
-                                        <p class="text-sm font-medium text-slate-400">Belum ada transaksi</p>
+                                        <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Belum ada transaksi sama sekali, bolo.</p>
                                     </div>
                                 </td>
                             </tr>
@@ -374,49 +412,59 @@
                 </div>
             </div>
 
-            {{-- Right Column CTA --}}
-            <div class="space-y-6">
-                <div class="bg-indigo-600 rounded-3xl p-8 text-white relative overflow-hidden group">
+            {{-- Right Column side widgets --}}
+            <div class="flex flex-col gap-6">
+                {{-- CTA: Go to Shop --}}
+                <div class="bg-indigo-600 rounded-2xl p-6 text-white relative overflow-hidden shadow-lg shadow-indigo-100/50">
                     <div class="relative z-10">
-                        <h4 class="font-bold text-xl mb-3">Lanjutkan Belanja!</h4>
-                        <p class="text-indigo-100 text-sm mb-6 leading-relaxed">Temukan berbagai produk kebutuhan harianmu dengan harga terbaik di store kami.</p>
-                        <a href="/" class="inline-flex items-center px-6 py-3 bg-white text-indigo-600 rounded-2xl font-black text-xs uppercase tracking-wider hover:bg-slate-50 transition-all transform group-hover:translate-x-1 shadow-xl">
-                            Eksplor Sekarang
-                            <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+                        <h4 class="font-bold text-lg mb-2">Lanjutkan Belanja!</h4>
+                        <p class="text-indigo-100 text-sm mb-6">Temukan produk favoritmu sekarang.</p>
+                        <a href="{{ route('shop.public') }}" class="inline-flex items-center px-4 py-2 bg-white text-indigo-600 rounded-xl font-bold text-sm hover:bg-slate-50 transition-colors">
+                            Explore Shop
                         </a>
                     </div>
-                    <div class="absolute -right-4 -bottom-4 w-40 h-40 bg-white opacity-5 rounded-full blur-3xl group-hover:opacity-10 transition-opacity"></div>
+                    <div class="absolute -bottom-10 -right-10 w-32 h-32 bg-white opacity-10 rounded-full blur-2xl"></div>
                 </div>
 
-                <div class="bg-white rounded-3xl p-6 border border-slate-100 shadow-sm">
-                    <h5 class="font-bold text-slate-900 mb-4">Butuh Bantuan?</h5>
-                    <div class="space-y-3">
-                        <div class="flex items-center gap-3">
-                            <div class="w-8 h-8 bg-slate-50 rounded-lg flex items-center justify-center text-slate-400">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                {{-- Support Info --}}
+                <div class="bg-white rounded-3xl p-8 border border-slate-100 shadow-sm">
+                    <h5 class="font-black text-slate-900 text-lg mb-6 flex items-center gap-2 tracking-tight">
+                        Butuh Bantuan?
+                    </h5>
+                    <div class="space-y-4">
+                        <a href="{{ route('how-to') }}" class="flex items-center gap-4 p-4 rounded-2xl bg-slate-50 hover:bg-slate-100 transition-colors group">
+                            <div class="w-10 h-10 bg-white rounded-xl shadow-sm flex items-center justify-center text-indigo-600">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                             </div>
-                            <span class="text-xs text-slate-600 font-medium">Panduan Pengguna</span>
-                        </div>
-                        <div class="flex items-center gap-3">
-                            <div class="w-8 h-8 bg-slate-50 rounded-lg flex items-center justify-center text-slate-400">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                            <div>
+                                <p class="text-[11px] font-black text-slate-800 uppercase tracking-widest leading-none">Panduan Pengguna</p>
+                                <p class="text-[10px] text-slate-400 font-medium mt-1">Pelajari cara belanja bolo</p>
                             </div>
-                            <span class="text-xs text-slate-600 font-medium">Hubungi Support</span>
-                        </div>
+                        </a>
+                        
+                        <a href="mailto:support@miniestore.com" class="flex items-center gap-4 p-4 rounded-2xl bg-slate-50 hover:bg-slate-100 transition-colors group">
+                            <div class="w-10 h-10 bg-white rounded-xl shadow-sm flex items-center justify-center text-emerald-600">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                            </div>
+                            <div>
+                                <p class="text-[11px] font-black text-slate-800 uppercase tracking-widest leading-none">Hubungi Support</p>
+                                <p class="text-[10px] text-slate-400 font-medium mt-1">CS kami siap bantu 24/7</p>
+                            </div>
+                        </a>
                     </div>
                 </div>
 
                 {{-- Trending/Best Sellers for User --}}
-                <div class="bg-white rounded-3xl p-6 border border-slate-100 shadow-sm">
-                    <h5 class="font-bold text-slate-900 mb-4 flex items-center gap-2">
+                <div class="bg-white rounded-[2.5rem] p-8 border border-slate-100 shadow-xl shadow-slate-200/50">
+                    <h5 class="font-black text-slate-900 text-lg mb-6 flex items-center gap-2 tracking-tight">
                         <span class="text-orange-500">🔥</span> Trending Sekarang
                     </h5>
                     <div class="space-y-4">
-                        @foreach($bestSellers as $item)
-                        <div class="flex items-center gap-3 group">
-                            <div class="w-12 h-12 rounded-xl bg-slate-100 overflow-hidden flex-shrink-0">
-                                @if($item->foto)
-                                    <img src="{{ asset('storage/' . $item->foto) }}" class="w-full h-full object-cover">
+                        @forelse($bestSellers as $item)
+                        <a href="{{ route('shop.show', $item->id) }}" class="flex items-center gap-4 p-3 rounded-2xl hover:bg-slate-50 transition-all border border-transparent hover:border-slate-100 group">
+                            <div class="w-14 h-14 rounded-2xl bg-slate-100 overflow-hidden flex-shrink-0 shadow-sm">
+                                @if($item->gambar)
+                                    <img src="{{ Str::startsWith($item->gambar, 'image/') ? asset($item->gambar) : asset('storage/' . $item->gambar) }}" class="w-full h-full object-cover">
                                 @else
                                     <div class="w-full h-full flex items-center justify-center text-slate-300">
                                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
@@ -424,14 +472,16 @@
                                 @endif
                             </div>
                             <div class="min-w-0 flex-1">
-                                <p class="text-xs font-bold text-slate-800 truncate group-hover:text-indigo-600 transition-colors">{{ $item->nama_barang }}</p>
-                                <p class="text-[10px] text-slate-400 font-medium">{{ $item->total_terjual }} Terjual</p>
+                                <p class="text-[11px] font-black text-slate-800 truncate group-hover:text-indigo-600 transition-colors uppercase tracking-tight">{{ $item->nama_barang }}</p>
+                                <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-1">{{ $item->total_terjual ?? 0 }} Terjual</p>
                             </div>
                             <div class="text-right">
                                 <p class="text-xs font-black text-indigo-600">RP {{ number_format($item->harga, 0, ',', '.') }}</p>
                             </div>
-                        </div>
-                        @endforeach
+                        </a>
+                        @empty
+                        <p class="text-center text-[10px] font-bold text-slate-400 uppercase tracking-widest py-8">Belum ada barang trending.</p>
+                        @endforelse
                     </div>
                 </div>
             </div>

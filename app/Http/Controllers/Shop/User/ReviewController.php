@@ -9,6 +9,16 @@ use App\Models\ItemShop;
 
 class ReviewController extends Controller
 {
+    public function index()
+    {
+        $reviews = Review::where('user_id', auth()->id())
+            ->with('itemShop')
+            ->latest()
+            ->get();
+
+        return view('shop.user.reviews', compact('reviews'));
+    }
+
     public function store(Request $request, ItemShop $itemShop)
     {
         $this->authorize('create', Review::class);

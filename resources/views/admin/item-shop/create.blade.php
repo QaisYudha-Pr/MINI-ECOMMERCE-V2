@@ -72,11 +72,6 @@
 
                         <input type="file" id="gambar_input" accept="image/*" class="hidden">
                         <input type="hidden" id="cropped_image_data" name="gambar">
-
-                        <div id="crop-actions" class="hidden grid grid-cols-2 gap-3">
-                            <button type="button" onclick="saveCrop()" class="py-4 bg-indigo-600 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-lg hover:bg-indigo-700 transition-all">Apply Crop</button>
-                            <button type="button" onclick="cancelCrop()" class="py-4 bg-gray-100 text-gray-400 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-gray-200 transition-all">Cancel</button>
-                        </div>
                     </div>
                 </div>
 
@@ -87,41 +82,91 @@
         </div>
     </div>
 
+    {{-- MODERN CROP MODAL --}}
+    <div id="cropModal" class="fixed inset-0 z-[100] hidden items-center justify-center bg-gray-900/80 backdrop-blur-sm p-4">
+        <div class="bg-white rounded-[2.5rem] w-full max-w-2xl overflow-hidden shadow-2xl relative animate-fade-in-up">
+            <div class="p-6 border-b border-gray-50 bg-gray-50/50 flex justify-between items-center">
+                <div>
+                    <h3 class="text-xl font-black text-gray-900 tracking-tight uppercase">CROP <span class="text-indigo-600">PRODUCT IMAGE</span></h3>
+                    <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1">Sempurnakan tampilan produkmu bolo</p>
+                </div>
+                <button type="button" onclick="cancelCrop()" class="p-2 text-gray-400 hover:text-red-500 transition-colors">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+            <div class="p-8">
+                <div class="max-h-[50vh] overflow-hidden rounded-2xl bg-gray-50 border-2 border-dashed border-gray-200">
+                    <img id="imageToCrop" src="" class="max-w-full block">
+                </div>
+            </div>
+            <div class="p-8 bg-gray-50/50 border-t border-gray-50 flex gap-4">
+                <button type="button" onclick="cancelCrop()" class="flex-1 py-4 bg-white text-gray-500 rounded-2xl font-black uppercase text-xs tracking-widest border border-gray-100">Batal</button>
+                <button type="button" onclick="saveCrop()" class="flex-1 py-4 bg-indigo-600 text-white rounded-2xl font-black uppercase text-xs tracking-widest shadow-lg shadow-indigo-100">Potong Gambar</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         let cropper;
         const dropZone = document.getElementById('drop-zone');
         const fileInput = document.getElementById('gambar_input');
-        const image = document.getElementById('previewImg');
-        const cropActions = document.getElementById('crop-actions');
+        const previewImg = document.getElementById('previewImg');
+        const imageToCrop = document.getElementById('imageToCrop');
+        const cropModal = document.getElementById('cropModal');
         const croppedInput = document.getElementById('cropped_image_data');
 
-        dropZone.onclick = () => !cropper && fileInput.click();
-        fileInput.onchange = e => handleFiles(e.target.files);
-
-        function handleFiles(files) {
-            if (files.length > 0) {
+        dropZone.onclick = () => fileInput.click();
+        
+        fileInput.onchange = e => {
+            const files = e.target.files;
+            if (files && files.length > 0) {
                 const reader = new FileReader();
                 reader.onload = e => {
-                    image.src = e.target.result;
+                    imageToCrop.src = e.target.result;
+                    cropModal.classList.remove('hidden');
+                    cropModal.classList.add('flex');
+                    
                     if (cropper) cropper.destroy();
-                    cropActions.classList.remove('hidden');
-                    document.getElementById('overlay-text').classList.add('hidden');
-                    cropper = new Cropper(image, { aspectRatio: 1, viewMode: 2 });
+                    
+                    setTimeout(() => {
+                        cropper = new Cropper(imageToCrop, {
+                            aspectRatio: 1,
+                            viewMode: 1,
+                            dragMode: 'move',
+                            autoCropArea: 1,
+                        });
+                    }, 200);
                 };
                 reader.readAsDataURL(files[0]);
             }
-        }
+        };
 
         function saveCrop() {
             const canvas = cropper.getCroppedCanvas({ width: 800, height: 800 });
-            image.src = canvas.toDataURL('image/jpeg');
-            croppedInput.value = image.src;
-            cropper.destroy();
-            cropper = null;
-            cropActions.classList.add('hidden');
-            document.getElementById('overlay-text').classList.remove('hidden');
+            const base64 = canvas.toDataURL('image/jpeg', 0.9);
+            previewImg.src = base64;
+            croppedInput.value = base64;
+            cancelCrop();
+            
+            Swal.fire({
+                icon: 'success',
+                title: 'Mantap!',
+                text: 'Gambar sudah siap tayang bolo.',
+                timer: 1500,
+                showConfirmButton: false,
+                toast: true,
+                position: 'top-end'
+            });
         }
 
-        function cancelCrop() { location.reload(); }
+        function cancelCrop() {
+            cropModal.classList.add('hidden');
+            cropModal.classList.remove('flex');
+            if (cropper) {
+                cropper.destroy();
+                cropper = null;
+            }
+            fileInput.value = '';
+        }
     </script>
 </x-app-layout>

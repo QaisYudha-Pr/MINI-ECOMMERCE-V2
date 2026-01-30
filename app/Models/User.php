@@ -24,6 +24,12 @@ class User extends Authenticatable
         return $this->hasMany(ItemShop::class);
     }
 
+    // Alias for camelCase relation to avoid "item_shops()" method errors
+    public function item_shops()
+    {
+        return $this->itemShops();
+    }
+
     public function favoriteItems()
     {
         return $this->belongsToMany(ItemShop::class, 'favorites');
@@ -41,6 +47,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'courier_agency_id',
         'nama_toko',
         'avatar',
         'alamat',
@@ -49,7 +56,34 @@ class User extends Authenticatable
         'seller_status',
         'seller_document',
         'balance',
+        'phone',
+        'banner',
     ];
+
+    public function courierAgency()
+    {
+        return $this->belongsTo(Courier::class, 'courier_agency_id');
+    }
+
+    public function followers()
+    {
+        return $this->belongsToMany(User::class, 'follows', 'following_id', 'follower_id');
+    }
+
+    public function following()
+    {
+        return $this->belongsToMany(User::class, 'follows', 'follower_id', 'following_id');
+    }
+
+    public function notifications()
+    {
+        return $this->hasMany(Notification::class);
+    }
+
+    public function isFollowing($userId)
+    {
+        return $this->following()->where('following_id', $userId)->exists();
+    }
 
     /**
      * The attributes that should be hidden for serialization.

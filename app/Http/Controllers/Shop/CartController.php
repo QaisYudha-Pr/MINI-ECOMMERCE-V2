@@ -161,12 +161,12 @@ class CartController extends Controller
             abort(403);
         }
 
-        if ($transaction->status !== 'shipped') {
-            return back()->with('error', 'Pesanan belum dikirim bolo!');
+        if (!in_array($transaction->status, ['shipped', 'delivered'])) {
+            return back()->with('error', 'Pesanan belum dikirim atau sudah selesai bolo!');
         }
 
         $transaction->completeTransaction();
 
-        return back()->with('success', 'Terima kasih bolo! Pesanan telah selesai.');
+        return back()->with('success', 'MANTAP BOLO! Pesanan berhasil diterima.');
     }
 }

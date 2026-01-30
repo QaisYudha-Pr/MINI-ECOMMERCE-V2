@@ -30,8 +30,10 @@ class DeliveryController extends Controller
             return back()->with('error', 'Status pesanan tidak valid bolo!');
         }
 
-        $transaction->completeTransaction();
+        $transaction->update([
+            'status' => 'delivered'
+        ]);
 
-        return back()->with('success', 'MANTAP BOLO! Pesanan berhasil diselesaikan.');
+        return back()->with('success', 'MANTAP BOLO! Pesanan berhasil diantar. Menunggu konfirmasi pembeli.');
     }
 }

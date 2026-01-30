@@ -26,11 +26,11 @@
                         <svg :class="tab === 'about' ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'" class="w-4 h-4 transition-all" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7"></path></svg>
                     </button>
 
-                    <button @click="tab = 'couriers'" 
-                        :class="tab === 'couriers' ? 'bg-[#00AA5B] text-white shadow-lg shadow-green-100 translate-x-2' : 'bg-white text-gray-500 hover:bg-gray-50 hover:text-gray-700'" 
+                    <button @click="tab = 'logistics'" 
+                        :class="tab === 'logistics' ? 'bg-[#00AA5B] text-white shadow-lg shadow-green-100 translate-x-2' : 'bg-white text-gray-500 hover:bg-gray-50 hover:text-gray-700'" 
                         class="w-full px-6 py-4 rounded-2xl font-black uppercase text-[10px] tracking-[0.2em] text-left transition-all duration-300 flex items-center justify-between group">
-                        <span>Kelola Kurir</span>
-                        <svg :class="tab === 'couriers' ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'" class="w-4 h-4 transition-all" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 4v16m8-8H4"></path></svg>
+                        <span>Logistik & Kurir</span>
+                        <svg :class="tab === 'logistics' ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'" class="w-4 h-4 transition-all" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg>
                     </button>
                 </div>
 
@@ -122,60 +122,91 @@
                                     </div>
                                     <button class="px-8 py-4 bg-gray-900 text-white rounded-2xl font-black uppercase text-[10px] tracking-widest hover:bg-black transition-all">Simpan Teks</button>
                                 </form>
-                            </div>
-                        </div>
-                    </div>
 
-                    {{-- SHIPPING SETTINGS --}}
-                    <div x-show="tab === 'shipping'" x-cloak x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-4" x-transition:enter-end="opacity-100 translate-y-0" class="space-y-8">
-                        <div class="bg-white rounded-[2rem] shadow-xl shadow-gray-100 overflow-hidden border border-gray-100">
-                            <div class="p-8 border-b border-gray-50 bg-gray-50/50">
-                                <h3 class="text-xl font-black text-gray-900 tracking-tight">Pengaturan Biaya & Jarak</h3>
-                                <p class="text-xs font-bold text-gray-400 uppercase tracking-widest mt-1">Atur tarif pengiriman otomatis bolo</p>
-                            </div>
-                            <div class="p-8">
-                                <form action="{{ route('admin.cms.update-text') }}" method="POST" class="grid md:grid-cols-2 gap-8">
+                                {{-- Trusted Sellers Section Settings --}}
+                                <form action="{{ route('admin.cms.update-text') }}" method="POST" class="space-y-6 pt-8 border-t border-gray-50">
                                     @csrf
-                                    <div>
-                                        <label class="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Biaya Dasar Ongkir (Rp)</label>
-                                        <input type="number" name="shipping_base_fee" value="{{ $settings['shipping_base_fee'] ?? '5000' }}" class="w-full px-5 py-4 bg-gray-50 border-0 rounded-2xl text-sm font-bold focus:ring-2 focus:ring-[#00AA5B]/20 transition-all">
-                                        <p class="text-[9px] text-gray-400 mt-2 font-bold">Biaya minimal walaupun jarak dekat.</p>
+                                    <div class="grid md:grid-cols-2 gap-8">
+                                        <div>
+                                            <label class="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Judul Section Toko Pilihan</label>
+                                            <input type="text" name="trusted_sellers_title" value="{{ $settings['trusted_sellers_title'] ?? 'Toko Pilihan Bolo' }}" class="w-full px-5 py-4 bg-gray-50 border-0 rounded-2xl text-sm font-bold focus:ring-2 focus:ring-[#00AA5B]/20 transition-all">
+                                        </div>
+                                        <div>
+                                            <label class="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Sub-judul Section Toko Pilihan</label>
+                                            <input type="text" name="trusted_sellers_subtitle" value="{{ $settings['trusted_sellers_subtitle'] ?? 'Belanja aman dari seller terpercaya' }}" class="w-full px-5 py-4 bg-gray-50 border-0 rounded-2xl text-sm font-bold focus:ring-2 focus:ring-[#00AA5B]/20 transition-all">
+                                        </div>
                                     </div>
-                                    <div>
-                                        <label class="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Biaya per Kilometer (Rp)</label>
-                                        <input type="number" name="shipping_per_km" value="{{ $settings['shipping_per_km'] ?? '2000' }}" class="w-full px-5 py-4 bg-gray-50 border-0 rounded-2xl text-sm font-bold focus:ring-2 focus:ring-[#00AA5B]/20 transition-all">
-                                        <p class="text-[9px] text-gray-400 mt-2 font-bold">Dihitung setelah jarak > 2 KM.</p>
-                                    </div>
-                                    <div>
-                                        <label class="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Biaya per Kilogram (Rp)</label>
-                                        <input type="number" name="shipping_per_kg" value="{{ $settings['shipping_per_kg'] ?? '1000' }}" class="w-full px-5 py-4 bg-gray-50 border-0 rounded-2xl text-sm font-bold focus:ring-2 focus:ring-[#00AA5B]/20 transition-all">
-                                        <p class="text-[9px] text-gray-400 mt-2 font-bold">Dikalikan dengan total berat pesanan.</p>
-                                    </div>
-                                    <div>
-                                        <label class="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Biaya Layanan (Rp)</label>
-                                        <input type="number" name="service_fee" value="{{ $settings['service_fee'] ?? '2500' }}" class="w-full px-5 py-4 bg-gray-50 border-0 rounded-2xl text-sm font-bold focus:ring-2 focus:ring-[#00AA5B]/20 transition-all">
-                                        <p class="text-[9px] text-gray-400 mt-2 font-bold">Biaya admin per transaksi.</p>
-                                    </div>
-                                    <div>
-                                        <label class="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Biaya Handling Kurir (Rp)</label>
-                                        <input type="number" name="shipping_handling_fee" value="{{ $settings['shipping_handling_fee'] ?? '0' }}" class="w-full px-5 py-4 bg-gray-50 border-0 rounded-2xl text-sm font-bold focus:ring-2 focus:ring-[#00AA5B]/20 transition-all">
-                                        <p class="text-[9px] text-gray-400 mt-2 font-bold">Biaya tambahan khusus kurir lokal.</p>
-                                    </div>
-                                    <div class="md:col-span-2 pt-6 border-t border-gray-50">
-                                        <button class="px-10 py-5 bg-gray-900 text-white rounded-2xl font-black uppercase text-[10px] tracking-[0.2em] hover:bg-black transition-all shadow-xl shadow-gray-200">Simpan Pengaturan Biaya</button>
-                                    </div>
+                                    <button class="px-8 py-4 bg-gray-900 text-white rounded-2xl font-black uppercase text-[10px] tracking-widest hover:bg-black transition-all">Simpan Pengaturan Toko</button>
                                 </form>
                             </div>
                         </div>
                     </div>
 
-                    {{-- COURIER SETTINGS --}}
-                    <div x-show="tab === 'couriers'" x-cloak x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-4" x-transition:enter-end="opacity-100 translate-y-0" class="space-y-8">
+                    {{-- LOGISTICS SETTINGS (Unified Shipping & Couriers) --}}
+                    <div x-show="tab === 'logistics'" x-cloak x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-4" x-transition:enter-end="opacity-100 translate-y-0" class="space-y-8">
+                        
+                        {{-- Part 1: Global Rates Configuration --}}
+                        <div class="bg-white rounded-[2rem] shadow-xl shadow-gray-100 overflow-hidden border border-gray-100">
+                            <div class="p-8 border-b border-gray-50 bg-gray-50/50">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-indigo-100">
+                                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                                    </div>
+                                    <div>
+                                        <h3 class="text-xl font-black text-gray-900 tracking-tight">Perhitungan Tarif & Ongkir</h3>
+                                        <p class="text-xs font-bold text-gray-400 uppercase tracking-widest mt-1">Aturan dasar harga yang akan dikalikan dengan multiplier kurir</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="p-8">
+                                <form action="{{ route('admin.cms.update-text') }}" method="POST" class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                                    @csrf
+                                    <div>
+                                        <label class="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2 italic">1. Ongkir Minimal (Rp)</label>
+                                        <input type="number" name="shipping_base_fee" value="{{ $settings['shipping_base_fee'] ?? '5000' }}" class="w-full px-5 py-4 bg-gray-50 border-0 rounded-2xl text-sm font-bold focus:ring-2 focus:ring-[#00AA5B]/20 transition-all">
+                                        <p class="text-[9px] text-gray-400 mt-2 font-bold uppercase italic tracking-wider">Tarif dasar flat untuk tiap pesanan</p>
+                                    </div>
+                                    <div>
+                                        <label class="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2 italic">2. Biaya Per KM (Rp)</label>
+                                        <input type="number" name="shipping_per_km" value="{{ $settings['shipping_per_km'] ?? '2000' }}" class="w-full px-5 py-4 bg-gray-50 border-0 rounded-2xl text-sm font-bold focus:ring-2 focus:ring-[#00AA5B]/20 transition-all">
+                                        <p class="text-[9px] text-gray-400 mt-2 font-bold uppercase italic tracking-wider">Harga per kilo meter (jarak seller ke buyer)</p>
+                                    </div>
+                                    <div>
+                                        <label class="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2 italic">3. Biaya Per KG (Rp)</label>
+                                        <input type="number" name="shipping_per_kg" value="{{ $settings['shipping_per_kg'] ?? '1000' }}" class="w-full px-5 py-4 bg-gray-50 border-0 rounded-2xl text-sm font-bold focus:ring-2 focus:ring-[#00AA5B]/20 transition-all">
+                                        <p class="text-[9px] text-gray-400 mt-2 font-bold uppercase italic tracking-wider">Ongkir tambahan jika barang berat/besar</p>
+                                    </div>
+                                    <div class="bg-indigo-50/50 p-6 rounded-3xl border border-indigo-100/50 col-span-full mb-4">
+                                        <div class="flex gap-4 items-start">
+                                            <div class="p-2 bg-indigo-600 rounded-lg text-white">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                            </div>
+                                            <div>
+                                                <h4 class="text-[11px] font-black text-indigo-900 uppercase tracking-widest mb-1">Rumus Perhitungan</h4>
+                                                <p class="text-[10px] font-bold text-indigo-700/70 italic leading-relaxed">
+                                                    (Minimal + Biaya Jarak + Biaya Berat) × <span class="text-indigo-900 underline">Multiplier Kurir</span> + Extra Fee Kurir + Layanan Sistem
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label class="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2 italic">Biaya Layanan Sistem (Rp)</label>
+                                        <input type="number" name="service_fee" value="{{ $settings['service_fee'] ?? '2500' }}" class="w-full px-5 py-4 bg-gray-50 border-0 rounded-2xl text-sm font-bold focus:ring-2 focus:ring-[#00AA5B]/20 transition-all">
+                                        <p class="text-[9px] text-gray-400 mt-2 font-bold uppercase italic tracking-wider italic">Fee flat (tidak dikali multiplier kurir)</p>
+                                    </div>
+                                    <div class="lg:col-span-2 flex items-end pb-8">
+                                        <button class="px-10 py-5 bg-black text-white rounded-2xl font-black uppercase text-[10px] tracking-[0.2em] hover:bg-gray-900 transition-all shadow-xl shadow-gray-200">Simpan Aturan Tarif</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+
+                        {{-- Part 2: Courier Services List --}}
                         <div class="bg-white rounded-[2rem] shadow-xl shadow-gray-100 overflow-hidden border border-gray-100">
                             <div class="p-8 border-b border-gray-50 bg-gray-50/50 flex justify-between items-center">
                                 <div>
-                                    <h3 class="text-xl font-black text-gray-900 tracking-tight">Daftar Kurir Lokal</h3>
-                                    <p class="text-xs font-bold text-gray-400 uppercase tracking-widest mt-1">Kelola opsi pengiriman internal</p>
+                                    <h3 class="text-xl font-black text-gray-900 tracking-tight">Daftar Layanan Kurir Aktif</h3>
+                                    <p class="text-xs font-bold text-gray-400 uppercase tracking-widest mt-1">Kelola aturan spesifik untuk tiap layanan</p>
                                 </div>
                                 <button onclick="openModal('addCourierModal')" class="px-6 py-3 bg-[#00AA5B] text-white rounded-xl font-black uppercase text-[9px] tracking-widest shadow-lg shadow-green-100 hover:scale-[1.05] transition-all">Tambah Kurir</button>
                             </div>
@@ -184,9 +215,9 @@
                                     <table class="w-full text-left">
                                         <thead>
                                             <tr class="border-b border-gray-50">
-                                                <th class="pb-4 text-[10px] font-black uppercase tracking-widest text-gray-400">Nama/Layanan</th>
-                                                <th class="pb-4 text-[10px] font-black uppercase tracking-widest text-gray-400">Biaya Tambahan</th>
-                                                <th class="pb-4 text-[10px] font-black uppercase tracking-widest text-gray-400">Estimasi</th>
+                                                <th class="pb-4 text-[10px] font-black uppercase tracking-widest text-gray-400">Layanan</th>
+                                                <th class="pb-4 text-[10px] font-black uppercase tracking-widest text-gray-400">Parameter Biaya</th>
+                                                <th class="pb-4 text-[10px] font-black uppercase tracking-widest text-gray-400">Limitansi</th>
                                                 <th class="pb-4 text-[10px] font-black uppercase tracking-widest text-gray-400">Status</th>
                                                 <th class="pb-4 text-[10px] font-black uppercase tracking-widest text-gray-400 text-right">Aksi</th>
                                             </tr>
@@ -196,13 +227,20 @@
                                             <tr class="group hover:bg-gray-50/50 transition-colors">
                                                 <td class="py-6">
                                                     <p class="text-sm font-black text-gray-800 uppercase">{{ $courier->name }} - {{ $courier->service_name }}</p>
-                                                    <p class="text-[10px] font-bold text-gray-400 mt-1">{{ $courier->description }}</p>
+                                                    <p class="text-[10px] font-bold text-gray-400 mt-1 italic uppercase tracking-wider">{{ $courier->estimated_time }}</p>
                                                 </td>
                                                 <td class="py-6">
-                                                    <p class="text-sm font-black text-[#00AA5B]">+Rp{{ number_format($courier->base_extra_cost, 0, ',', '.') }}</p>
-                                                    <p class="text-[10px] font-bold text-gray-400 mt-1">Multiplier: x{{ $courier->multiplier }}</p>
+                                                    <div class="flex flex-col gap-1">
+                                                        <span class="text-[10px] font-black text-[#00AA5B] uppercase">Multiplier: x{{ $courier->multiplier }}</span>
+                                                        <span class="text-[10px] font-bold text-gray-400 uppercase">Extra: Rp{{ number_format($courier->base_extra_cost ?? 0, 0, ',', '.') }}</span>
+                                                    </div>
                                                 </td>
-                                                <td class="py-6 text-sm font-bold text-gray-600 uppercase">{{ $courier->estimated_time }}</td>
+                                                <td class="py-6">
+                                                    <div class="flex flex-col gap-1">
+                                                        <span class="text-[10px] font-bold text-gray-600 uppercase">Max: {{ $courier->max_distance ?? '∞' }} KM</span>
+                                                        <span class="text-[10px] font-bold text-indigo-600 uppercase">Beban: {{ $courier->max_weight ?? '∞' }} KG</span>
+                                                    </div>
+                                                </td>
                                                 <td class="py-6">
                                                     <span class="px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest {{ $courier->is_active ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600' }}">
                                                         {{ $courier->is_active ? 'Aktif' : 'Nonaktif' }}
@@ -296,29 +334,47 @@
         button:focus { outline: none !important; }
     </style>
 
-    {{-- CROPPER MODAL --}}
-    <div id="cropperModal" class="fixed inset-0 z-[200] hidden overflow-y-auto">
-        <div class="fixed inset-0 bg-black/90 backdrop-blur-sm transition-opacity"></div>
-        <div class="relative min-h-screen flex items-center justify-center p-4">
-            <div class="relative bg-white rounded-[2.5rem] w-full max-w-4xl overflow-hidden shadow-2xl">
-                <div class="p-6 border-b border-gray-50 flex justify-between items-center bg-gray-50/50">
-                    <div>
-                        <h3 class="text-xl font-black text-gray-900 tracking-tight">CROP GAMBAR BOLO</h3>
-                        <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1">Sesuaikan posisi gambar biar pas</p>
-                    </div>
-                    <button onclick="closeCropper()" class="p-2 hover:bg-white rounded-xl transition-colors shadow-sm">
-                        <svg class="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-                    </button>
+    {{-- CROPPER MODAL (FIXED & MODERN) --}}
+    <div x-data="{ 
+            open: false, 
+            type: '',
+            init() {
+                window.addEventListener('open-cms-cropper', (e) => {
+                    this.type = e.detail.type;
+                    this.open = true;
+                });
+            }
+        }"
+        x-init="init()"
+        x-show="open"
+        x-cloak
+        @keydown.escape.window="open = false; closeCropper()"
+        class="fixed inset-0 z-[200] flex items-center justify-center bg-gray-900/80 backdrop-blur-sm p-4">
+        
+        <div class="bg-white rounded-[2.5rem] w-full max-w-4xl overflow-hidden shadow-2xl relative animate-fade-in-up">
+            <div class="p-6 border-b border-gray-50 flex justify-between items-center bg-gray-50/50">
+                <div>
+                    <h3 class="text-xl font-black text-gray-900 tracking-tight uppercase">CROP <span class="text-indigo-600">IMAGE BOLO</span></h3>
+                    <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1">Sesuaikan posisi gambar biar pas di mata</p>
                 </div>
-                <div class="p-8">
-                    <div class="max-h-[60vh] overflow-hidden rounded-2xl bg-gray-100">
-                        <img id="cropperImage" src="" class="max-w-full">
-                    </div>
+                <button @click="open = false; closeCropper()" class="p-2.5 bg-white text-gray-400 rounded-xl hover:text-red-500 transition-all shadow-sm border border-gray-100">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+            
+            <div class="p-8">
+                <div class="max-h-[55vh] overflow-hidden rounded-3xl bg-gray-50 border-2 border-dashed border-gray-200">
+                    <img id="cropperImage" src="" class="max-w-full block">
                 </div>
-                <div class="p-6 bg-gray-50/50 border-t border-gray-50 flex justify-end gap-3">
-                    <button onclick="closeCropper()" class="px-8 py-4 bg-white text-gray-500 rounded-2xl font-black uppercase text-[10px] tracking-widest border border-gray-100 hover:bg-gray-100 transition-all">Batal</button>
-                    <button onclick="applyCrop()" class="px-10 py-4 bg-[#00AA5B] text-white rounded-2xl font-black uppercase text-[10px] tracking-widest shadow-lg shadow-green-100 hover:scale-[1.02] transition-all">Potong & Simpan</button>
-                </div>
+            </div>
+
+            <div class="p-8 bg-gray-50/50 border-t border-gray-50 flex gap-4">
+                <button @click="open = false; closeCropper()" class="flex-1 py-4 bg-white text-gray-500 rounded-2xl font-black uppercase text-xs tracking-widest border border-gray-100 hover:bg-gray-100 transition-all">
+                    Batal
+                </button>
+                <button onclick="applyCrop()" class="flex-1 py-4 bg-indigo-600 text-white rounded-2xl font-black uppercase text-xs tracking-widest shadow-lg shadow-indigo-100 hover:bg-indigo-700 transition-all">
+                    Potong & Terapkan
+                </button>
             </div>
         </div>
     </div>
@@ -348,10 +404,20 @@
                         <div>
                             <label class="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Multiplier Biaya</label>
                             <input type="number" name="multiplier" step="0.1" value="1.0" required class="w-full px-5 py-4 bg-gray-50 border-0 rounded-2xl text-sm font-bold focus:ring-2 focus:ring-[#FFD600]/20 transition-all text-black">
+                            <p class="text-[9px] text-gray-400 mt-2 font-bold uppercase italic">Misal 1.2 = Biaya naik 20%</p>
                         </div>
                         <div>
-                            <label class="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Biaya Tambahan (Rp)</label>
+                            <label class="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Biaya Tambahan Admin (Rp)</label>
                             <input type="number" name="base_extra_cost" value="0" required class="w-full px-5 py-4 bg-gray-50 border-0 rounded-2xl text-sm font-bold focus:ring-2 focus:ring-[#FFD600]/20 transition-all text-black">
+                            <p class="text-[9px] text-gray-400 mt-2 font-bold uppercase italic">Flat ongkir tambahan ditiap order</p>
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Max Jarak (KM)</label>
+                            <input type="number" name="max_distance" placeholder="Kosongkan jika tak terbatas" class="w-full px-5 py-4 bg-gray-50 border-0 rounded-2xl text-sm font-bold focus:ring-2 focus:ring-[#FFD600]/20 transition-all text-black">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Max Beban (KG)</label>
+                            <input type="number" name="max_weight" placeholder="Kosongkan jika tak terbatas" class="w-full px-5 py-4 bg-gray-50 border-0 rounded-2xl text-sm font-bold focus:ring-2 focus:ring-[#FFD600]/20 transition-all text-black">
                         </div>
                         <div class="col-span-2">
                             <label class="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Estimasi Waktu</label>
@@ -396,10 +462,20 @@
                         <div>
                             <label class="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Multiplier Biaya</label>
                             <input type="number" name="multiplier" id="edit_multiplier" step="0.1" required class="w-full px-5 py-4 bg-gray-50 border-0 rounded-2xl text-sm font-bold focus:ring-2 focus:ring-[#FFD600]/20 transition-all text-black">
+                            <p class="text-[9px] text-gray-400 mt-2 font-bold uppercase italic">Misal 1.2 = Biaya naik 20%</p>
                         </div>
                         <div>
-                            <label class="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Biaya Tambahan (Rp)</label>
+                            <label class="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Biaya Tambahan Admin (Rp)</label>
                             <input type="number" name="base_extra_cost" id="edit_base_extra_cost" required class="w-full px-5 py-4 bg-gray-50 border-0 rounded-2xl text-sm font-bold focus:ring-2 focus:ring-[#FFD600]/20 transition-all text-black">
+                            <p class="text-[9px] text-gray-400 mt-2 font-bold uppercase italic">Flat ongkir tambahan ditiap order</p>
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Max Jarak (KM)</label>
+                            <input type="number" name="max_distance" id="edit_max_distance" placeholder="Kosongkan jika tak terbatas" class="w-full px-5 py-4 bg-gray-50 border-0 rounded-2xl text-sm font-bold focus:ring-2 focus:ring-[#FFD600]/20 transition-all text-black">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Max Beban (KG)</label>
+                            <input type="number" name="max_weight" id="edit_max_weight" placeholder="Kosongkan jika tak terbatas" class="w-full px-5 py-4 bg-gray-50 border-0 rounded-2xl text-sm font-bold focus:ring-2 focus:ring-[#FFD600]/20 transition-all text-black">
                         </div>
                         <div class="col-span-2">
                             <label class="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Estimasi Waktu</label>
@@ -434,48 +510,46 @@
                 reader.onload = function(e) {
                     const image = document.getElementById('cropperImage');
                     image.src = e.target.result;
-                    document.getElementById('cropperModal').classList.remove('hidden');
+                    
+                    // Dispatch Alpine event
+                    window.dispatchEvent(new CustomEvent('open-cms-cropper', {
+                        detail: { type: type }
+                    }));
                     
                     if (cropper) {
                         cropper.destroy();
                     }
                     
-                    cropper = new Cropper(image, {
-                        aspectRatio: aspectRatio,
-                        viewMode: 2,
-                        dragMode: 'move',
-                        autoCropArea: 1,
-                        restore: false,
-                        guides: true,
-                        center: true,
-                        highlight: false,
-                        cropBoxMovable: true,
-                        cropBoxResizable: true,
-                        toggleDragModeOnDblclick: false,
-                    });
+                    setTimeout(() => {
+                        cropper = new Cropper(image, {
+                            aspectRatio: aspectRatio,
+                            viewMode: 1,
+                            dragMode: 'move',
+                            autoCropArea: 1,
+                            background: false,
+                        });
+                    }, 200);
                 };
                 reader.readAsDataURL(input.files[0]);
             }
         }
 
         function closeCropper() {
-            document.getElementById('cropperModal').classList.add('hidden');
             if (cropper) {
                 cropper.destroy();
                 cropper = null;
             }
-            currentInput.value = ''; // Reset input if cancelled
+            if (currentInput) currentInput.value = '';
         }
 
         function applyCrop() {
             if (!cropper) return;
 
-            const canvas = cropper.getCroppedCanvas({
-                width: currentType === 'site_logo' ? 400 : 1200, // Quality settings
-                imageSmoothingEnabled: true,
-                imageSmoothingQuality: 'high',
-            });
+            const config = currentType === 'site_logo' 
+                ? { width: 512, height: 512 } 
+                : { width: 1920, height: 1080 }; // High quality
 
+            const canvas = cropper.getCroppedCanvas(config);
             const base64Image = canvas.toDataURL('image/jpeg', 0.9);
             
             // Set hidden input value
@@ -487,20 +561,29 @@
             
             if (preview) {
                 preview.src = base64Image;
+                preview.classList.remove('grayscale', 'opacity-20');
             } else if (container) {
-                container.innerHTML = `<img src="${base64Image}" class="max-w-full max-h-full object-contain">`;
+                container.innerHTML = `<img src="${base64Image}" class="w-full h-full object-cover">`;
             }
 
-            document.getElementById('cropperModal').classList.add('hidden');
+            // Close modal (Alpine handles it)
+            window.dispatchEvent(new CustomEvent('open-cms-cropper', { detail: { type: '' } })); 
+            // Wait, I should just set open=false but I'm in JS.
+            // Let's just use the ID if needed or just trigger an event.
+            // Simple hack: 
+            const cropperEl = document.querySelector('[x-data*="open-cms-cropper"]');
+            if(cropperEl && cropperEl.__x) cropperEl.__x.$data.open = false;
             
-            // Optional: Info SweetAlert
+            closeCropper();
+
             Swal.fire({
-                icon: 'info',
-                title: 'Gambar Terpotong!',
-                text: 'Jangan lupa klik tombol "Update" untuk menyimpan ke server.',
-                timer: 2000,
+                icon: 'success',
+                title: 'Mantap!',
+                text: 'Gambar berhasil dipotong. Jangan lupa klik tombol UPDATE untuk simpan permanen.',
+                timer: 3000,
                 showConfirmButton: false,
-                customClass: { popup: 'rounded-[1.5rem]' }
+                toast: true,
+                position: 'top-end'
             });
         }
 
@@ -522,6 +605,8 @@
             document.getElementById('edit_multiplier').value = courier.multiplier;
             document.getElementById('edit_base_extra_cost').value = courier.base_extra_cost;
             document.getElementById('edit_estimated_time').value = courier.estimated_time;
+            document.getElementById('edit_max_distance').value = courier.max_distance;
+            document.getElementById('edit_max_weight').value = courier.max_weight;
             
             openModal('editCourierModal');
         }

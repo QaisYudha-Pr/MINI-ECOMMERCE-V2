@@ -25,6 +25,7 @@
                                         'pending' => 'bg-yellow-100 text-yellow-600',
                                         'success' => 'bg-green-100 text-green-600',
                                         'shipped' => 'bg-blue-100 text-blue-600',
+                                        'delivered' => 'bg-purple-100 text-purple-600',
                                         'completed' => 'bg-indigo-100 text-indigo-600',
                                         'failed' => 'bg-red-100 text-red-600',
                                         'expired' => 'bg-gray-100 text-gray-600',
@@ -75,12 +76,16 @@
 
                             <div class="flex gap-3">
                                 {{-- Tombol Konfirmasi Barang Diterima --}}
-                                @if($trx->status == 'shipped')
+                                @if(in_array($trx->status, ['shipped', 'delivered']))
                                     <form action="{{ route('transactions.confirm', $trx->id) }}" method="POST">
                                         @csrf
                                         <button type="submit" onclick="return confirm('Apakah barang sudah diterima dengan baik bolo?')"
-                                            class="px-6 py-3 bg-green-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-green-700 transition-colors shadow-lg shadow-green-200">
-                                            Confirm Received
+                                            class="px-6 py-3 {{ $trx->status == 'delivered' ? 'bg-green-600 animate-pulse' : 'bg-gray-800' }} text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:scale-105 transition-all shadow-lg {{ $trx->status == 'delivered' ? 'shadow-green-200' : 'shadow-gray-200' }}">
+                                            @if($trx->status == 'delivered')
+                                                ✅ Pesanan Diterima
+                                            @else
+                                                Konfirmasi Diterima
+                                            @endif
                                         </button>
                                     </form>
                                 @endif
@@ -90,6 +95,15 @@
                                     <button onclick="payNow('{{ $trx->snap_token }}')" 
                                         class="px-6 py-3 bg-indigo-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-indigo-700 transition-colors shadow-lg shadow-indigo-200">
                                         Pay Now
+                                    </button>
+                                @endif
+
+                                {{-- Tombol Beri Ulasan (Jika Selesai) --}}
+                                @if($trx->status == 'completed')
+                                    <button onclick="showReviewModal('{{ $trx->invoice_number }}', {{ json_encode($trx->items_details) }})" 
+                                        class="px-6 py-3 bg-yellow-400 text-gray-900 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-yellow-500 transition-colors shadow-lg shadow-yellow-100 flex items-center gap-2">
+                                        <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                                        Beri Ulasan
                                     </button>
                                 @endif
                                 
@@ -110,6 +124,37 @@
 
     {{-- Script untuk memicu Popup Midtrans --}}
     <script type="text/javascript">
+        function showReviewModal(invoice, items) {
+            let itemsHtml = items.map(item => `
+                <div class="flex items-center gap-4 p-4 bg-slate-50 rounded-2xl mb-3 border border-slate-100">
+                    <div class="flex-1 text-left">
+                        <p class="text-xs font-black text-gray-900">${item.nama_barang || item.name}</p>
+                        <p class="text-[10px] text-gray-400 font-bold uppercase">Beri rating produk ini</p>
+                    </div>
+                    <a href="/shop/items/${item.id}" class="bg-indigo-600 text-white px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-indigo-700 transition-all">
+                        Rating Sekarang
+                    </a>
+                </div>
+            `).join('');
+
+            Swal.fire({
+                title: '<span class="text-xl font-black uppercase tracking-widest">Beri Ulasan Bolo!</span>',
+                html: `
+                    <div class="mt-4">
+                        <p class="text-xs text-gray-500 mb-6 font-bold uppercase">Pilih produk dari invoice <span class="text-indigo-600">${invoice}</span> untuk diulas:</p>
+                        <div class="max-h-[300px] overflow-y-auto px-1">
+                            ${itemsHtml}
+                        </div>
+                    </div>
+                `,
+                showConfirmButton: false,
+                showCloseButton: true,
+                customClass: {
+                    popup: 'rounded-[2.5rem]',
+                }
+            });
+        }
+
         function payNow(snapToken) {
             window.snap.pay(snapToken, {
                 onSuccess: function(result) {

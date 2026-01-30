@@ -49,6 +49,21 @@
                         </select>
                         @error('role') <p class="text-red-500 text-xs mt-2 font-bold">{{ $message }}</p> @enderror
                     </div>
+
+                    {{-- AGENCY (SHOW ONLY IF COURIER) --}}
+                    <div class="group" id="agency_container" style="display: none;">
+                        <label class="block text-sm font-black text-gray-700 uppercase tracking-widest mb-2 ml-1 text-indigo-600">Instansi Pelayanan Kurir @if($couriers->isEmpty()) <span class="text-red-500">(Belum ada instansi)</span> @endif</label>
+                        <select name="courier_agency_id" class="w-full px-5 py-4 bg-indigo-50/50 border-indigo-100 rounded-2xl focus:ring-2 focus:ring-indigo-600 outline-none transition font-black text-indigo-900 cursor-pointer">
+                            <option value="">PILIH INSTANSI...</option>
+                            @foreach($couriers as $agency)
+                                <option value="{{ $agency->id }}" {{ old('courier_agency_id') == $agency->id ? 'selected' : '' }}>
+                                    {{ $agency->name }} - {{ $agency->service_name }}
+                                </option>
+                            @endforeach
+                        </select>
+                        <p class="text-[9px] font-black text-indigo-400 mt-2 uppercase tracking-widest leading-relaxed">Driver ini akan muncul hanya jika pembeli memilih layanan instansi di atas.</p>
+                        @error('courier_agency_id') <p class="text-red-500 text-xs mt-2 font-bold">{{ $message }}</p> @enderror
+                    </div>
                 </div>
 
                 {{-- PERMISSIONS CHECKLIST --}}
@@ -135,6 +150,14 @@
             function updatePermissions() {
                 const selectedRole = roleSelect.value;
                 const allowed = rolePermissions[selectedRole] || [];
+
+                // Toggle Agency Visibility
+                const agencyContainer = document.getElementById('agency_container');
+                if (selectedRole === 'courier') {
+                    agencyContainer.style.display = 'block';
+                } else {
+                    agencyContainer.style.display = 'none';
+                }
 
                 checkboxes.forEach(cb => {
                     const name = cb.getAttribute('data-permission');

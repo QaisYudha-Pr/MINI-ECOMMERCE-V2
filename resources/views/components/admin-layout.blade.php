@@ -130,6 +130,38 @@
                         <span class="ms-3">Home</span>
                     </a>
                 </li>
+
+                {{-- User Section --}}
+                @unless(Auth::user()->hasRole('seller') || Auth::user()->hasRole('admin'))
+                <div class="pt-4 pb-2">
+                    <span class="px-3 text-xs font-semibold text-slate-400 uppercase tracking-wider">Shopping Hub</span>
+                </div>
+                <li>
+                    <a href="{{ route('shop.public') }}" class="flex items-center p-3 text-slate-700 rounded-xl hover:bg-slate-50 group {{ request()->routeIs('shop.public') ? 'bg-indigo-50 text-indigo-700' : '' }}">
+                        <svg class="w-5 h-5 transition duration-75 {{ request()->routeIs('shop.public') ? 'text-indigo-700' : 'text-slate-400 group-hover:text-slate-900' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                        </svg>
+                        <span class="ms-3">Jelajah Toko</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ route('wishlist.index') }}" class="flex items-center p-3 text-slate-700 rounded-xl hover:bg-slate-50 group {{ request()->routeIs('wishlist.*') ? 'bg-indigo-50 text-indigo-700' : '' }}">
+                        <svg class="w-5 h-5 transition duration-75 {{ request()->routeIs('wishlist.*') ? 'text-indigo-700' : 'text-slate-400 group-hover:text-slate-900' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                        </svg>
+                        <span class="ms-3">Barang Favorit</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ route('reviews.index') }}" class="flex items-center p-3 text-slate-700 rounded-xl hover:bg-slate-50 group {{ request()->routeIs('reviews.index') ? 'bg-indigo-50 text-indigo-700' : '' }}">
+                        <svg class="w-5 h-5 transition duration-75 {{ request()->routeIs('reviews.index') ? 'text-indigo-700' : 'text-slate-400 group-hover:text-slate-900' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.382-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+                        </svg>
+                        <span class="ms-3">Ulasan Saya</span>
+                    </a>
+                </li>
+                @endunless
+
                 {{-- SELLER SECTION --}}
                 @if(Auth::user()->hasRole('seller') || Auth::user()->hasRole('admin'))
                 <div class="pt-4 pb-2">

@@ -13,6 +13,7 @@ class Courier extends Model
         'base_extra_cost',
         'multiplier',
         'max_distance',
+        'max_weight',
         'estimated_time',
         'is_active'
     ];

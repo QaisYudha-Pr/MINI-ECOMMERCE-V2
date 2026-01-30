@@ -12,21 +12,18 @@ class TransactionController extends Controller
     public function index()
     {
         $user = auth()->user();
-        $couriers = User::role('courier')->get();
-
-        $query = Transaction::query()->with(['user', 'courier']);
-
-        // Semua user (Admin maupun Seller) hanya bisa melihat transaksi yang berisi produk milik mereka
-        // Ini untuk menjaga privasi antar penjual, termasuk admin jika dia tidak menjual barang tersebut
-        $myProductIds = \App\Models\ItemShop::where('user_id', $user->id)->pluck('id')->toArray();
         
-        $query->where(function($q) use ($myProductIds) {
-            foreach ($myProductIds as $id) {
-                $q->orWhereJsonContains('items_details', [['id' => $id]]);
-            }
-        });
+        $query = Transaction::query()->with(['user', 'seller', 'courier', 'courierService']);
+
+        // Jika bukan admin beneran, hanya bisa lihat pesanan yang seller_id-nya adalah dia
+        if (!$user->hasRole('admin')) {
+            $query->where('seller_id', $user->id);
+        }
 
         $transactions = $query->latest()->paginate(10);
+        
+        // Ambil semua kurir (untuk Admin)
+        $couriers = User::role('courier')->get();
 
         return view('admin.transactions.index', compact('transactions', 'couriers'));
     }

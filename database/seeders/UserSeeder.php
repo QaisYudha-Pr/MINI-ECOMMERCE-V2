@@ -60,13 +60,36 @@ class UserSeeder extends Seeder
         $seller->assignRole('seller');
 
         $courier = User::create([
-            'name' => 'Kurir Bolo',
-            'email' => 'kurir@gmail.com',
-            'password' => bcrypt('kurir1234'),
-            'alamat' => 'Pool Kurir Mojokerto',
+            'name' => 'Driver JekPas 1',
+            'email' => 'driver1@gmail.com',
+            'password' => bcrypt('driver1234'),
+            'alamat' => 'Basecamp JekPas Mojokerto',
             'latitude' => -7.4726,
             'longitude' => 112.4382,
+            'courier_agency_id' => 1, // Ikut Jek-Pas (Motor)
         ]);
         $courier->assignRole('courier');
+
+        $courier2 = User::create([
+            'name' => 'Driver JekPas 2',
+            'email' => 'driver2@gmail.com',
+            'password' => bcrypt('driver1234'),
+            'alamat' => 'Basecamp JekPas Mojokerto',
+            'latitude' => -7.4726,
+            'longitude' => 112.4382,
+            'courier_agency_id' => 2, // Ikut Jek-Pas (Mobil)
+        ]);
+        $courier2->assignRole('courier');
+
+        $courier3 = User::create([
+            'name' => 'Driver Lokal 1',
+            'email' => 'driver3@gmail.com',
+            'password' => bcrypt('driver1234'),
+            'alamat' => 'Magersari, Mojokerto',
+            'latitude' => -7.4726,
+            'longitude' => 112.4382,
+            'courier_agency_id' => 3, // Ikut Kurir Mojokerto
+        ]);
+        $courier3->assignRole('courier');
     }
 }

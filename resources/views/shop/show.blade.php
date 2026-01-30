@@ -54,18 +54,23 @@
                         </div>
                     </div>
 
-                    <div class="border-y border-gray-100 py-6">
-                        <div class="flex items-center gap-4">
-                            <img src="{{ $itemShop->user->avatar ? asset($itemShop->user->avatar) : 'https://ui-avatars.com/api/?name='.urlencode($itemShop->user->name ?? 'Admin').'&background=random' }}" 
-                                 class="w-12 h-12 rounded-full border border-gray-100">
-                            <div>
-                                <h3 class="font-bold text-gray-900">{{ $itemShop->user->name ?? 'Official Store' }}</h3>
-                                <p class="text-xs text-green-500 font-medium flex items-center gap-1">
-                                    <span class="w-1.5 h-1.5 bg-green-500 rounded-full"></span>
-                                    Online
-                                </p>
+                    <div class="border-y border-gray-100 py-6 group/seller">
+                        <a href="{{ route('shop.public', ['seller_id' => $itemShop->user_id]) }}" class="flex items-center justify-between hover:bg-gray-50 p-2 -m-2 rounded-2xl transition-all">
+                            <div class="flex items-center gap-4">
+                                <img src="{{ $itemShop->user->avatar ? (Str::startsWith($itemShop->user->avatar, ['http://', 'https://']) ? $itemShop->user->avatar : asset($itemShop->user->avatar)) : 'https://ui-avatars.com/api/?name='.urlencode($itemShop->user->nama_toko ?? $itemShop->user->name ?? 'Admin').'&background=EBF4FF&color=7F9CF5' }}" 
+                                     class="w-12 h-12 rounded-full border border-gray-100 object-cover">
+                                <div>
+                                    <h3 class="font-bold text-gray-900 group-hover/seller:text-[#00AA5B] transition-colors uppercase text-sm tracking-tight">{{ $itemShop->user->nama_toko ?? $itemShop->user->name ?? 'Official Store' }}</h3>
+                                    <p class="text-[10px] text-green-500 font-bold flex items-center gap-1 uppercase tracking-wider">
+                                        <span class="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></span>
+                                        Online
+                                    </p>
+                                </div>
                             </div>
-                        </div>
+                            <div class="px-4 py-2 border border-gray-200 rounded-lg text-[10px] font-black uppercase tracking-widest text-gray-600 group-hover/seller:border-[#00AA5B] group-hover/seller:text-[#00AA5B] transition-all">
+                                Kunjungi Toko
+                            </div>
+                        </a>
                     </div>
 
                     <div class="space-y-4" x-data="{ tab: 'detail' }">
@@ -145,11 +150,13 @@
                         quantity: 1,
                         item: {
                             id: {{ $itemShop->id }},
+                            user_id: {{ $itemShop->user_id }},
                             nama_barang: '{{ $itemShop->nama_barang }}',
                             harga: {{ $itemShop->harga }},
                             berat: {{ $itemShop->berat ?? 1000 }},
                             seller_lat: {{ $itemShop->user->latitude ?? 'null' }},
                             seller_lng: {{ $itemShop->user->longitude ?? 'null' }},
+                            seller_name: '{{ $itemShop->user->nama_toko ?? $itemShop->user->name }}',
                             gambar: '{{ asset($itemShop->gambar) }}',
                             stok: {{ $itemShop->stok }}
                         },
@@ -203,7 +210,9 @@
                         
                         checkoutNow() {
                             if (this.item.stok <= 0) return;
-                            $store.cart.add(this.item, this.quantity);
+                            
+                            // Tambahkan ke keranjang secara silent (tanpa alert)
+                            $store.cart.add(this.item, this.quantity, true);
                             
                             // Ambil hanya item ini untuk dicheckout
                             const toCheckout = $store.cart.items.filter(i => i.id === this.item.id);
@@ -572,4 +581,8 @@
                     </div>
                 </div>
             </div>
+        </div>
+    </section>
+
+    @include('components.cart-modal')
 </x-app-layout>

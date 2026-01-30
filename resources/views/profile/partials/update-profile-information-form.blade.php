@@ -15,6 +15,12 @@
             </div>
 
             <div>
+                <x-input-label for="phone" :value="__('Phone Number (WhatsApp)')" class="ml-1 text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2" />
+                <x-text-input id="phone" name="phone" type="text" class="w-full bg-gray-50 border-2 border-gray-50 focus:border-indigo-500 focus:bg-white rounded-2xl px-5 py-3.5 text-sm font-bold transition-all outline-none" :value="old('phone', $user->phone)" placeholder="08xxxxxxx" />
+                <x-input-error class="mt-2" :messages="$errors->get('phone')" />
+            </div>
+
+            <div>
                 <x-input-label for="email" :value="__('Email')" class="ml-1 text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2" />
                 <x-text-input id="email" name="email" type="email" class="w-full bg-gray-50 border-2 border-gray-50 focus:border-indigo-500 focus:bg-white rounded-2xl px-5 py-3.5 text-sm font-bold transition-all outline-none" :value="old('email', $user->email)" required autocomplete="username" />
                 <x-input-error class="mt-2" :messages="$errors->get('email')" />

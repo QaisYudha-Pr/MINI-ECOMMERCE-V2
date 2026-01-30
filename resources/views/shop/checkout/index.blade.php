@@ -221,13 +221,15 @@
                         <div class="space-y-4">
                             <label class="relative cursor-pointer group block">
                                 <input type="radio" name="payment_method" value="midtrans" class="peer hidden" checked>
-                                <div class="p-6 rounded-[2rem] border-2 border-slate-50 peer-checked:border-indigo-600 peer-checked:bg-indigo-50/50 transition-all duration-300 flex items-center gap-4 group-hover:bg-slate-50">
-                                    <div class="w-10 h-10 rounded-full bg-white border-2 border-slate-100 flex items-center justify-center peer-checked:border-indigo-600 group-hover:scale-110 transition-transform">
-                                        <div class="w-4 h-4 rounded-full bg-indigo-600 opacity-0 peer-checked:opacity-100 transition-opacity"></div>
-                                    </div>
-                                    <div>
-                                        <p class="text-sm font-black text-slate-800 uppercase tracking-tight">Transfer / Virtual Account</p>
-                                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">Otomatis Terverifikasi</p>
+                                <div class="p-6 rounded-[2rem] border-2 border-slate-50 peer-checked:border-indigo-600 peer-checked:bg-indigo-50/50 transition-all duration-300 flex items-center justify-between group-hover:bg-slate-50">
+                                    <div class="flex items-center gap-4">
+                                        <div class="w-10 h-10 rounded-full bg-indigo-600 flex items-center justify-center text-white shadow-lg shadow-indigo-100 group-hover:scale-110 transition-transform">
+                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg>
+                                        </div>
+                                        <div>
+                                            <p class="text-sm font-black text-slate-800 uppercase tracking-tight">Otomatis Terverifikasi</p>
+                                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">Transfer / Virtual Account</p>
+                                        </div>
                                     </div>
                                 </div>
                             </label>
@@ -235,8 +237,8 @@
                             <label class="relative cursor-pointer group block">
                                 <input type="radio" name="payment_method" value="cod" class="peer hidden">
                                 <div class="p-6 rounded-[2rem] border-2 border-slate-50 peer-checked:border-orange-600 peer-checked:bg-orange-50/50 transition-all duration-300 flex items-center gap-4 group-hover:bg-slate-50">
-                                    <div class="w-10 h-10 rounded-full bg-white border-2 border-slate-100 flex items-center justify-center peer-checked:border-orange-600 group-hover:scale-110 transition-transform">
-                                        <div class="w-4 h-4 rounded-full bg-orange-600 opacity-0 peer-checked:opacity-100 transition-opacity"></div>
+                                    <div class="w-10 h-10 rounded-full bg-orange-600 flex items-center justify-center text-white shadow-lg shadow-orange-100 group-hover:scale-110 transition-transform">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
                                     </div>
                                     <div>
                                         <p class="text-sm font-black text-slate-800 uppercase tracking-tight">Bayar di Tempat (COD)</p>
@@ -364,7 +366,7 @@
                 const itemBerat = gram * item.quantity;
                 subtotal += itemTotal;
                 totalBerat += itemBerat;
-                totalQty += itemQty = parseInt(item.quantity);
+                totalQty += parseInt(item.quantity);
                 
                 return `
                 <div class="group flex flex-col sm:flex-row items-center gap-8 p-6 rounded-[2.5rem] border-2 border-slate-50 hover:border-indigo-100 hover:bg-indigo-50/30 transition-all duration-500">
@@ -395,9 +397,9 @@
 
                     <div class="flex flex-row sm:flex-col items-center gap-6">
                         <div class="flex items-center gap-1 bg-slate-100 p-1.5 rounded-[1.5rem] border-2 border-slate-200/50 shadow-inner">
-                            <button type="button" onclick="updateQty(${index}, -1)" class="w-10 h-10 flex items-center justify-center rounded-xl bg-white hover:bg-red-500 hover:text-white hover:scale-105 transition-all duration-300 font-black text-lg shadow-sm">-</button>
+                            <button type="button" onclick="window.updateQty(${index}, -1)" class="w-10 h-10 flex items-center justify-center rounded-xl bg-white hover:bg-red-500 hover:text-white hover:scale-105 transition-all duration-300 font-black text-lg shadow-sm">-</button>
                             <span class="font-black text-slate-800 min-w-[40px] text-center text-lg">${item.quantity}</span>
-                            <button type="button" onclick="updateQty(${index}, 1)" class="w-10 h-10 flex items-center justify-center rounded-xl bg-indigo-600 text-white hover:bg-indigo-700 hover:scale-105 transition-all duration-300 font-black text-lg shadow-md shadow-indigo-100">+</button>
+                            <button type="button" onclick="window.updateQty(${index}, 1)" class="w-10 h-10 flex items-center justify-center rounded-xl bg-indigo-600 text-white hover:bg-indigo-700 hover:scale-105 transition-all duration-300 font-black text-lg shadow-md shadow-indigo-100">+</button>
                         </div>
                         <div class="text-right shrink-0">
                             <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Subtotal Item</p>
@@ -433,7 +435,7 @@
         // 3. QUANTITY LOGIC
         window.updateQty = (index, change) => {
             const item = checkoutItems[index];
-            const newQty = item.quantity + change;
+            const newQty = parseInt(item.quantity) + change;
 
             if (newQty > item.stok) {
                 return Swal.fire('Waduh!', `Stok cuma ada ${item.stok} bolo!`, 'warning');
@@ -460,13 +462,14 @@
         function saveAndRefresh() {
             localStorage.setItem('checkout_items', JSON.stringify(checkoutItems));
             
-            // RE-CALCULATE ONGKIR
+            // RE-RENDER IMMEDIATELY
+            renderCheckout();
+
+            // RE-CALCULATE ONGKIR IF LOCATION EXISTS
             const lat = document.getElementById('lat').value;
             const lng = document.getElementById('lng').value;
             if(lat && lng) {
                 Ongkir(lat, lng);
-            } else {
-                renderCheckout();
             }
         }
 
@@ -745,23 +748,29 @@
             }
 
             let ratesHtml = rates.map((rate, index) => {
-                const isChecked = index === 0 ? 'checked' : '';
+                const isChecked = !rate.disabled && index === 0 ? 'checked' : '';
                 const themeClass = rate.type === 'local' ? 'indigo' : 'slate';
                 const badgeColor = rate.type === 'local' ? 'text-emerald-500' : 'text-indigo-500';
+                const disabledAttr = rate.disabled ? 'disabled' : '';
+                const opacityClass = rate.disabled ? 'opacity-50 grayscale' : '';
                 
                 return `
-                    <label class="relative cursor-pointer group block">
+                    <label class="relative cursor-pointer group block ${opacityClass}">
                         <input type="radio" name="courier_option" value="${rate.price}" 
                             data-courier="${rate.courier_name}" 
                             data-service="${rate.service}" 
+                            data-service-id="${rate.courier_service_id || ''}"
                             class="peer hidden" 
-                            ${isChecked}
+                            ${isChecked} ${disabledAttr}
                             onchange="setShippingFee(${rate.price})">
                         <div class="p-6 rounded-[2rem] border-2 border-slate-50 peer-checked:border-indigo-600 peer-checked:bg-indigo-50/50 transition-all duration-300 flex flex-col group-hover:bg-slate-50">
                             <div class="flex items-center justify-between">
                                 <div class="flex items-center gap-4">
-                                    <div class="w-10 h-10 rounded-full bg-white border-2 border-slate-100 flex items-center justify-center peer-checked:border-indigo-600">
-                                        <div class="w-4 h-4 rounded-full bg-indigo-600 opacity-0 peer-checked:opacity-100 transition-opacity"></div>
+                                    <div class="w-12 h-12 rounded-2xl bg-white border-2 border-slate-100 flex items-center justify-center peer-checked:border-indigo-600 shadow-sm group-hover:scale-105 transition-transform overflow-hidden">
+                                        ${rate.courier_name.toLowerCase().includes('jek') || rate.courier_name.toLowerCase().includes('grab') || rate.courier_name.toLowerCase().includes('kurir') 
+                                            ? `<div class="w-full h-full bg-indigo-600 flex items-center justify-center text-white font-black text-xs uppercase tracking-tighter">${rate.courier_name.substring(0,2)}</div>`
+                                            : `<div class="w-full h-full bg-slate-800 flex items-center justify-center text-white font-black text-xs uppercase tracking-tighter">${rate.courier_name.substring(0,2)}</div>`
+                                        }
                                     </div>
                                     <div>
                                         <div class="flex items-center gap-2">
@@ -771,26 +780,40 @@
                                         <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">${rate.duration} ${rate.description ? '• ' + rate.description : ''}</p>
                                     </div>
                                 </div>
-                                <p class="text-sm font-black text-indigo-600">IDR ${new Intl.NumberFormat('id-ID').format(rate.price)}</p>
+                                <p class="text-sm font-black text-indigo-600">${rate.disabled ? 'Tidak Tersedia' : 'IDR ' + new Intl.NumberFormat('id-ID').format(rate.price)}</p>
                             </div>
 
-                            ${rate.type === 'local' && rate.breakdown ? `
-                            <div class="mt-4 pt-4 border-t border-slate-100/50 grid grid-cols-2 sm:grid-cols-4 gap-4">
-                                <div class="flex flex-col">
-                                    <span class="text-[7px] font-black text-slate-400 uppercase tracking-widest">Ongkir</span>
-                                    <span class="text-[9px] font-black text-slate-700">Rp${rate.breakdown.base_fee.toLocaleString('id-ID')}</span>
+                            ${rate.disabled ? `
+                                <div class="mt-2 text-[9px] font-black text-red-500 uppercase tracking-widest italic">
+                                    ${rate.reason}
                                 </div>
-                                <div class="flex flex-col">
-                                    <span class="text-[7px] font-black text-slate-400 uppercase tracking-widest">Jarak (${rate.breakdown.distance_km}km)</span>
-                                    <span class="text-[9px] font-black text-slate-700">Rp${rate.breakdown.distance_fee.toLocaleString('id-ID')}</span>
-                                </div>
-                                <div class="flex flex-col">
-                                    <span class="text-[7px] font-black text-slate-400 uppercase tracking-widest">Beban (${rate.breakdown.weight_kg}kg)</span>
-                                    <span class="text-[9px] font-black text-slate-700">Rp${rate.breakdown.weight_fee.toLocaleString('id-ID')}</span>
-                                </div>
-                                <div class="flex flex-col">
-                                    <span class="text-[7px] font-black text-slate-400 uppercase tracking-widest">Admin/Layanan</span>
-                                    <span class="text-[9px] font-black text-indigo-600">Rp${(rate.breakdown.handling_fee + (rate.breakdown.service_extra || 0)).toLocaleString('id-ID')}</span>
+                            ` : ''}
+
+                            ${!rate.disabled && rate.type === 'local' && rate.breakdown ? `
+                            <div x-data="{ showDetail: false }" class="mt-3">
+                                <button type="button" @click.stop="showDetail = !showDetail" 
+                                    class="text-[8px] font-black uppercase tracking-widest text-slate-400 hover:text-indigo-600 flex items-center gap-1 transition-colors">
+                                    <span x-text="showDetail ? 'Sembunyikan Rincian' : 'Lihat Rincian Biaya'"></span>
+                                    <svg class="w-2.5 h-2.5 transition-transform" :class="showDetail ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 9l-7 7-7-7"/></svg>
+                                </button>
+                                
+                                <div x-show="showDetail" x-cloak x-collapse class="mt-4 pt-4 border-t border-slate-100/50 grid grid-cols-2 sm:grid-cols-4 gap-4">
+                                    <div class="flex flex-col">
+                                        <span class="text-[7px] font-black text-slate-400 uppercase tracking-widest">Biaya Dasar</span>
+                                        <span class="text-[9px] font-black text-slate-700">Rp${rate.breakdown.base_fee.toLocaleString('id-ID')}</span>
+                                    </div>
+                                    <div class="flex flex-col">
+                                        <span class="text-[7px] font-black text-slate-400 uppercase tracking-widest">Jarak (${rate.breakdown.distance_km}km)</span>
+                                        <span class="text-[9px] font-black text-slate-700">Rp${rate.breakdown.distance_fee.toLocaleString('id-ID')}</span>
+                                    </div>
+                                    <div class="flex flex-col">
+                                        <span class="text-[7px] font-black text-slate-400 uppercase tracking-widest">Berat (${rate.breakdown.weight_kg}kg)</span>
+                                        <span class="text-[9px] font-black text-slate-700">Rp${rate.breakdown.weight_fee.toLocaleString('id-ID')}</span>
+                                    </div>
+                                    <div class="flex flex-col">
+                                        <span class="text-[7px] font-black text-slate-400 uppercase tracking-widest">Layanan</span>
+                                        <span class="text-[9px] font-black text-indigo-600">Rp${(rate.breakdown.handling_fee + (rate.breakdown.service_extra || 0)).toLocaleString('id-ID')}</span>
+                                    </div>
                                 </div>
                             </div>
                             ` : ''}
@@ -931,7 +954,8 @@
                             name: item.nama_barang,
                             price: item.harga,
                             quantity: item.quantity,
-                            weight: (parseFloat(item.berat) || 1) // In KG
+                            weight: (parseFloat(item.berat) || 1), // In KG
+                            seller_id: item.user_id // Kirim ID Penjual supaya jarak akurat
                         }))
                     })
                 });
@@ -977,7 +1001,8 @@
                 shipping_fee: globalShippingFee,
                 destination_area_id: destinationAreaInput.value,
                 courier_name: selectedCourier ? selectedCourier.getAttribute('data-courier') : null,
-                courier_service: selectedCourier ? selectedCourier.getAttribute('data-service') : null
+                courier_service: selectedCourier ? selectedCourier.getAttribute('data-service') : null,
+                courier_service_id: selectedCourier ? selectedCourier.getAttribute('data-service-id') : null
             };
 
             try {

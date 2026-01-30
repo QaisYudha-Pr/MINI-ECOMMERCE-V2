@@ -15,6 +15,7 @@ class DatabaseSeeder extends Seeder
     public function run(): void
 {
     $this->call(RolePermissionSeeder::class);
+    $this->call(CourierSeeder::class); // Harus sebelum UserSeeder karena ada instansi_kurir_id
     $this->call(UserSeeder::class);
     $this->call(ProductSeeder::class);
     $this->call(TransactionSeeder::class);

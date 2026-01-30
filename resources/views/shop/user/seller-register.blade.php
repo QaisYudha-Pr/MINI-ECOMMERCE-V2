@@ -58,6 +58,17 @@
                             @enderror
                         </div>
 
+                        <div class="mb-6">
+                            <label for="phone" class="block text-sm font-semibold text-slate-700 mb-2">WhatsApp Number (Nomor WA)</label>
+                            <input type="text" name="phone" id="phone" required
+                                class="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all outline-none text-slate-900 placeholder-slate-400"
+                                placeholder="e.g., 081234567890">
+                            <p class="text-[10px] text-gray-400 mt-1">Nomor ini akan digunakan pembeli untuk menghubungi Anda.</p>
+                            @error('phone')
+                                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                            @enderror
+                        </div>
+
                         <div class="mb-6" x-data="{ 
                             showCropper: false, 
                             cropper: null,

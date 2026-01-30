@@ -10,6 +10,8 @@ class HomeController extends Controller
 {
     public function index()
     {
+        $settings = \App\Models\SiteSetting::all()->pluck('value', 'key');
+        
         // 8 Latest Items
         $items = ItemShop::where('stok', '>', 0)
             ->withCount('reviews')
@@ -18,14 +20,15 @@ class HomeController extends Controller
             ->take(8)
             ->get();
 
-        // Trusted Sellers (Ide 3)
+        // Trusted Sellers (Pilihan Bolo: Berdasarkan rating rata-rata produk dan jumlah produk)
         $trustedSellers = \App\Models\User::role('seller')
             ->withCount('itemShops')
             ->whereHas('itemShops')
-            ->latest()
+            ->withAvg('itemShops as avg_rating', 'stok') // Placeholder, idealnya pake tabel review
+            ->orderByDesc('item_shops_count')
             ->take(6)
             ->get();
 
-        return view('shop.home', compact('items', 'trustedSellers'));
+        return view('shop.home', compact('items', 'trustedSellers', 'settings'));
     }
 }
