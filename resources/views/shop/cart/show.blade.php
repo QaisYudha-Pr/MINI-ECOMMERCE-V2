@@ -103,6 +103,19 @@
                                 {{ $transaction->alamat ?: 'Tidak ada detail alamat' }}
                             </p>
                         </div>
+
+                        @if($transaction->delivery_proof)
+                        <div class="mt-8">
+                            <h2 class="text-sm font-black text-gray-900 uppercase tracking-widest mb-4">Bukti Pengiriman</h2>
+                            <div class="relative w-full h-48 rounded-2xl overflow-hidden group border border-slate-100">
+                                <img src="{{ asset($transaction->delivery_proof) }}" class="w-full h-full object-cover">
+                                <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                    <a href="{{ asset($transaction->delivery_proof) }}" target="_blank" class="px-6 py-2 bg-white text-slate-900 rounded-full text-[10px] font-black uppercase tracking-widest">Perbesar Foto</a>
+                                </div>
+                            </div>
+                            <p class="text-[9px] text-slate-400 font-bold mt-2 uppercase italic tracking-tighter">* Foto ini diambil oleh kurir saat barang sampai bolo.</p>
+                        </div>
+                        @endif
                     </div>
 
                     <div class="p-10">

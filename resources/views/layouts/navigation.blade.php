@@ -168,14 +168,19 @@
                 {{-- NOTIFICATION BELL --}}
                 <div class="relative" x-data="{ 
                     open: false,
+                    unreadCount: {{ auth()->user()->notifications()->where('is_read', false)->count() }},
                     readAll() {
-                        fetch('{{ route('notifications.read-all') }}', {
-                            method: 'POST',
-                            headers: {
-                                'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                                'Accept': 'application/json'
-                            }
-                        });
+                        if(this.unreadCount > 0) {
+                            fetch('{{ route('notifications.read-all') }}', {
+                                method: 'POST',
+                                headers: {
+                                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                    'Accept': 'application/json'
+                                }
+                            }).then(() => {
+                                this.unreadCount = 0;
+                            });
+                        }
                     }
                 }">
                     <button @click="open = !open; if(open) readAll()" 
@@ -183,12 +188,9 @@
                         <svg class="w-5 h-5 group-hover:text-[#00AA5B] transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
                         </svg>
-                        @php
-                            $unreadCount = auth()->user()->notifications()->where('is_read', false)->count();
-                        @endphp
-                        @if($unreadCount > 0)
-                            <span class="absolute top-1 right-1 bg-[#00AA5B] text-white text-[8px] font-bold w-4 h-4 rounded-full flex items-center justify-center animate-bounce border-2 border-white">{{ $unreadCount }}</span>
-                        @endif
+                        <template x-if="unreadCount > 0">
+                            <span class="absolute top-1 right-1 bg-[#00AA5B] text-white text-[8px] font-bold w-4 h-4 rounded-full flex items-center justify-center animate-bounce border-2 border-white" x-text="unreadCount"></span>
+                        </template>
                     </button>
 
                     <div x-show="open" @click.away="open = false" x-cloak
@@ -198,9 +200,9 @@
                         class="absolute right-0 mt-3 w-80 bg-white border border-gray-100 shadow-2xl rounded-2xl overflow-hidden z-[100]">
                         <div class="p-4 border-b border-gray-50 flex justify-between items-center bg-gray-50/50">
                             <h3 class="text-[10px] font-black uppercase tracking-widest text-gray-900">Notifikasi</h3>
-                            @if($unreadCount > 0)
-                                <span class="bg-[#00AA5B]/10 text-[#00AA5B] text-[8px] font-black px-2 py-0.5 rounded-full uppercase">{{ $unreadCount }} Baru</span>
-                            @endif
+                            <template x-if="unreadCount > 0">
+                                <span class="bg-[#00AA5B]/10 text-[#00AA5B] text-[8px] font-black px-2 py-0.5 rounded-full uppercase" x-text="unreadCount + ' Baru'"></span>
+                            </template>
                         </div>
                         <div class="max-h-96 overflow-y-auto no-scrollbar">
                             @php

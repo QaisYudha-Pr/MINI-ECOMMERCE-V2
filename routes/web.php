@@ -148,6 +148,9 @@ Route::middleware('auth')->group(function () {
             Route::post('/update-logo', [CmsController::class, 'updateLogo'])->name('update-logo');
             Route::post('/update-text', [CmsController::class, 'updateText'])->name('update-text');
             Route::post('/update-images', [CmsController::class, 'updateImages'])->name('update-images');
+            Route::post('/update-settings', [CmsController::class, 'updateSettings'])->name('settings.update');
+            Route::post('/delete-slider', [CmsController::class, 'deleteSlider'])->name('delete-slider');
+            Route::get('/revenue/export', [CmsController::class, 'exportRevenue'])->name('revenue.export');
 
             // Courier Management
             Route::post('/couriers', [CmsController::class, 'storeCourier'])->name('couriers.store');

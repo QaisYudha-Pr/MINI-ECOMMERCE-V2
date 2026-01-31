@@ -36,43 +36,68 @@
                 </div>
 
                 <!-- Right Side: Action -->
-                <div class="w-full md:w-1/2 p-12 flex flex-col justify-center bg-white">
+                <div class="w-full md:w-1/2 p-12 flex flex-col justify-center bg-white" x-data="{ agreed: false }">
                     <div class="mb-8">
-                        <span class="text-xs font-bold text-indigo-600 uppercase tracking-widest">Get Started</span>
-                        <h3 class="text-2xl font-bold text-slate-900 mt-2">Activate Seller Account</h3>
+                        <span class="text-xs font-bold text-indigo-600 uppercase tracking-widest">Siap Jualan Bolo?</span>
+                        <h3 class="text-2xl font-black text-slate-900 mt-2 uppercase tracking-tight">Aktivasi Akun Seller</h3>
                     </div>
 
                     <form action="{{ route('seller.store') }}" method="POST">
                         @csrf
                         <div class="mb-6">
-                            <label for="nama_toko" class="block text-sm font-semibold text-slate-700 mb-2">Shop Name (Nama Toko)</label>
+                            <label for="nama_toko" class="block text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">Nama Toko Kerenmu</label>
                             <input type="text" name="nama_toko" id="nama_toko" required
-                                class="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all outline-none text-slate-900 placeholder-slate-400"
-                                placeholder="e.g., Qais Digital Store">
+                                class="w-full px-5 py-4 rounded-2xl bg-slate-50 border-0 focus:ring-2 focus:ring-indigo-600/20 transition-all outline-none text-slate-900 font-bold placeholder-slate-300"
+                                placeholder="Contoh: Maju Jaya Digital">
                             @error('nama_toko')
-                                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                                <p class="text-red-500 text-[10px] font-bold mt-1 uppercase">{{ $message }}</p>
                             @enderror
                         </div>
 
-                        <div class="bg-indigo-50 p-6 rounded-2xl border border-indigo-100 mb-8">
-                            <div class="flex items-start gap-4">
-                                <div class="shrink-0">
-                                    <div class="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600">
-                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        <div class="bg-indigo-50/50 p-6 rounded-3xl border border-indigo-100/50 mb-8">
+                            <h4 class="text-[10px] font-black text-indigo-600 uppercase tracking-[0.2em] mb-3">Syarat & Kebijakan Bolo</h4>
+                            <div class="max-h-40 overflow-y-auto pr-2 mb-4 space-y-3 no-scrollbar">
+                                <div class="flex gap-3">
+                                    <div class="w-5 h-5 bg-white rounded-lg flex items-center justify-center text-indigo-600 shrink-0 shadow-sm border border-indigo-50">
+                                        <span class="text-[10px] font-black">1</span>
                                     </div>
+                                    <p class="text-[10px] font-bold text-slate-500 leading-relaxed uppercase">Biaya Layanan Platform sebesar Rp2.500 per transaksi sukses.</p>
                                 </div>
-                                <div>
-                                    <h4 class="text-sm font-semibold text-slate-900">Confirmation Required</h4>
-                                    <p class="text-xs text-slate-500 mt-1">
-                                        By clicking the button below, you agree to our Seller Terms of Service and Privacy Policy. Your account will be immediately upgraded.
-                                    </p>
+                                <div class="flex gap-3">
+                                    <div class="w-5 h-5 bg-white rounded-lg flex items-center justify-center text-indigo-600 shrink-0 shadow-sm border border-indigo-50">
+                                        <span class="text-[10px] font-black">2</span>
+                                    </div>
+                                    <p class="text-[10px] font-bold text-slate-500 leading-relaxed uppercase">Komisi Seller sebesar 5% akan dipotong otomatis dari total harga produk saat pesanan selesai.</p>
+                                </div>
+                                <div class="flex gap-3">
+                                    <div class="w-5 h-5 bg-white rounded-lg flex items-center justify-center text-indigo-600 shrink-0 shadow-sm border border-indigo-50">
+                                        <span class="text-[10px] font-black">3</span>
+                                    </div>
+                                    <p class="text-[10px] font-bold text-slate-500 leading-relaxed uppercase">Seller wajib menjaga kualitas barang dan kecepatan pengiriman.</p>
+                                </div>
+                                <div class="flex gap-3">
+                                    <div class="w-5 h-5 bg-white rounded-lg flex items-center justify-center text-indigo-600 shrink-0 shadow-sm border border-indigo-50">
+                                        <span class="text-[10px] font-black">4</span>
+                                    </div>
+                                    <p class="text-[10px] font-bold text-slate-500 leading-relaxed uppercase">Pencairan saldo (withdraw) diproses maksimal 1x24 jam hari kerja.</p>
                                 </div>
                             </div>
+                            
+                            <label class="flex items-center gap-3 cursor-pointer group">
+                                <div class="relative flex items-center">
+                                    <input type="checkbox" x-model="agreed" class="w-5 h-5 appearance-none bg-white border-2 border-indigo-100 rounded-lg checked:bg-indigo-600 checked:border-indigo-600 transition-all cursor-pointer">
+                                    <svg class="w-3.5 h-3.5 text-white absolute left-0.5 top-0.5 pointer-events-none opacity-0 transition-opacity" :class="agreed ? 'opacity-100' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="4" d="M5 13l4 4L19 7"/></svg>
+                                </div>
+                                <span class="text-[10px] font-black text-slate-600 uppercase tracking-widest group-hover:text-indigo-600 transition-colors">SAYA SETUJU & SIAP JUALAN BOLO</span>
+                            </label>
                         </div>
 
-                        <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-4 px-6 rounded-xl transition-all shadow-lg shadow-indigo-200 active:scale-95 flex items-center justify-center gap-2">
-                            <span>Register as Seller</span>
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
+                        <button type="submit" 
+                            :disabled="!agreed"
+                            :class="!agreed ? 'opacity-50 grayscale cursor-not-allowed' : 'hover:bg-indigo-700 shadow-indigo-100'"
+                            class="w-full bg-indigo-600 text-white font-black py-5 px-6 rounded-2xl transition-all shadow-xl uppercase text-xs tracking-[0.2em] active:scale-95 flex items-center justify-center gap-3">
+                            <span>GAS JADI SELLER</span>
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
                         </button>
                     </form>
                 </div>

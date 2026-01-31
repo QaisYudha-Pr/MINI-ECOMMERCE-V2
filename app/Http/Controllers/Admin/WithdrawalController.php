@@ -25,6 +25,12 @@ class WithdrawalController extends Controller
 
     public function store(Request $request)
     {
+        $user = Auth::user();
+
+        if ($user->balance < $request->amount) {
+            return back()->with('error', 'Saldo jualan tidak mencukupi bolo! (Saldo Platform tidak bisa ditarik lewat sini)');
+        }
+
         $request->validate([
             'amount' => 'required|numeric|min:10000',
             'bank_name' => 'required|string',

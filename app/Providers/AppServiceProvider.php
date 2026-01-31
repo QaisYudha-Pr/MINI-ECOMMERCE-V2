@@ -38,7 +38,7 @@ class AppServiceProvider extends ServiceProvider
         }
 
         // Global Notifications for All Users
-        View::composer('layouts.admin', function ($view) {
+        View::composer(['layouts.admin', 'layouts.courier'], function ($view) {
             if (Auth::check()) {
                 $user = Auth::user();
                 $notifications = Notification::where('user_id', $user->id)

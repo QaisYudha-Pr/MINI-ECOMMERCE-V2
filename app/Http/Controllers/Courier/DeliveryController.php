@@ -20,7 +20,7 @@ class DeliveryController extends Controller
         return view('courier.deliveries.index', compact('deliveries'));
     }
 
-    public function complete(Transaction $transaction)
+    public function complete(Request $request, Transaction $transaction)
     {
         if ($transaction->courier_id !== Auth::id()) {
             abort(403);
@@ -30,10 +30,23 @@ class DeliveryController extends Controller
             return back()->with('error', 'Status pesanan tidak valid bolo!');
         }
 
-        $transaction->update([
-            'status' => 'delivered'
+        $request->validate([
+            'delivery_proof' => 'required|image|max:2048',
         ]);
 
-        return back()->with('success', 'MANTAP BOLO! Pesanan berhasil diantar. Menunggu konfirmasi pembeli.');
+        $proofPath = null;
+        if ($request->hasFile('delivery_proof')) {
+            $file = $request->file('delivery_proof');
+            $filename = 'proof_' . $transaction->invoice_number . '_' . time() . '.' . $file->getClientOriginalExtension();
+            $file->move(public_path('uploads/proofs'), $filename);
+            $proofPath = 'uploads/proofs/' . $filename;
+        }
+
+        $transaction->update([
+            'status' => 'delivered',
+            'delivery_proof' => $proofPath
+        ]);
+
+        return back()->with('success', 'MANTAP BOLO! Pesanan berhasil diantar. Bukti foto telah diunggah.');
     }
 }

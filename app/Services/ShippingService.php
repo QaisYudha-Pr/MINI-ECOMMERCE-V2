@@ -98,6 +98,31 @@ class ShippingService
         $distanceFee = $distance > 2 ? ceil($distance - 2) * $perKm : 0;
         $weightFee = ceil($totalWeightKg) * $perKg;
         
+        // --- Cek Logika Gratis Ongkir ---
+        $fsSettings = SiteSetting::whereIn('key', [
+            'free_shipping_min_order',
+            'free_shipping_max_dist',
+            'free_shipping_max_subsidy'
+        ])->pluck('value', 'key');
+
+        $minOrder = (float)($fsSettings['free_shipping_min_order'] ?? 25000);
+        $maxDist = (float)($fsSettings['free_shipping_max_dist'] ?? 20);
+        $maxSubsidy = (float)($fsSettings['free_shipping_max_subsidy'] ?? 10000);
+
+        $cartTotal = collect($items)->sum(fn($i) => ($i['harga'] ?? 0) * ($i['quantity'] ?? 1));
+        
+        $subsidyApplied = 0;
+        if ($cartTotal >= $minOrder) {
+            if ($distance <= 5) {
+                // Gratis TOTAL (Subsidi sebesar harga ongkir aslinya)
+                $subsidyApplied = 999999; // Set sangat tinggi agar finalPrice jadi 0
+            } elseif ($distance <= $maxDist) {
+                // Potongan sesuai setting (Default 10rb)
+                $subsidyApplied = $maxSubsidy;
+            }
+        }
+        // ---------------------------------
+
         // AMBIL KURIR DARI DATABASE
         $activeCouriers = \App\Models\Courier::where('is_active', true)->get();
         $rates = [];
@@ -120,7 +145,10 @@ class ShippingService
 
             // Rumus: (Ongkir Dasar * Multiplier) + Extra Fee Kurir + Layanan Sistem
             $freight = $baseFee + $distanceFee + $weightFee;
-            $finalPrice = ($freight * $courier->multiplier) + ($courier->base_extra_cost ?? 0) + $handlingFee;
+            $rawPrice = ($freight * $courier->multiplier) + ($courier->base_extra_cost ?? 0) + $handlingFee;
+            
+            // Terapkan Subsidi Ongkir
+            $finalPrice = max(0, $rawPrice - $subsidyApplied);
 
             $rates[] = [
                 'courier_service_id' => $courier->id,
@@ -141,6 +169,8 @@ class ShippingService
                     'handling_fee' => (int)$handlingFee,
                     'service_extra' => (int)($courier->base_extra_cost ?? 0),
                     'multiplier' => $courier->multiplier,
+                    'raw_price' => (int)$rawPrice,
+                    'subsidy' => (int)$subsidyApplied,
                     'total' => (int)$finalPrice
                 ]
             ];

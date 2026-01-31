@@ -373,14 +373,35 @@
             @endif
 
             {{-- Widget: Recent Notifications --}}
-             <div class="bg-white p-6 rounded-[2.5rem] border border-slate-100 shadow-xl shadow-slate-200/50 transition-all duration-300 hover:shadow-2xl hover:border-slate-200">
+             <div class="bg-white p-6 rounded-[2.5rem] border border-slate-100 shadow-xl shadow-slate-200/50 transition-all duration-300 hover:shadow-2xl hover:border-slate-200" 
+                  x-data="{ 
+                    unreadCount: {{ $notifications->count() }},
+                    markAllRead() {
+                        fetch('{{ route('notifications.read-all') }}', {
+                            method: 'POST',
+                            headers: {
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                'Accept': 'application/json'
+                            }
+                        }).then(() => {
+                            this.unreadCount = 0;
+                            // Optionally hide or change style of notifications
+                        });
+                    }
+                  }">
                  <div class="flex items-center justify-between mb-6">
                     <h4 class="font-black text-slate-900 text-lg tracking-tight">Notifikasi Terbaru</h4>
-                    <span class="text-[10px] font-black uppercase text-indigo-500">{{ $notifications->count() }} Baru</span>
+                    <div class="flex items-center gap-3">
+                        <template x-if="unreadCount > 0">
+                            <button @click="markAllRead()" class="text-[9px] font-black uppercase text-indigo-400 hover:text-indigo-600 transition-colors">Tandai Dibaca</button>
+                        </template>
+                        <span class="text-[10px] font-black uppercase text-indigo-500" x-text="unreadCount + ' Baru'"></span>
+                    </div>
                 </div>
                 <div class="space-y-4 max-h-[400px] overflow-y-auto no-scrollbar">
                     @forelse($notifications as $notif)
-                        <div class="flex items-start gap-4 p-3 rounded-2xl bg-slate-50/50 border border-slate-100/50 hover:bg-white hover:shadow-md transition-all group">
+                        <div class="flex items-start gap-4 p-3 rounded-2xl bg-slate-50/50 border border-slate-100/50 hover:bg-white hover:shadow-md transition-all group"
+                             :class="unreadCount === 0 ? 'opacity-60 bg-white' : ''">
                             <div class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 {{ $notif->type === 'success' ? 'bg-emerald-50 text-emerald-600' : 'bg-indigo-50 text-indigo-600' }}">
                                 @if($notif->type === 'success')
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>

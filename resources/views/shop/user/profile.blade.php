@@ -54,15 +54,19 @@
                             </div>
                         </div>
 
-                        @role('seller')
-                        <div class="mt-6">
+                        @hasanyrole('admin|seller')
+                        <div class="mt-6 flex flex-col gap-3">
                             <button onclick="document.getElementById('banner-input').click()" class="w-full px-6 py-3 bg-slate-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-black transition-all shadow-lg flex items-center justify-center gap-2">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
                                 Change Shop Banner
                             </button>
-                            <p class="text-[9px] text-gray-400 font-bold mt-2 uppercase tracking-tighter italic">* Banner akan tampil di halaman utama tokomu</p>
+                            <a href="{{ route('shop.public', ['seller_id' => auth()->id()]) }}" target="_blank" class="w-full px-6 py-3 bg-indigo-600 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-100 flex items-center justify-center gap-2">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                                Preview My Shop
+                            </a>
+                            <p class="text-[9px] text-gray-400 font-bold mt-1 uppercase tracking-tighter italic text-center">* Preview bagaimana tokomu tampil bagi pembeli</p>
                         </div>
-                        @endrole
+                        @endhasanyrole
 
                         <div class="mt-10 pt-10 border-t border-gray-100 grid grid-cols-2 gap-4">
                             <div class="p-4 bg-gray-50 rounded-[2rem]">
@@ -175,7 +179,7 @@
         
         <div class="bg-white rounded-[2.5rem] p-6 w-full max-w-2xl shadow-2xl m-4 relative animate-fade-in-up">
             <h3 class="text-xl font-black text-gray-900 uppercase tracking-widest mb-4 text-center">
-                Crop Your <span class="text-indigo-600" x-text="title"></span>
+                POTONG <span class="text-indigo-600" x-text="title">BOLO</span>
             </h3>
             
             <div class="relative w-full h-[300px] sm:h-[400px] bg-gray-100 rounded-2xl overflow-hidden mb-6 border-2 border-dashed border-gray-300">
@@ -183,11 +187,11 @@
             </div>
 
             <div class="flex gap-4">
-                <button @click="open = false" class="flex-1 py-4 bg-gray-100 text-gray-500 rounded-2xl font-black uppercase text-xs tracking-widest hover:bg-gray-200 transition-all">
-                    Cancel
+                <button @click="open = false" class="flex-1 py-4 bg-gray-100 text-gray-400 rounded-2xl font-black uppercase text-xs tracking-widest hover:bg-gray-200 transition-all border border-gray-100">
+                    BATAL
                 </button>
-                <button id="btn-crop-upload" class="flex-1 py-4 bg-indigo-600 text-white rounded-2xl font-black uppercase text-xs tracking-widest hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-200">
-                    Crop & Upload
+                <button id="btn-crop-upload" class="flex-1 py-4 bg-indigo-600 text-white rounded-2xl font-black uppercase text-xs tracking-widest hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-100">
+                    SIMPAN & UPDATE
                 </button>
             </div>
         </div>
@@ -428,7 +432,7 @@
                 formData.append('_method', 'PATCH');
                 formData.append('_token', '{{ csrf_token() }}');
 
-                btnCropUpload.innerText = 'UPLOADING...';
+                btnCropUpload.innerText = 'PROSES...';
                 btnCropUpload.disabled = true;
 
                 fetch(uploadUrl, {
@@ -443,15 +447,17 @@
                     Swal.fire({
                         icon: 'success',
                         title: 'Updated!',
-                        text: `${currentMode.charAt(0).toUpperCase() + currentMode.slice(1)} berhasil diperbarui!`,
+                        text: `${currentMode.charAt(0).toUpperCase() + currentMode.slice(1)} berhasil diperbarui bolo!`,
                         timer: 1500,
-                        showConfirmButton: false
+                        showConfirmButton: false,
+                        toast: true,
+                        position: 'top-end'
                     }).then(() => window.location.reload());
                 })
                 .catch(err => {
                     console.error(err);
                     Swal.fire('Error', 'Gagal upload, coba lagi ya.', 'error');
-                    btnCropUpload.innerText = 'CROP & UPLOAD';
+                    btnCropUpload.innerText = 'SIMPAN & UPDATE';
                     btnCropUpload.disabled = false;
                 });
             });

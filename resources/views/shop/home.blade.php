@@ -102,18 +102,34 @@
         <section class="max-w-7xl mx-auto px-4 sm:px-8 mt-6">
             <div class="swiper bannerSwiper rounded-[2.5rem] overflow-hidden shadow-2xl relative group">
                 <div class="swiper-wrapper">
-                    <div class="swiper-slide">
-                        <div class="relative w-full h-[180px] sm:h-[350px]">
-                            <img src="{{ asset('banners/banner1.png') }}" class="w-full h-full object-cover">
-                            <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
+                    @php
+                        $sliders = isset($settings['home_sliders']) ? json_decode($settings['home_sliders'], true) : [];
+                    @endphp
+
+                    @forelse($sliders as $slider)
+                        <div class="swiper-slide">
+                            <div class="relative w-full h-[180px] sm:h-[350px]">
+                                <img src="{{ asset($slider) }}" class="w-full h-full object-cover">
+                                <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
+                                {{-- Overlay Title --}}
+                                <div class="absolute inset-0 flex items-center px-12">
+                                    <div class="max-w-md">
+                                        <h2 class="text-xl sm:text-4xl font-black text-white leading-tight">
+                                            {{ $settings['home_title'] ?? 'Belanja Keren di Mojokerto' }}
+                                        </h2>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                    <div class="swiper-slide">
-                        <div class="relative w-full h-[180px] sm:h-[350px]">
-                            <img src="{{ asset('banners/banner2.png') }}" class="w-full h-full object-cover">
-                            <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
+                    @empty
+                        {{-- Fallback if no sliders --}}
+                        <div class="swiper-slide">
+                            <div class="relative w-full h-[180px] sm:h-[350px]">
+                                <img src="{{ asset('banners/banner1.png') }}" class="w-full h-full object-cover">
+                                <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
+                            </div>
                         </div>
-                    </div>
+                    @endforelse
                 </div>
                 
                 {{-- Pagination Dots --}}
@@ -210,7 +226,7 @@
         {{-- 5. PRODUK GRID --}}
         <section class="max-w-7xl mx-auto px-8 mt-24">
             <div class="mb-10 text-center">
-                <h2 class="text-3xl font-black text-slate-900 tracking-tight">Baru Masuk Bolo!</h2>
+                <h2 class="text-3xl font-black text-slate-900 tracking-tight">Produk Yang Baru Ditambahkan Bolo!</h2>
                 <p class="text-[10px] font-bold text-slate-400 uppercase tracking-[0.3em] mt-2">Jangan Sampai Kehabisan Stok</p>
             </div>
             

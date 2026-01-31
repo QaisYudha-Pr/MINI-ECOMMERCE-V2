@@ -8,10 +8,18 @@
                         Keuangan Bolo
                     </span>
                     <h1 class="text-4xl lg:text-5xl font-black text-white tracking-tighter leading-none mb-4">
-                        Penarikan <span class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-indigo-200">Saldo</span> 💸
+                        @if(Auth::user()->hasRole('admin'))
+                            Manajemen <span class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-indigo-200">Payout</span> 💸
+                        @else
+                            Penarikan <span class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-indigo-200">Saldo</span> 💸
+                        @endif
                     </h1>
                     <p class="text-slate-400 text-sm font-medium leading-relaxed max-w-md">
-                        Kelola hasil jualanmu dengan bijak bolo. Jangan lupa sedekah biar makin berkah!
+                        @if(Auth::user()->hasRole('admin'))
+                            Verifikasi dan proses permintaan pencairan dana seller tepat waktu bolo!
+                        @else
+                            Kelola hasil jualanmu dengan bijak bolo. Jangan lupa sedekah biar makin berkah!
+                        @endif
                     </p>
                 </div>
                 @if(Auth::user()->hasRole('seller'))
@@ -60,8 +68,20 @@
         <div class="bg-white rounded-[3rem] border border-slate-100 shadow-2xl shadow-slate-200/50 overflow-hidden">
             <div class="p-10 border-b border-slate-50 flex items-center justify-between">
                 <div>
-                    <h4 class="text-xl font-black text-slate-900 uppercase tracking-tighter">Riwayat Penarikan</h4>
-                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">Pantau status pencairan danamu bolo.</p>
+                    <h4 class="text-xl font-black text-slate-900 uppercase tracking-tighter">
+                        @if(Auth::user()->hasRole('admin'))
+                            Daftar Request Payout
+                        @else
+                            Riwayat Penarikan
+                        @endif
+                    </h4>
+                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">
+                        @if(Auth::user()->hasRole('admin'))
+                            Kelola semua permintaan pencairan dana dari seller bolo.
+                        @else
+                            Pantau status pencairan danamu bolo.
+                        @endif
+                    </p>
                 </div>
             </div>
             <div class="overflow-x-auto">
@@ -129,7 +149,13 @@
                                     <div class="w-20 h-20 bg-slate-50 rounded-[2rem] flex items-center justify-center text-slate-200 mb-4">
                                         <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                                     </div>
-                                    <p class="text-slate-400 font-black text-[10px] uppercase tracking-[0.2em]">Belum ada riwayat penarikan bolo.</p>
+                                    <p class="text-slate-400 font-black text-[10px] uppercase tracking-[0.2em]">
+                                        @if(Auth::user()->hasRole('admin'))
+                                            Belum ada permintaan penarikan yang masuk bolo.
+                                        @else
+                                            Belum ada riwayat penarikan bolo.
+                                        @endif
+                                    </p>
                                 </div>
                             </td>
                         </tr>
@@ -224,9 +250,35 @@
                                 <textarea name="admin_note" id="admin-note" rows="3" class="w-full bg-slate-50 border-0 rounded-2xl p-4 text-sm font-bold" placeholder="Kasih tau alasannya bolo..."></textarea>
                             </div>
 
-                            <div>
+                            <div x-data="{ hasProof: false, preview: '' }">
                                 <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-2">Bukti Transfer (Jika Selesai)</label>
-                                <input type="file" name="reference_proof" class="w-full bg-slate-50 border-0 rounded-2xl p-4 text-xs">
+                                <div class="relative">
+                                    <input type="file" name="reference_proof" id="reference_proof_input" 
+                                        class="hidden" accept="image/*" 
+                                        onchange="initWithdrawCrop(this)">
+                                    
+                                    <template x-if="!hasProof">
+                                        <button type="button" onclick="document.getElementById('reference_proof_input').click()" 
+                                            class="w-full py-6 bg-slate-50 border-2 border-dashed border-slate-200 rounded-2xl text-[10px] font-black uppercase tracking-widest text-slate-400 hover:bg-indigo-50 hover:text-indigo-600 transition-all flex items-center justify-center gap-3">
+                                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                                            <span>Pilih Bukti Transfer</span>
+                                        </button>
+                                    </template>
+
+                                    <template x-if="hasProof">
+                                        <div class="relative w-full h-40 rounded-2xl overflow-hidden group">
+                                            <img :src="preview" class="w-full h-full object-cover">
+                                            <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                                                <button type="button" onclick="document.getElementById('reference_proof_input').click()" class="p-2 bg-white text-indigo-600 rounded-xl">
+                                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
+                                                </button>
+                                                <button type="button" @click="hasProof = false; preview = ''; document.getElementById('reference_proof_input').value = ''" class="p-2 bg-red-500 text-white rounded-xl">
+                                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </template>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -254,4 +306,111 @@
         }
     </script>
     @endif
+
+    {{-- MODAL CROP WITHDRAWAL --}}
+    <div id="withdrawCropModal" class="fixed inset-0 z-[100] hidden items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+        <div class="bg-white rounded-[2.5rem] w-full max-w-lg overflow-hidden shadow-2xl relative animate-fade-in-up uppercase">
+            <div class="p-6 border-b border-gray-50 flex justify-between items-center bg-gray-50/50">
+                <h3 class="text-lg font-black text-gray-900 tracking-tight">POTONG <span class="text-indigo-600">BUKTI TRANSFER</span></h3>
+                <button type="button" onclick="closeWithdrawCrop()" class="text-gray-400 hover:text-red-500 transition-colors">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+            <div class="p-6">
+                <div class="max-h-[50vh] overflow-hidden rounded-2xl border-2 border-dashed border-gray-200">
+                    <img id="withdrawImageToCrop" src="" class="max-w-full block">
+                </div>
+            </div>
+            <div class="p-6 bg-gray-50/50 border-t border-gray-50 flex gap-4">
+                <button type="button" onclick="closeWithdrawCrop()" class="flex-1 py-4 bg-white text-gray-500 rounded-2xl font-black uppercase text-[10px] tracking-widest border border-gray-100">Batal</button>
+                <button type="button" onclick="applyWithdrawCrop()" class="flex-1 py-4 bg-indigo-600 text-white rounded-2xl font-black uppercase text-[10px] tracking-widest shadow-lg shadow-indigo-100">Simpan Bukti</button>
+            </div>
+        </div>
+    </div>
+
+    @push('scripts')
+    <script>
+        let withdrawCropper = null;
+
+        function initWithdrawCrop(input) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const image = document.getElementById('withdrawImageToCrop');
+                    image.src = e.target.result;
+                    
+                    document.getElementById('withdrawCropModal').classList.remove('hidden');
+                    document.getElementById('withdrawCropModal').classList.add('flex');
+                    
+                    if (withdrawCropper) withdrawCropper.destroy();
+                    
+                    setTimeout(() => {
+                        withdrawCropper = new Cropper(image, {
+                            aspectRatio: 1,
+                            viewMode: 1,
+                            dragMode: 'move',
+                            autoCropArea: 0.8,
+                            background: true,
+                            responsive: true,
+                            restore: true,
+                            checkOrientation: true,
+                            modal: true,
+                            guides: true,
+                            center: true,
+                            highlight: true,
+                            cropBoxMovable: true,
+                            cropBoxResizable: true,
+                            toggleDragModeOnDblclick: true,
+                            movable: true,
+                            zoomable: true,
+                        });
+                    }, 500); 
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        function closeWithdrawCrop() {
+            document.getElementById('withdrawCropModal').classList.add('hidden');
+            document.getElementById('withdrawCropModal').classList.remove('flex');
+            if (withdrawCropper) {
+                withdrawCropper.destroy();
+                withdrawCropper = null;
+            }
+        }
+
+        function applyWithdrawCrop() {
+            if (!withdrawCropper) return;
+
+            const canvas = withdrawCropper.getCroppedCanvas({ width: 800, height: 800 });
+            canvas.toBlob(blob => {
+                const file = new File([blob], 'receipt.jpg', { type: 'image/jpeg' });
+                const container = new DataTransfer();
+                container.items.add(file);
+                
+                const input = document.getElementById('reference_proof_input');
+                input.files = container.files;
+
+                // Update UI using Alpine
+                const alpineEl = input.closest('[x-data]');
+                if (alpineEl && alpineEl.__x) {
+                    alpineEl.__x.$data.hasProof = true;
+                    alpineEl.__x.$data.preview = canvas.toDataURL('image/jpeg');
+                }
+
+                closeWithdrawCrop();
+                
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Bukti Siap Bolo!',
+                    text: 'Silahkan update status penarikan.',
+                    timer: 1500,
+                    showConfirmButton: false,
+                    toast: true,
+                    position: 'top-end'
+                });
+            }, 'image/jpeg');
+        }
+    </script>
+    @endpush
 </x-admin-layout>

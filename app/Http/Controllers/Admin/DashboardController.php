@@ -50,6 +50,8 @@ class DashboardController extends Controller
             ->take(5)
             ->get();
         
+        $platformBalance = $isAdmin ? $user->platform_balance : 0;
+        
         // 2.5 Store Rating (Custom Metric for Seller/Admin)
         if ($isSeller) {
             $storeRating = Review::whereHas('itemShop', fn($q) => $q->where('user_id', $user->id))->avg('rating') ?: 0;
@@ -58,7 +60,7 @@ class DashboardController extends Controller
         }
         
         // 3. Fetch all paid/completed transactions for detailed analysis
-        $transactions = Transaction::whereIn('status', ['success', 'shipped', 'completed'])->get();
+        $transactions = Transaction::whereIn('status', ['paid', 'success', 'shipped', 'completed'])->get();
 
         // 3. Category Filter Logic
         $selectedCategory = $request->get('category', 'all');
@@ -220,7 +222,8 @@ class DashboardController extends Controller
             'userReviewsCount',
             'recentTransactions',
             'storeRating',
-            'notifications'
+            'notifications',
+            'platformBalance'
         ));
     }
 

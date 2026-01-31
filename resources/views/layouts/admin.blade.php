@@ -11,11 +11,12 @@
     <title>{{ config('app.name', 'MiniQ-Store') }}</title>
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.css" integrity="sha512-7jtCDYBTwPkuQMfLgcDahS6Y3H898SL9jG7tO3T7M3E6v0pU9M6Q8E4e9Y6x1Y3E6v0pU9M6Q8E4e9Y6x1Y3w==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js" integrity="sha512-9Ajt0f69f46b2e3e57f5c53b28b2e3e57f5c53b28b2e3e57f5c53b28b2e3e57f5c53b2e3e57f5c53==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
     
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=plus-jakarta-sans:400,500,600,700,800,900" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
     <link rel="icon" type="image/png/svg" href="{{ asset('LogoQ.svg') }}" />
@@ -70,62 +71,49 @@
 
             <div class="flex items-center gap-4">
                 {{-- Global Notifications --}}
-                @if(Auth::user()->hasRole('admin') || Auth::user()->hasRole('seller'))
-                <x-dropdown align="right" width="80">
-                    <x-slot name="trigger">
-                        <button class="relative p-2.5 text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 rounded-xl transition-all duration-300 group">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
-                            @if($globalNotifications->count() > 0)
-                            <span class="absolute top-2 right-2 w-2.5 h-2.5 bg-rose-500 border-2 border-white rounded-full animate-pulse"></span>
-                            @endif
-                        </button>
-                    </x-slot>
+                @if(Auth::user()->hasRole('admin') || Auth::user()->hasRole('seller') || Auth::user()->hasRole('courier'))
+                <div x-data="{ unreadCount: {{ auth()->user()->notifications()->where('is_read', false)->count() }} }">
+                    <x-dropdown align="right" width="80">
+                        <x-slot name="trigger">
+                            <button @click="if(unreadCount > 0) { fetch('{{ route('notifications.read-all') }}', { method: 'POST', headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' } }).then(() => unreadCount = 0) }"
+                                class="relative p-2.5 text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 rounded-xl transition-all duration-300 group">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+                                <template x-if="unreadCount > 0">
+                                    <span class="absolute top-2 right-2 w-2.5 h-2.5 bg-rose-500 border-2 border-white rounded-full animate-pulse"></span>
+                                </template>
+                            </button>
+                        </x-slot>
 
-                    <x-slot name="content">
-                        <div class="w-80 p-4">
-                            <div class="flex items-center justify-between mb-4 border-b border-slate-50 pb-4">
-                                <div>
-                                    <h3 class="text-xs font-black text-slate-900 uppercase tracking-widest">Notifikasi</h3>
-                                    <span class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">{{ $globalNotifications->count() }} Baru</span>
-                                </div>
-                                @if($globalNotifications->count() > 0)
-                                <form action="{{ route('notifications.mark-as-read') }}" method="POST">
-                                    @csrf
-                                    <button type="submit" class="text-[9px] font-black text-indigo-600 uppercase tracking-widest hover:text-slate-900 transition-colors">Mark as Read</button>
-                                </form>
-                                @endif
-                            </div>
-                            <div class="space-y-3 max-h-[300px] overflow-y-auto no-scrollbar">
-                                @forelse($globalNotifications as $notif)
-                                <div class="flex items-start gap-4 p-3 rounded-2xl hover:bg-slate-50 transition-all group/item">
-                                    <div class="w-10 h-10 bg-indigo-600/10 rounded-xl flex items-center justify-center text-indigo-600 shrink-0 group-hover/item:bg-indigo-600 group-hover/item:text-white transition-all">
-                                        @if($notif->type == 'success')
-                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
-                                        @else
-                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                                        @endif
+                        <x-slot name="content">
+                            <div class="w-80 p-4">
+                                <div class="flex items-center justify-between mb-4 border-b border-slate-50 pb-4">
+                                    <div>
+                                        <h3 class="text-xs font-black text-slate-900 uppercase tracking-widest">Notifikasi</h3>
+                                        <span class="text-[9px] font-bold text-slate-400 uppercase tracking-widest" x-text="unreadCount + ' Baru'"></span>
                                     </div>
-                                    <div class="min-w-0">
-                                        <p class="text-[11px] font-black text-slate-900 truncate tracking-tight">{{ $notif->title }}</p>
-                                        <p class="text-[9px] font-bold text-slate-400 mt-0.5">{{ $notif->message }}</p>
-                                        <p class="text-[8px] font-black text-indigo-500 uppercase tracking-widest mt-1">{{ $notif->created_at->diffForHumans() }}</p>
+                                </div>
+                            <div class="space-y-3 max-h-[300px] overflow-y-auto no-scrollbar">
+                                @forelse(auth()->user()->notifications()->latest()->get() as $notif)
+                                <div class="flex items-start gap-4 p-3 rounded-2xl hover:bg-slate-50 transition-all group/item">
+                                    <div class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 {{ $notif->is_read ? 'bg-slate-100 text-slate-400' : 'bg-indigo-100 text-indigo-600 shadow-lg shadow-indigo-100' }}">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+                                    </div>
+                                    <div class="flex-grow">
+                                        <h4 class="text-[10px] font-black text-slate-900 leading-tight uppercase tracking-tight mb-0.5">{{ $notif->title }}</h4>
+                                        <p class="text-[9px] text-slate-500 font-bold leading-relaxed">{{ $notif->message }}</p>
+                                        <span class="text-[8px] font-black text-slate-400 uppercase tracking-tighter mt-2 block">{{ $notif->created_at->diffForHumans() }}</span>
                                     </div>
                                 </div>
                                 @empty
                                 <div class="py-10 text-center">
-                                    <div class="w-12 h-12 bg-slate-50 rounded-2xl flex items-center justify-center text-slate-200 mx-auto mb-3">
-                                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
-                                    </div>
-                                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Belum ada notifikasi bolo</p>
+                                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Tidak ada notifikasi bolo</p>
                                 </div>
                                 @endforelse
                             </div>
-                            @if(Auth::user()->hasRole('admin') || Auth::user()->hasRole('seller'))
-                            <a href="{{ route('admin.transactions.index') }}" class="block mt-4 text-center py-2.5 bg-slate-50 hover:bg-slate-900 text-slate-400 hover:text-white rounded-xl text-[9px] font-black uppercase tracking-widest transition-all">Lihat Semua Pesanan</a>
-                            @endif
                         </div>
                     </x-slot>
                 </x-dropdown>
+                </div>
                 @endif
 
                 {{-- User Dropdown --}}
@@ -249,7 +237,13 @@
                         <svg class="w-5 h-5 transition duration-75 {{ request()->routeIs('admin.withdrawals.*') ? 'text-indigo-700' : 'text-slate-400 group-hover:text-slate-900' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
-                        <span class="ms-3 text-sm">Penarikan Saldo</span>
+                        <span class="ms-3">
+                            @if(Auth::user()->hasRole('admin'))
+                                Manajemen Payout
+                            @else
+                                Tarik Saldo
+                            @endif
+                        </span>
                     </a>
                 </li>
                 @endif
@@ -287,9 +281,9 @@
                 <li>
                     <a href="{{ route('admin.cms.index') }}" class="flex items-center p-3 text-slate-700 rounded-xl hover:bg-slate-50 group {{ request()->routeIs('admin.cms.*') ? 'bg-indigo-50 text-indigo-700' : '' }}">
                         <svg class="w-5 h-5 transition duration-75 {{ request()->routeIs('admin.cms.*') ? 'text-indigo-700' : 'text-slate-400 group-hover:text-slate-900' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
                         </svg>
-                        <span class="ms-3">CMS Settings</span>
+                        <span class="ms-3">Konfigurasi Situs</span>
                     </a>
                 </li>
                 @endif

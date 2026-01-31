@@ -13,7 +13,7 @@ class Transaction extends Model
         'user_id', 'seller_id', 'courier_id', 'courier_service_id', 'invoice_number', 'parent_invoice', 
         'total_price', 'status', 'payment_method', 'alamat', 'items_details', 
         'snap_token', 'shipping_fee', 'admin_fee',
-        'courier_name', 'courier_service', 'destination_area_id', 'resi', 'completed_at'
+        'courier_name', 'courier_service', 'destination_area_id', 'resi', 'completed_at', 'delivery_proof'
     ];
 
     protected $casts = [
@@ -52,28 +52,29 @@ class Transaction extends Model
                 'completed_at' => now(),
             ]);
 
+            // --- HITUNG KOMISI SELLER (OPSI B) ---
+            // Kita ambil persentase dari setting (Default 5%)
+            $commissionPercent = (float)(\App\Models\SiteSetting::where('key', 'seller_commission_percent')->value('value') ?? 5);
+            
+            // Komisi dihitung dari HARGA BARANG (total_price - shipping_fee - admin_fee)
+            $itemsPrice = $this->total_price - $this->shipping_fee - $this->admin_fee;
+            $commissionAmount = ($itemsPrice * $commissionPercent) / 100;
+
             // Distribusikan uang ke seller
-            // Yang masuk ke seller HANYA (Total - Admin Fee)
-            // Karena total_price di tiap pesanan (setelah split) sudah termasuk ongkir + harga barang
-            $netAmount = $this->total_price - $this->admin_fee;
+            // Seller menerima = Harga Barang + Ongkir - Komisi
+            $netSellerAmount = ($itemsPrice + $this->shipping_fee) - $commissionAmount;
             
             if ($this->seller_id) {
                 $seller = User::find($this->seller_id);
                 if ($seller) {
-                    $seller->increment('balance', $netAmount);
+                    $seller->increment('balance', $netSellerAmount);
                 }
-            } else {
-                // Fallback untuk transaksi lama (split manual dari items_details)
-                $items = $this->items_details;
-                foreach ($items as $item) {
-                    $sellerId = $item['seller_id'] ?? null;
-                    if ($sellerId) {
-                        $seller = User::find($sellerId);
-                        if ($seller) {
-                            $seller->increment('balance', $item['total']);
-                        }
-                    }
-                }
+            }
+
+            // Keuntungan Platform = Admin Fee + Komisi Seller
+            $admin = User::role('admin')->first();
+            if ($admin) {
+                $admin->increment('platform_balance', $this->admin_fee + $commissionAmount);
             }
         });
     }
