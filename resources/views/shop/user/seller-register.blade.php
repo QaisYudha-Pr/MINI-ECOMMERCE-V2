@@ -40,7 +40,7 @@
                 </div>
 
                 <!-- Right Side: Action -->
-                <div class="w-full md:w-1/2 p-12 flex flex-col justify-center bg-white">
+                <div class="w-full md:w-1/2 p-12 flex flex-col justify-center bg-white" x-data="{ agreed: false }">
                     <div class="mb-8">
                         <span class="text-xs font-bold text-indigo-600 uppercase tracking-widest">Get Started</span>
                         <h3 class="text-2xl font-bold text-slate-900 mt-2">Activate Seller Account</h3>
@@ -158,7 +158,7 @@
                             </div>
                         </div>
 
-                        <div class="bg-indigo-50 p-6 rounded-2xl border border-indigo-100 mb-8">
+                        <div class="bg-indigo-50 p-6 rounded-2xl border border-indigo-100 mb-6">
                             <div class="flex items-start gap-4">
                                 <div class="shrink-0">
                                     <div class="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600">
@@ -174,7 +174,35 @@
                             </div>
                         </div>
 
-                        <button type="submit" class="w-full bg-[#00AA5B] hover:bg-[#008f4d] text-white font-black uppercase tracking-widest py-4 px-6 rounded-xl transition-all shadow-lg shadow-green-100 active:scale-95 flex items-center justify-center gap-2 text-xs">
+                        {{-- PERJANJIAN SELLER --}}
+                        <div class="mb-8 p-6 bg-slate-50 rounded-2xl border border-slate-200">
+                            <h4 class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-4 text-center">Perjanjian Menjadi Seller</h4>
+                            
+                            <div class="space-y-4 max-h-48 overflow-y-auto pr-2 custom-scrollbar text-xs text-slate-600 leading-relaxed italic">
+                                <p>1. <strong class="text-slate-900">Komisi Platform:</strong> Setiap transaksi yang berhasil akan dikenakan biaya layanan sebesar {{ $siteSettings['seller_commission_pct'] ?? '2.5' }}% untuk pemeliharaan sistem.</p>
+                                <p>2. <strong class="text-slate-900">Produk Legal:</strong> Seller dilarang keras menjual produk yang melanggar hukum, barang bajakan, atau konten dewasa.</p>
+                                <p>3. <strong class="text-slate-900">Pencairan Saldo:</strong> Penarikan saldo dapat dilakukan kapan saja setelah pesanan selesai dan akan diproses dalam maksimal 2 hari kerja.</p>
+                                <p>4. <strong class="text-slate-900">Akurasi Data:</strong> Seller wajib memberikan informasi toko dan dokumen identitas yang valid untuk proses verifikasi.</p>
+                                <p>5. <strong class="text-slate-900">Etika Berkomunikasi:</strong> Gunakan bahasa yang sopan dan profesional saat melayani calon pembeli.</p>
+                            </div>
+
+                            <div class="mt-6 pt-4 border-t border-slate-100">
+                                <label class="flex items-center gap-3 cursor-pointer group">
+                                    <div class="relative flex items-center">
+                                        <input type="checkbox" x-model="agreed" class="peer h-5 w-5 cursor-pointer appearance-none rounded-md border border-slate-300 transition-all checked:bg-[#00AA5B] checked:border-[#00AA5B]" />
+                                        <span class="absolute text-white transition-opacity duration-200 peer-checked:opacity-100 opacity-0 top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 pointer-events-none">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" /></svg>
+                                        </span>
+                                    </div>
+                                    <span class="text-[11px] font-bold text-slate-500 group-hover:text-slate-700 transition-colors uppercase tracking-widest">Saya setuju dengan persyaratan di atas</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <button type="submit" 
+                            :disabled="!agreed"
+                            :class="!agreed ? 'opacity-50 grayscale cursor-not-allowed shadow-none' : 'hover:bg-[#008f4d] shadow-green-100'"
+                            class="w-full bg-[#00AA5B] text-white font-black uppercase tracking-widest py-4 px-6 rounded-xl transition-all active:scale-95 flex items-center justify-center gap-2 text-xs">
                             <span>Kirim Pendaftaran</span>
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
                         </button>

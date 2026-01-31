@@ -65,8 +65,16 @@ class MidtransCallbackController extends Controller
         foreach ($transactions as $transaction) {
             $transaction->update(['status' => $dbStatus]);
 
-            // Jika sukses, kirim notifikasi ke Seller dan Admin
+            // Jika sukses, kirim notifikasi ke Seller, Admin, dan User
             if ($dbStatus === 'success') {
+                // Notif ke User Pembeli
+                Notification::create([
+                    'user_id' => $transaction->user_id,
+                    'title' => 'Pembayaran Berhasil! ✅',
+                    'message' => "Hore bolo! Pembayaran untuk #{$transaction->invoice_number} sudah kami terima. Pesananmu akan segera diproses seller.",
+                    'type' => 'success'
+                ]);
+
                 // Notif ke Seller
                 if ($transaction->seller_id) {
                     Notification::create([

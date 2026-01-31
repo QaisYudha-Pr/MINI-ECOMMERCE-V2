@@ -71,7 +71,6 @@
 
             <div class="flex items-center gap-4">
                 {{-- Global Notifications --}}
-                @if(Auth::user()->hasRole('admin') || Auth::user()->hasRole('seller') || Auth::user()->hasRole('courier'))
                 <div x-data="{ unreadCount: {{ auth()->user()->notifications()->where('is_read', false)->count() }} }">
                     <x-dropdown align="right" width="80">
                         <x-slot name="trigger">
@@ -114,7 +113,6 @@
                     </x-slot>
                 </x-dropdown>
                 </div>
-                @endif
 
                 {{-- User Dropdown --}}
                 <x-dropdown align="right" width="48">
@@ -315,13 +313,27 @@
 
                 {{-- Become Seller CTA --}}
                 @if(!Auth::user()->hasRole('seller') && !Auth::user()->hasRole('admin'))
-                <div class="mt-8 px-1">
-                    <div class="bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl p-4 shadow-lg shadow-indigo-100/50">
-                        <p class="text-[10px] font-black uppercase text-indigo-100 tracking-widest mb-2">Peluang Bisnis</p>
-                        <p class="text-xs font-bold text-white mb-4 leading-relaxed">Mulai jualan produkmu sendiri di MiniQ-Store!</p>
-                        <a href="{{ route('seller.create') }}" class="block w-full py-2.5 bg-white text-indigo-600 rounded-xl text-center text-[10px] font-black uppercase tracking-wider hover:bg-slate-50 transition-colors">
-                            Mulai Berjualan
-                        </a>
+                <div class="mt-10 px-2">
+                    <div class="relative overflow-hidden bg-[#0F172A] rounded-[2rem] p-6 shadow-2xl shadow-slate-200 group">
+                        {{-- Decorative Elements --}}
+                        <div class="absolute -top-10 -right-10 w-32 h-32 bg-indigo-500/10 rounded-full blur-2xl group-hover:bg-indigo-500/20 transition-all duration-500"></div>
+                        <div class="absolute -bottom-10 -left-10 w-24 h-24 bg-emerald-500/10 rounded-full blur-2xl group-hover:bg-emerald-500/20 transition-all duration-500"></div>
+
+                        <div class="relative z-10">
+                            <div class="w-10 h-10 bg-gradient-to-br from-[#00AA5B] to-emerald-400 rounded-xl flex items-center justify-center mb-4 shadow-lg shadow-emerald-500/20 rotate-3 group-hover:rotate-12 transition-transform duration-500">
+                                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
+                                </svg>
+                            </div>
+                            
+                            <h4 class="text-[10px] font-black uppercase tracking-[0.2em] text-emerald-400 mb-2">Peluang Bisnis</h4>
+                            <p class="text-xs font-bold text-slate-300 leading-relaxed mb-6">Buka toko pertamamu & raih cuan bareng <span class="text-white">MiniQ</span> bolo!</p>
+                            
+                            <a href="{{ route('seller.create') }}" class="flex items-center justify-center gap-2 w-full py-3.5 bg-white text-slate-900 rounded-xl text-center text-[10px] font-black uppercase tracking-widest hover:bg-[#00AA5B] hover:text-white transition-all transform active:scale-95 shadow-xl shadow-black/10">
+                                <span>Mulai Berjualan</span>
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                            </a>
+                        </div>
                     </div>
                 </div>
                 @endif

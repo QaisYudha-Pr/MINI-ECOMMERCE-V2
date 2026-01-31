@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Transaction;
 use App\Models\User;
+use App\Models\Notification;
 use Illuminate\Http\Request;
 
 class TransactionController extends Controller
@@ -40,6 +41,14 @@ class TransactionController extends Controller
             'resi' => 'INTERNAL-' . strtoupper(str()->random(8)), // Generate resi internal otomatis
         ]);
 
+        // Notif User
+        Notification::create([
+            'user_id' => $transaction->user_id,
+            'title' => 'Pesanan Dikirim! 🚚',
+            'message' => "Hahaha asik bolo! Pesanan #{$transaction->invoice_number} lagi meluncur ke tempatmu.",
+            'type' => 'info'
+        ]);
+
         return back()->with('success', 'Kurir berhasil ditugaskan & status berubah jadi Shipped!');
     }
 
@@ -52,6 +61,14 @@ class TransactionController extends Controller
         $transaction->update([
             'resi' => $request->resi,
             'status' => 'shipped',
+        ]);
+
+        // Notif User
+        Notification::create([
+            'user_id' => $transaction->user_id,
+            'title' => 'Resi Diupdate 📦',
+            'message' => "Bolo! Resi pesanan #{$transaction->invoice_number} sudah ada, sekarang lagi dikirim ya.",
+            'type' => 'info'
         ]);
 
         return back()->with('success', 'Resi berhasil diupdate, status berubah jadi Shipped!');

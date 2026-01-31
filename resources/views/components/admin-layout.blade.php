@@ -249,19 +249,31 @@
                 </li>
                 @endif
 
-                {{-- BECOME SELLER --}}
+                {{-- BECOME SELLER CTA --}}
                 @if(!Auth::user()->hasRole('seller') && !Auth::user()->hasRole('admin') && !Auth::user()->hasRole('courier'))
-                <div class="pt-4 pb-2">
-                    <span class="px-3 text-xs font-semibold text-slate-400 uppercase tracking-wider">Peluang Bisnis</span>
+                <div class="mt-10 px-2">
+                    <div class="relative overflow-hidden bg-[#0F172A] rounded-[2rem] p-6 shadow-2xl shadow-slate-200 group">
+                        {{-- Decorative Elements --}}
+                        <div class="absolute -top-10 -right-10 w-32 h-32 bg-indigo-500/10 rounded-full blur-2xl group-hover:bg-indigo-500/20 transition-all duration-500"></div>
+                        <div class="absolute -bottom-10 -left-10 w-24 h-24 bg-emerald-500/10 rounded-full blur-2xl group-hover:bg-emerald-500/20 transition-all duration-500"></div>
+
+                        <div class="relative z-10">
+                            <div class="w-10 h-10 bg-gradient-to-br from-[#00AA5B] to-emerald-400 rounded-xl flex items-center justify-center mb-4 shadow-lg shadow-emerald-500/20 rotate-3 group-hover:rotate-12 transition-transform duration-500">
+                                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
+                                </svg>
+                            </div>
+                            
+                            <h4 class="text-[10px] font-black uppercase tracking-[0.2em] text-emerald-400 mb-2">Peluang Bisnis</h4>
+                            <p class="text-xs font-bold text-slate-300 leading-relaxed mb-6">Buka toko pertamamu & raih cuan bareng <span class="text-white">MiniQ</span> bolo!</p>
+                            
+                            <a href="{{ route('seller.create') }}" class="flex items-center justify-center gap-2 w-full py-3.5 bg-white text-slate-900 rounded-xl text-center text-[10px] font-black uppercase tracking-widest hover:bg-[#00AA5B] hover:text-white transition-all transform active:scale-95 shadow-xl shadow-black/10">
+                                <span>Mulai Berjualan</span>
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                            </a>
+                        </div>
+                    </div>
                 </div>
-                <li>
-                    <a href="{{ route('seller.create') }}" class="flex items-center p-3 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 group shadow-lg shadow-indigo-100 transition-all">
-                        <svg class="w-5 h-5 text-indigo-200 group-hover:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
-                        </svg>
-                        <span class="ms-3 font-bold">Mulai Berjualan</span>
-                    </a>
-                </li>
                 @endif
 
                 <li>

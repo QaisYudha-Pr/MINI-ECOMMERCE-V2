@@ -42,7 +42,10 @@ class DashboardController extends Controller
         })->count();
 
         // 2. User Specific Stats (Regular User)
-        $userTransactionsCount = Transaction::where('user_id', $user->id)->count();
+        // Only count legitimate orders (Paid, Shipped, Completed, or Waiting Confirmation)
+        $userTransactionsCount = Transaction::where('user_id', $user->id)
+            ->whereIn('status', ['paid', 'success', 'shipped', 'completed', 'waiting_confirmation'])
+            ->count();
         $userFavoritesCount = $user->favoriteItems()->count();
         $userReviewsCount = Review::where('user_id', $user->id)->count();
         $recentTransactions = Transaction::where('user_id', $user->id)

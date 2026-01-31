@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Courier;
 
 use App\Http\Controllers\Controller;
 use App\Models\Transaction;
+use App\Models\Notification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -45,6 +46,15 @@ class DeliveryController extends Controller
         $transaction->update([
             'status' => 'delivered',
             'delivery_proof' => $proofPath
+        ]);
+
+        // Kirim Notifikasi ke User bolo
+        Notification::create([
+            'user_id' => $transaction->user_id,
+            'title' => 'PESANAN SAMPAI BOLO!',
+            'message' => 'Pesanan #' . $transaction->invoice_number . ' sudah diantar oleh kurir. Silakan cek dan konfirmasi ya!',
+            'type' => 'success',
+            'is_read' => false
         ]);
 
         return back()->with('success', 'MANTAP BOLO! Pesanan berhasil diantar. Bukti foto telah diunggah.');

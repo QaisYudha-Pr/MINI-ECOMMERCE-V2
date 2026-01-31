@@ -17,7 +17,7 @@
                 </a>
             </div>
             <div class="flex items-center gap-6">
-                <a href="{{ route('about') }}" class="hover:text-[#00AA5B]">Tentang MiniQ</a>
+                <a href="{{ route('shop.public') }}" class="hover:text-[#00AA5B]">Belanja Sekarang</a>
                 @guest
                     <a href="{{ route('seller.create') }}" class="hover:text-[#00AA5B]">Mulai Berjualan</a>
                 @else
@@ -25,8 +25,8 @@
                         <a href="{{ route('seller.create') }}" class="hover:text-[#00AA5B]">Mulai Berjualan</a>
                     @endunlessrole
                 @endguest
-                <a href="#" class="hover:text-[#00AA5B]">Promo</a>
-                <a href="#" class="hover:text-[#00AA5B]">MiniQ Care</a>
+                <a href="{{ route('about') }}" class="hover:text-[#00AA5B]">Tentang MiniQ</a>
+                <a href="https://wa.me/6281234567890" target="_blank" class="hover:text-[#00AA5B]">Bantuan</a>
             </div>
         </div>
     </div>
