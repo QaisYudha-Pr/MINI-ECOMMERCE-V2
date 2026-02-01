@@ -61,14 +61,12 @@ class ShippingService
         $settings = SiteSetting::whereIn('key', [
             'shipping_base_fee',
             'shipping_per_km',
-            'shipping_per_kg',
-            'shipping_handling_fee'
+            'shipping_per_kg'
         ])->pluck('value', 'key');
 
         $baseFee = (float)($settings['shipping_base_fee'] ?? 5000);
         $perKm = (float)($settings['shipping_per_km'] ?? 2000);
         $perKg = (float)($settings['shipping_per_kg'] ?? 1000);
-        $handlingFee = (float)($settings['shipping_handling_fee'] ?? 0);
 
         // AMBIL LOKASI PENJUAL (Dari Item Pertama)
         // Kita asumsikan pengiriman dihitung dari toko penjual
@@ -102,18 +100,20 @@ class ShippingService
         $fsSettings = SiteSetting::whereIn('key', [
             'free_shipping_min_order',
             'free_shipping_max_dist',
-            'free_shipping_max_subsidy'
+            'free_shipping_limit_dist',
+            'free_shipping_subsidy'
         ])->pluck('value', 'key');
 
         $minOrder = (float)($fsSettings['free_shipping_min_order'] ?? 25000);
         $maxDist = (float)($fsSettings['free_shipping_max_dist'] ?? 20);
-        $maxSubsidy = (float)($fsSettings['free_shipping_max_subsidy'] ?? 10000);
+        $maxSubsidy = (float)($fsSettings['free_shipping_subsidy'] ?? 10000);
+        $freeDist = (float)($fsSettings['free_shipping_limit_dist'] ?? 5);
 
-        $cartTotal = collect($items)->sum(fn($i) => ($i['harga'] ?? 0) * ($i['quantity'] ?? 1));
+        $cartTotal = collect($items)->sum(fn($i) => ($i['price'] ?? $i['harga'] ?? 0) * ($i['quantity'] ?? 1));
         
         $subsidyApplied = 0;
         if ($cartTotal >= $minOrder) {
-            if ($distance <= 5) {
+            if ($distance <= $freeDist) {
                 // Gratis TOTAL (Subsidi sebesar harga ongkir aslinya)
                 $subsidyApplied = 999999; // Set sangat tinggi agar finalPrice jadi 0
             } elseif ($distance <= $maxDist) {
@@ -143,9 +143,9 @@ class ShippingService
                 $disableReason = 'Berat melebihi batas maksimum';
             }
 
-            // Rumus: (Ongkir Dasar * Multiplier) + Extra Fee Kurir + Layanan Sistem
+            // Rumus: (Ongkir Dasar * Multiplier) + Extra Fee Kurir
             $freight = $baseFee + $distanceFee + $weightFee;
-            $rawPrice = ($freight * $courier->multiplier) + ($courier->base_extra_cost ?? 0) + $handlingFee;
+            $rawPrice = ($freight * $courier->multiplier) + ($courier->base_extra_cost ?? 0);
             
             // Terapkan Subsidi Ongkir
             $finalPrice = max(0, $rawPrice - $subsidyApplied);
@@ -166,7 +166,6 @@ class ShippingService
                     'distance_fee' => (int)$distanceFee,
                     'weight_kg' => round($totalWeightKg, 1),
                     'weight_fee' => (int)$weightFee,
-                    'handling_fee' => (int)$handlingFee,
                     'service_extra' => (int)($courier->base_extra_cost ?? 0),
                     'multiplier' => $courier->multiplier,
                     'raw_price' => (int)$rawPrice,

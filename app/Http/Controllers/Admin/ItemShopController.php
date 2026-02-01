@@ -159,7 +159,8 @@ class ItemShopController extends Controller
     public function create()
     {
         $this->authorize('create', ItemShop::class);
-        return view('admin.item-shop.create');
+        $categories = ItemShop::distinct()->pluck('kategori')->filter()->values();
+        return view('admin.item-shop.create', compact('categories'));
     }
 
     public function store(StoreItemShopRequest $request)
@@ -181,7 +182,8 @@ class ItemShopController extends Controller
     public function edit(ItemShop $itemShop)
     {
         $this->authorize('update', $itemShop);
-        return view('admin.item-shop.edit', compact('itemShop'));
+        $categories = ItemShop::distinct()->pluck('kategori')->filter()->values();
+        return view('admin.item-shop.edit', compact('itemShop', 'categories'));
     }
 
     public function update(UpdateItemShopRequest $request, ItemShop $itemShop)

@@ -23,13 +23,15 @@
                         <div class="grid grid-cols-2 gap-4">
                             <div class="group">
                                 <label class="block text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-2">Category</label>
-                                <select name="kategori" class="w-full px-6 py-4 bg-gray-50 border-none rounded-2xl focus:ring-4 focus:ring-indigo-500/10 focus:bg-white transition-all font-bold text-gray-700 appearance-none" required>
-                                    @php $currentKategori = old('kategori', $itemShop->kategori); @endphp
-                                    <option value="fashion" {{ $currentKategori == 'fashion' ? 'selected' : '' }}>Fashion</option>
-                                    <option value="electronics" {{ $currentKategori == 'electronics' ? 'selected' : '' }}>Electronics</option>
-                                    <option value="food" {{ $currentKategori == 'food' ? 'selected' : '' }}>Food & Drink</option>
-                                    <option value="other" {{ $currentKategori == 'other' ? 'selected' : '' }}>Other</option>
-                                </select>
+                                <input type="text" name="kategori" list="category-list" value="{{ old('kategori', $itemShop->kategori) }}" placeholder="Ketik atau pilih..." class="w-full px-6 py-4 bg-gray-50 border-none rounded-2xl focus:ring-4 focus:ring-indigo-500/10 focus:bg-white transition-all font-bold text-gray-700" required>
+                                <datalist id="category-list">
+                                    @foreach($categories as $category)
+                                        <option value="{{ $category }}">
+                                    @endforeach
+                                    <option value="Fashion">
+                                    <option value="Electronics">
+                                    <option value="Food & Drink">
+                                </datalist>
                             </div>
                             <div class="group">
                                 <label class="block text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-2">Weight (Gram)</label>

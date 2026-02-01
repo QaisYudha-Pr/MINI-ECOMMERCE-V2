@@ -18,7 +18,7 @@ class StoreItemShopRequest extends FormRequest
             'harga' => 'required|numeric|min:0|max:999999999',
             'deskripsi' => 'required|string|min:10|max:5000',
             'gambar' => 'nullable|string',
-            'stok' => 'required|numeric|min:1|max:999999',
+            'stok' => 'required|numeric|min:0|max:999999',
             'berat' => 'required|numeric|min:1|max:100000',
             'kategori' => 'required|string',
         ];

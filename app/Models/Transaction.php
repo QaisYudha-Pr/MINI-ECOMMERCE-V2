@@ -54,7 +54,7 @@ class Transaction extends Model
 
             // --- HITUNG KOMISI SELLER (OPSI B) ---
             // Kita ambil persentase dari setting (Default 5%)
-            $commissionPercent = (float)(\App\Models\SiteSetting::where('key', 'seller_commission_percent')->value('value') ?? 5);
+            $commissionPercent = (float)(\App\Models\SiteSetting::where('key', 'seller_commission_pct')->value('value') ?? 5);
             
             // Komisi dihitung dari HARGA BARANG (total_price - shipping_fee - admin_fee)
             $itemsPrice = $this->total_price - $this->shipping_fee - $this->admin_fee;

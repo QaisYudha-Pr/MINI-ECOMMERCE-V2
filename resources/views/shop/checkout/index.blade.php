@@ -269,7 +269,7 @@
                                 
                                 <div class="flex justify-between items-center group">
                                     <span class="text-xs font-bold text-slate-400 uppercase tracking-widest">Biaya Admin</span>
-                                    <span class="font-black text-sm">Rp{{ number_format($settings['service_fee'] ?? 2500, 0, ',', '.') }}</span>
+                                    <span class="font-black text-sm">Rp{{ number_format($settings['admin_fee'] ?? 2000, 0, ',', '.') }}</span>
                                 </div>
 
                                 <div class="flex justify-between items-center group">
@@ -286,7 +286,10 @@
                                             <span class="text-xs font-bold text-indigo-400 uppercase tracking-widest">Biaya Pengiriman</span>
                                             <span id="dist-label" class="text-[8px] bg-indigo-500/20 px-2 py-0.5 rounded-full text-indigo-300 font-black">0 KM</span>
                                         </div>
-                                        <span id="summary-ongkir" class="font-black text-sm text-indigo-400 tracking-tight">Rp0</span>
+                                        <div class="flex flex-col items-end">
+                                            <span id="summary-ongkir" class="font-black text-sm text-indigo-400 tracking-tight">Rp0</span>
+                                            <span id="summary-subsidy" class="hidden text-[9px] font-black text-emerald-400 uppercase tracking-tighter mt-1 animate-bounce">Potongan Rp0 Applied!</span>
+                                        </div>
                                     </div>
                                     
                                     {{-- Info tambahan --}}
@@ -342,13 +345,15 @@
         // Pastikan setiap item punya property quantity minimal 1
         checkoutItems = checkoutItems.map(item => ({ ...item, quantity: item.quantity || 1 }));
         let globalShippingFee = 0;
+        let globalSubsidy = 0;
 
         // Dynamic Config from Admin
         const config = {
             shipping_base_fee: {{ $settings['shipping_base_fee'] ?? 5000 }},
             shipping_per_km: {{ $settings['shipping_per_km'] ?? 2000 }},
             shipping_per_kg: {{ $settings['shipping_per_kg'] ?? 1000 }},
-            service_fee: {{ $settings['service_fee'] ?? 2500 }}
+            admin_fee: {{ $settings['admin_fee'] ?? 2000 }},
+            free_shipping_max_dist: {{ $settings['free_shipping_max_dist'] ?? 20 }}
         };
 
         // 2. RENDER SUMMARY & ITEMS
@@ -409,9 +414,19 @@
                 </div>`;
             }).join('');
 
-            const grandTotal = subtotal + config.service_fee + globalShippingFee;
+            const grandTotal = subtotal + config.admin_fee + globalShippingFee;
             document.getElementById('summary-subtotal').innerText = `Rp${subtotal.toLocaleString('id-ID')}`;
             document.getElementById('summary-ongkir').innerText = `Rp${globalShippingFee.toLocaleString('id-ID')}`;
+            
+            // Handle Subsidy Display
+            const subsidyEl = document.getElementById('summary-subsidy');
+            if (globalSubsidy > 0) {
+                subsidyEl.innerText = globalSubsidy >= 99999 ? 'Gratis Ongkir Bolo!' : `Potongan Rp${globalSubsidy.toLocaleString('id-ID')} Applied!`;
+                subsidyEl.classList.remove('hidden');
+            } else {
+                subsidyEl.classList.add('hidden');
+            }
+
             document.getElementById('total-price-display').innerText = `Rp${grandTotal.toLocaleString('id-ID')}`;
             
             // Render weight badge in summary
@@ -572,7 +587,7 @@
 
         // UI Friendly Delivery Radius
         let deliveryArea = L.circle(originCoord, {
-            color: '#4f46e5', weight: 1, dashArray: '5, 10', fillColor: '#4f46e5', fillOpacity: 0.05, radius: 5000 
+            color: '#4f46e5', weight: 1, dashArray: '5, 10', fillColor: '#4f46e5', fillOpacity: 0.05, radius: config.free_shipping_max_dist * 1000 
         }).addTo(map);
 
         const locateBtn = L.control({position: 'topright'});
@@ -747,6 +762,27 @@
                 return;
             }
 
+            // Detect if any rate has a significant subsidy
+            const hasSubsidy = rates.some(r => r.breakdown && r.breakdown.subsidy > 0);
+            let promoHeader = '';
+            
+            if (hasSubsidy) {
+                const maxS = Math.max(...rates.map(r => r.breakdown ? r.breakdown.subsidy || 0 : 0));
+                promoHeader = `
+                    <div class="mb-6 p-6 bg-emerald-50 border-2 border-emerald-100 rounded-[2rem] flex items-center gap-5 animate-in fade-in slide-in-from-top-4">
+                        <div class="w-12 h-12 bg-white rounded-2xl flex items-center justify-center text-emerald-600 shadow-sm border border-emerald-100 shrink-0">
+                            <i class="fa-solid fa-bolt-lightning text-xl"></i>
+                        </div>
+                        <div>
+                            <p class="text-[10px] font-black text-emerald-900 uppercase tracking-widest mb-0.5">Promo Mantap Bolo detected!</p>
+                            <p class="text-[11px] font-bold text-emerald-700/80 italic leading-tight uppercase">
+                                ${maxS >= 99999 ? 'Lokasi kamu terpilih mendapatkan <b>Gratis Ongkir Total</b>!' : `Asik! Kamu dapat <b>subsidi ongkir Rp${maxS.toLocaleString('id-ID')}</b> untuk area ini.`}
+                            </p>
+                        </div>
+                    </div>
+                `;
+            }
+
             let ratesHtml = rates.map((rate, index) => {
                 const isChecked = !rate.disabled && index === 0 ? 'checked' : '';
                 const themeClass = rate.type === 'local' ? 'indigo' : 'slate';
@@ -762,7 +798,7 @@
                             data-service-id="${rate.courier_service_id || ''}"
                             class="peer hidden" 
                             ${isChecked} ${disabledAttr}
-                            onchange="setShippingFee(${rate.price})">
+                            onchange="setShippingFee(${rate.price}, ${rate.breakdown ? rate.breakdown.subsidy || 0 : 0})">
                         <div class="p-6 rounded-[2rem] border-2 border-slate-50 peer-checked:border-indigo-600 peer-checked:bg-indigo-50/50 transition-all duration-300 flex flex-col group-hover:bg-slate-50">
                             <div class="flex items-center justify-between">
                                 <div class="flex items-center gap-4">
@@ -811,8 +847,8 @@
                                         <span class="text-[9px] font-black text-slate-700">Rp${rate.breakdown.weight_fee.toLocaleString('id-ID')}</span>
                                     </div>
                                     <div class="flex flex-col">
-                                        <span class="text-[7px] font-black text-slate-400 uppercase tracking-widest">Layanan</span>
-                                        <span class="text-[9px] font-black text-indigo-600">Rp${(rate.breakdown.handling_fee + (rate.breakdown.service_extra || 0)).toLocaleString('id-ID')}</span>
+                                        <span class="text-[7px] font-black text-slate-400 uppercase tracking-widest">Kurir</span>
+                                        <span class="text-[9px] font-black text-indigo-600">Rp${(rate.breakdown.service_extra || 0).toLocaleString('id-ID')}</span>
                                     </div>
                                 </div>
                             </div>
@@ -822,7 +858,7 @@
                 `;
             }).join('');
 
-            courierContainer.innerHTML = ratesHtml;
+            courierContainer.innerHTML = promoHeader + ratesHtml;
             
             // Auto calculate for the first one if checked
             const selectedOption = document.querySelector('input[name="courier_option"]:checked');
@@ -968,9 +1004,10 @@
             }
         }
 
-        window.setShippingFee = (fee) => {
+        window.setShippingFee = (fee, subsidy = 0) => {
             // override manual shipping logic
             globalShippingFee = fee;
+            globalSubsidy = subsidy;
             
             // Re-render to update grand total
             renderCheckout();

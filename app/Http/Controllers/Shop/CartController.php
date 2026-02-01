@@ -94,7 +94,7 @@ class CartController extends Controller
                 Config::$is3ds = true;
 
                 $items = $transaction->items_details;
-                $serviceFee = (int) SiteSetting::where('key', 'service_fee')->value('value') ?: 2500;
+                $serviceFee = (int) SiteSetting::where('key', 'admin_fee')->value('value') ?: 2000;
 
                 $params = [
                     'transaction_details' => [

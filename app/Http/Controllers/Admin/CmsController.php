@@ -208,25 +208,25 @@ class CmsController extends Controller
         }
 
         // Cek jika ada perubahan komisi atau gratis ongkir
-        if (isset($settings['seller_commission_percent']) && $settings['seller_commission_percent'] != $oldSettings['seller_commission_percent']) {
+        if (isset($settings['seller_commission_pct']) && $settings['seller_commission_pct'] != ($oldSettings['seller_commission_pct'] ?? null)) {
             $sellers = \App\Models\User::role('seller')->get();
             foreach ($sellers as $seller) {
                 \App\Models\Notification::create([
                     'user_id' => $seller->id,
                     'title' => 'Perubahan Komisi Platform 📢',
-                    'message' => "Halo bolo! Ada penyesuaian komisi platform menjadi {$settings['seller_commission_percent']}%. Cek detailnya di pengaturan toko ya.",
+                    'message' => "Halo bolo! Ada penyesuaian komisi platform menjadi {$settings['seller_commission_pct']}%. Cek detailnya di pengaturan toko ya.",
                     'type' => 'warning'
                 ]);
             }
         }
 
-        if (isset($settings['free_shipping_min_order']) || isset($settings['free_shipping_max_subsidy'])) {
+        if (isset($settings['free_shipping_min_order']) || isset($settings['free_shipping_subsidy'])) {
             $users = \App\Models\User::all();
             foreach ($users as $user) {
                 \App\Models\Notification::create([
                     'user_id' => $user->id,
                     'title' => 'Promo Gratis Ongkir Baru! 🚚',
-                    'message' => "Makin hemat belanja di MiniQ! Nikmati subsidi ongkir hingga Rp" . number_format($settings['free_shipping_max_subsidy'] ?? 10000, 0, ',', '.') . " dengan minimal belanja Rp" . number_format($settings['free_shipping_min_order'] ?? 25000, 0, ',', '.') . ". Serbu bolo!",
+                    'message' => "Makin hemat belanja di MiniQ! Nikmati subsidi ongkir hingga Rp" . number_format($settings['free_shipping_subsidy'] ?? 5000, 0, ',', '.') . " dengan minimal belanja Rp" . number_format($settings['free_shipping_min_order'] ?? 30000, 0, ',', '.') . ". Serbu bolo!",
                     'type' => 'info'
                 ]);
             }

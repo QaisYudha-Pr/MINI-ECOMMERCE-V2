@@ -5,10 +5,16 @@
              <div class="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-10">
                 <div class="max-w-xl">
                     <span class="inline-block px-4 py-1.5 rounded-full bg-indigo-500/20 backdrop-blur-md text-indigo-400 text-[10px] font-black uppercase tracking-[0.2em] mb-4 border border-indigo-500/20">
-                        Pusat Komando Bolo
+                        @if(Auth::user()->hasRole('admin'))
+                            Pusat Komando Admin
+                        @elseif(Auth::user()->hasRole('seller'))
+                            Seller Dashboard
+                        @else
+                            Ringkasan Aktivitas
+                        @endif
                     </span>
                     <h1 class="text-4xl lg:text-5xl font-black text-white tracking-tighter leading-[1.1] mb-6">
-                        Halo @if(Auth::user()->hasRole('seller')) Juragan @else Bolo @endif, <br>
+                        Halo @if(Auth::user()->hasRole('seller')) Juragan @elseif(Auth::user()->hasRole('admin')) Admin @else Bolo @endif, <br>
                         <span class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-indigo-200">{{ Auth::user()->name }}!</span> 🚀
                     </h1>
                     <p class="text-slate-400 text-sm font-medium leading-relaxed mb-8">

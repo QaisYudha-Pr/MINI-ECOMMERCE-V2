@@ -23,7 +23,11 @@ class CheckoutController extends Controller
             'shipping_base_fee',
             'shipping_per_km',
             'shipping_per_kg',
-            'service_fee'
+            'admin_fee',
+            'free_shipping_min_order',
+            'free_shipping_max_dist',
+            'free_shipping_limit_dist',
+            'free_shipping_subsidy'
         ])->pluck('value', 'key');
 
         return view('shop.checkout.index', [
@@ -40,8 +44,8 @@ class CheckoutController extends Controller
             $subtotal = 0;
             $itemsSummary = [];
             
-            $settings = SiteSetting::whereIn('key', ['service_fee'])->pluck('value', 'key');
-            $biayaLayananGlobal = (int)($settings['service_fee'] ?? 2500);
+            $settings = SiteSetting::whereIn('key', ['admin_fee'])->pluck('value', 'key');
+            $biayaLayananGlobal = (int)($settings['admin_fee'] ?? 2000);
 
             // 1. Kelompokkan item berdasarkan Seller
             $itemsBySeller = [];

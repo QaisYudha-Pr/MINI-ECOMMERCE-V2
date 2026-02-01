@@ -19,7 +19,7 @@
                         return;
                     }
                     // Strategy: Find the main submit button in the active panel
-                    const targetForm = activePanel.querySelector('.cms-form') || activePanel.querySelector('.ajax-form') || activePanel.querySelector('form');
+                    const targetForm = activePanel.querySelector('.primary-form') || activePanel.querySelector('.cms-form') || activePanel.querySelector('.ajax-form') || activePanel.querySelector('form');
                     if(targetForm) {
                         targetForm.requestSubmit();
                     } else {
@@ -131,7 +131,7 @@
 
                                     {{-- RIGHT: BRAND TEXT SETTINGS --}}
                                     <div class="lg:col-span-8 space-y-12">
-                                        <form action="{{ route('admin.cms.update-text') }}" method="POST" class="space-y-12 cms-form">
+                                        <form action="{{ route('admin.cms.update-text') }}" method="POST" class="space-y-12 cms-form primary-form">
                                             @csrf
                                             <div class="grid grid-cols-1 gap-12">
                                                 <div class="relative group">
@@ -250,7 +250,7 @@
                                     </div>
                                     <button class="px-10 py-5 bg-indigo-600 text-white rounded-[2rem] font-black uppercase text-[10px] tracking-[0.2em] shadow-xl shadow-indigo-100 mt-auto hover:bg-indigo-700 hover:scale-[1.02] active:scale-95 transition-all duration-300">SIMPAN BANNER BOLO</button>
                                 </form>
-                                <form action="{{ route('admin.cms.update-text') }}" method="POST" class="space-y-10 cms-form pt-10 border-t border-slate-50">
+                                <form action="{{ route('admin.cms.update-text') }}" method="POST" class="space-y-10 cms-form primary-form pt-10 border-t border-slate-50">
                                     @csrf
                                     <div class="grid grid-cols-1 lg:grid-cols-4 items-center gap-6 group">
                                         <label class="lg:col-span-1 text-[11px] font-black uppercase tracking-[0.25em] text-slate-400 group-focus-within:text-indigo-600 transition-colors">JUDUL UTAMA (HERO)</label>
@@ -299,7 +299,7 @@
                                 </div>
                             </div>
                             <div class="p-10 sm:p-16">
-                                <form action="{{ route('admin.cms.update-text') }}" method="POST" class="grid grid-cols-1 gap-y-12 cms-form">
+                                <form action="{{ route('admin.cms.update-text') }}" method="POST" class="grid grid-cols-1 gap-y-12 cms-form primary-form">
                                     @csrf
                                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
                                         <div class="space-y-4 group">
@@ -322,7 +322,7 @@
 
                                         <div class="space-y-4 group">
                                             <label class="block text-[11px] font-black uppercase tracking-[0.2em] text-slate-400 px-2 group-focus-within:text-indigo-600">BIAYA LAYANAN</label>
-                                            <input type="number" name="service_fee" value="{{ $settings['service_fee'] ?? '2500' }}" 
+                                            <input type="number" name="admin_fee" value="{{ $settings['admin_fee'] ?? '2000' }}" 
                                                 class="w-full px-8 py-6 bg-slate-50 border border-slate-200 rounded-[2rem] text-sm font-black focus:ring-8 focus:ring-indigo-600/5 focus:border-indigo-600 transition-all outline-none">
                                         </div>
                                     </div>
@@ -334,7 +334,7 @@
                                         <div class="flex-1">
                                             <h4 class="text-xs font-black text-indigo-900 uppercase tracking-[0.3em] mb-2">LOGIKA HARGA AKHIR BOLO</h4>
                                             <p class="text-[11px] font-bold text-indigo-700/80 italic leading-relaxed uppercase tracking-tight">
-                                                (Minimal + Biaya Jarak + Biaya Berat) × <span class="text-indigo-900 underline font-black decoration-indigo-200 decoration-4 underline-offset-8">Multiplier Kurir</span> + Biaya Layanan
+                                                ((Minimal + Biaya Jarak + Biaya Berat) × <span class="text-indigo-900 underline font-black decoration-indigo-200 decoration-4 underline-offset-8">Multiplier Kurir</span>) + Biaya Layanan Global
                                             </p>
                                         </div>
                                         <button type="submit" class="w-full md:w-auto px-10 py-6 bg-[#0F172A] text-white rounded-[2rem] font-black uppercase text-[10px] tracking-[0.3em] hover:bg-black transition-all shadow-xl border-b-4 border-black/20 shrink-0">
@@ -434,7 +434,7 @@
                                 <h3 class="text-2xl font-black text-slate-900 tracking-tight uppercase">Konten Halaman About</h3>
                                 <p class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mt-2">Atur cerita dan visi platform bolo</p>
                             </div>
-                            <form action="{{ route('admin.cms.update-text') }}" method="POST" class="p-10 space-y-12 cms-form">
+                            <form action="{{ route('admin.cms.update-text') }}" method="POST" class="p-10 space-y-12 cms-form primary-form">
                                 @csrf
                                 <div class="grid grid-cols-1 gap-10">
                                     <div class="grid grid-cols-1 lg:grid-cols-4 items-center gap-6 group">
@@ -552,7 +552,13 @@
                         </div>
 
                         {{-- FREE SHIPPING & COMMISSION SETTINGS --}}
-                        <div class="bg-white rounded-[3rem] shadow-2xl shadow-slate-200/50 overflow-hidden border border-slate-100 ring-1 ring-slate-100">
+                        <div class="bg-white rounded-[3rem] shadow-2xl shadow-slate-200/50 overflow-hidden border border-slate-100 ring-1 ring-slate-100"
+                             x-data="{ 
+                                minOrder: '{{ $settings['free_shipping_min_order'] ?? 30000 }}',
+                                maxDist: '{{ $settings['free_shipping_max_dist'] ?? 20 }}',
+                                limitDist: '{{ $settings['free_shipping_limit_dist'] ?? 5 }}',
+                                subsidy: '{{ $settings['free_shipping_subsidy'] ?? 5000 }}' 
+                             }">
                             <div class="p-10 border-b border-slate-50 bg-indigo-50/20">
                                 <div class="flex items-center gap-6">
                                     <div class="w-14 h-14 bg-indigo-600 rounded-[1.5rem] flex items-center justify-center text-white shadow-xl shadow-indigo-100 shrink-0">
@@ -571,11 +577,11 @@
                                 <div>
                                     <p class="text-[10px] font-black text-amber-900 uppercase tracking-[0.2em] mb-1">LOGIKA SMART PROMO BOLO</p>
                                     <p class="text-[11px] font-bold text-amber-700/80 italic leading-relaxed uppercase tracking-tight">
-                                        Jarak < <span class="text-amber-900 font-black decoration-amber-300 underline underline-offset-4 font-black decoration-4">5KM</span> = Gratis Ongkir TOTAL | Jarak 5-20KM = Potongan Sesuai Subsidi di Bawah.
+                                        Jarak < <span x-text="limitDist" class="text-amber-900 font-black decoration-amber-300 underline underline-offset-4 decoration-4">5</span>KM = Gratis Ongkir TOTAL | Jarak <span x-text="limitDist">5</span>-<span x-text="maxDist">20</span>KM = Potongan <span x-text="'Rp' + parseInt(subsidy).toLocaleString('id-ID')"></span>.
                                     </p>
                                 </div>
                             </div>
-                            <form action="{{ route('admin.cms.settings.update') }}" method="POST" class="p-10 sm:p-16 space-y-12 ajax-form">
+                            <form action="{{ route('admin.cms.settings.update') }}" method="POST" class="p-10 sm:p-16 space-y-12 ajax-form primary-form">
                                 @csrf
                                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-16">
                                     <div class="space-y-10">
@@ -588,17 +594,23 @@
 
                                         <div class="grid grid-cols-1 items-center gap-4 group">
                                             <label class="text-[10px] font-black uppercase tracking-[0.1em] text-slate-400 group-focus-within:text-indigo-600 transition-colors ml-4">MIN. BELANJA (Rp)</label>
-                                            <input type="number" name="free_shipping_min_order" value="{{ $settings['free_shipping_min_order'] ?? '30000' }}" class="w-full px-10 py-6 bg-slate-50 border border-slate-200 rounded-[2.5rem] text-sm font-black focus:ring-8 focus:ring-indigo-600/5 focus:border-indigo-600 transition-all duration-300">
+                                            <input type="number" name="free_shipping_min_order" x-model="minOrder" class="w-full px-10 py-6 bg-slate-50 border border-slate-200 rounded-[2.5rem] text-sm font-black focus:ring-8 focus:ring-indigo-600/5 focus:border-indigo-600 transition-all duration-300">
                                         </div>
 
                                         <div class="grid grid-cols-1 items-center gap-4 group">
                                             <label class="text-[10px] font-black uppercase tracking-[0.1em] text-slate-400 group-focus-within:text-indigo-600 transition-colors ml-4">MAX. SUBSIDI ONGKIR (Rp)</label>
-                                            <input type="number" name="free_shipping_subsidy" value="{{ $settings['free_shipping_subsidy'] ?? '5000' }}" class="w-full px-10 py-6 bg-slate-50 border border-slate-200 rounded-[2.5rem] text-sm font-black focus:ring-8 focus:ring-indigo-600/5 focus:border-indigo-600 transition-all duration-300">
+                                            <input type="number" name="free_shipping_subsidy" x-model="subsidy" class="w-full px-10 py-6 bg-slate-50 border border-slate-200 rounded-[2.5rem] text-sm font-black focus:ring-8 focus:ring-indigo-600/5 focus:border-indigo-600 transition-all duration-300">
                                         </div>
 
-                                        <div class="grid grid-cols-1 items-center gap-4 group">
-                                            <label class="text-[10px] font-black uppercase tracking-[0.1em] text-slate-400 group-focus-within:text-indigo-600 transition-colors ml-4">MAX. JARAK PROMO (KM)</label>
-                                            <input type="number" name="free_shipping_max_dist" value="{{ $settings['free_shipping_max_dist'] ?? '20' }}" class="w-full px-10 py-6 bg-slate-50 border border-slate-200 rounded-[2.5rem] text-sm font-black focus:ring-8 focus:ring-indigo-600/5 focus:border-indigo-600 transition-all duration-300">
+                                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                            <div class="group">
+                                                <label class="text-[10px] font-black uppercase tracking-[0.1em] text-slate-400 group-focus-within:text-indigo-600 transition-colors ml-4 mb-2 block">RADIUS GRATIS TOTAL (KM)</label>
+                                                <input type="number" name="free_shipping_limit_dist" x-model="limitDist" class="w-full px-8 py-6 bg-slate-50 border border-slate-200 rounded-[2.5rem] text-sm font-black focus:ring-8 focus:ring-indigo-600/5 focus:border-indigo-600 transition-all duration-300">
+                                            </div>
+                                            <div class="group">
+                                                <label class="text-[10px] font-black uppercase tracking-[0.1em] text-slate-400 group-focus-within:text-indigo-600 transition-colors ml-4 mb-2 block">MAX. JARAK PROMO (KM)</label>
+                                                <input type="number" name="free_shipping_max_dist" x-model="maxDist" class="w-full px-8 py-6 bg-slate-50 border border-slate-200 rounded-[2.5rem] text-sm font-black focus:ring-8 focus:ring-indigo-600/5 focus:border-indigo-600 transition-all duration-300">
+                                            </div>
                                         </div>
                                     </div>
 
@@ -723,7 +735,7 @@
                                 </div>
                             </div>
                             
-                            <form action="{{ route('admin.cms.update-text') }}" method="POST" class="cms-form">
+                            <form action="{{ route('admin.cms.update-text') }}" method="POST" class="cms-form primary-form">
                                 @csrf
                                 <div class="p-10 sm:p-16 space-y-12">
                                     {{-- Social Media --}}
@@ -876,7 +888,7 @@
         <div class="relative min-h-screen flex items-center justify-center p-4">
             <div class="relative bg-white rounded-[2.5rem] w-full max-w-lg overflow-hidden shadow-2xl">
                 <div class="p-8 border-b border-gray-50 flex justify-between items-center">
-                    <h3 class="text-xl font-black text-gray-900 tracking-tight text-black">TAMBAH KURIR LOKAL</h3>
+                    <h3 class="text-xl font-black text-slate-900 tracking-tight">TAMBAH KURIR LOKAL</h3>
 <button onclick="closeModal('addCourierModal')" class="p-3 bg-slate-50 text-slate-400 rounded-2xl hover:text-rose-500 transition-all border border-slate-100">
                             <i class="fa-solid fa-xmark text-xl"></i>
                         </button>
@@ -1122,18 +1134,6 @@
         function closeModal(id) {
             document.getElementById(id).classList.add('hidden');
             document.body.style.overflow = 'auto';
-        }
-
-        function submitActive(currentTab) {
-            const activePanel = document.querySelector('.panel-' + currentTab);
-            if (activePanel) {
-                // Find all forms in this panel and submit them
-                const forms = activePanel.querySelectorAll('form');
-                if (forms.length > 0) {
-                    // Start with the first form (usually the main one)
-                    forms[0].requestSubmit();
-                }
-            }
         }
 
         function editCourier(courier) {
