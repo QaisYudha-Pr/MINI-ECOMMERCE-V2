@@ -57,6 +57,16 @@ class CartController extends Controller
 
     public function index()
     {
+        // Auto-fail expired pending transactions for this user
+        $expired = Transaction::where('user_id', Auth::id())
+            ->where('status', 'pending')
+            ->where('created_at', '<', now()->subMinutes(15))
+            ->get();
+
+        foreach ($expired as $t) {
+            $t->failTransaction();
+        }
+
         $transactions = Transaction::where('user_id', Auth::id())
             ->latest()
             ->get();
@@ -68,6 +78,12 @@ class CartController extends Controller
     {
         if ($transaction->user_id !== Auth::id()) {
             abort(403);
+        }
+
+        // Check for expired Specifically on show
+        if ($transaction->status === 'pending' && $transaction->created_at->addMinutes(15)->isPast()) {
+            $transaction->failTransaction();
+            $transaction->refresh(); // Sync the model after update
         }
 
         return view('shop.cart.show', compact('transaction'));

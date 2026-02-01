@@ -226,20 +226,26 @@
                         
                         {{-- Quantity Selector --}}
                         <div class="flex items-center gap-4">
-                            <div class="flex items-center border border-gray-200 rounded-lg p-1">
-                                <button @click="if(quantity > 1) quantity--" class="w-8 h-8 flex items-center justify-center text-emerald-500 hover:bg-emerald-50 rounded-md transition-colors">
+                            <div class="flex items-center border border-gray-200 rounded-lg p-1" :class="item.stok <= 0 ? 'opacity-50 grayscale' : ''">
+                                <button @click="if(quantity > 1) quantity--" 
+                                    :disabled="item.stok <= 0"
+                                    class="w-8 h-8 flex items-center justify-center text-emerald-500 hover:bg-emerald-50 rounded-md transition-colors disabled:cursor-not-allowed">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"/></svg>
                                 </button>
                                 <input type="number" x-model="quantity" class="w-12 text-center border-none focus:ring-0 text-sm font-bold text-gray-900" readonly>
-                                <button @click="if(quantity < {{ $itemShop->stok }}) quantity++" class="w-8 h-8 flex items-center justify-center text-emerald-500 hover:bg-emerald-50 rounded-md transition-colors">
+                                <button @click="if(quantity < item.stok) quantity++" 
+                                    :disabled="item.stok <= 0"
+                                    class="w-8 h-8 flex items-center justify-center text-emerald-500 hover:bg-emerald-50 rounded-md transition-colors disabled:cursor-not-allowed">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
                                 </button>
                             </div>
-                            <span class="text-sm font-medium text-gray-900">Stok: <span class="font-bold">{{ $itemShop->stok }}</span></span>
+                            <span class="text-sm font-medium" :class="item.stok <= 0 ? 'text-rose-500 font-black' : 'text-gray-900'">
+                                <span x-text="item.stok <= 0 ? 'STOK HABIS BOLO!' : 'Stok: ' + item.stok"></span>
+                            </span>
                         </div>
 
                         {{-- Subtotal --}}
-                        <div class="flex justify-between items-end">
+                        <div class="flex justify-between items-end" :class="item.stok <= 0 ? 'opacity-50' : ''">
                             <span class="text-sm text-gray-500 font-medium">Subtotal</span>
                             <div class="text-lg font-bold text-gray-900">
                                 <span class="text-xs">Rp</span><span x-text="(quantity * {{ $itemShop->harga }}).toLocaleString('id-ID')"></span>
@@ -249,12 +255,31 @@
                         {{-- Action Buttons --}}
                         <div class="space-y-2 pt-2">
                             @auth
-                                <button @click="$store.cart.add(item, quantity)" class="w-full py-2.5 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl font-bold text-sm transition-all shadow-sm">
-                                    + Keranjang
-                                </button>
-                                <button @click="checkoutNow" class="w-full py-2.5 bg-white border border-emerald-500 text-emerald-500 hover:bg-emerald-50 rounded-xl font-bold text-sm transition-all">
-                                    Beli Langsung
-                                </button>
+                                <template x-if="item.stok > 0">
+                                    <div class="space-y-2">
+                                        <button @click="$store.cart.add(item, quantity)" class="w-full py-2.5 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl font-bold text-sm transition-all shadow-sm">
+                                            + Keranjang
+                                        </button>
+                                        <button @click="checkoutNow" class="w-full py-2.5 bg-white border border-emerald-500 text-emerald-500 hover:bg-emerald-50 rounded-xl font-bold text-sm transition-all">
+                                            Beli Langsung
+                                        </button>
+                                    </div>
+                                </template>
+                                <template x-if="item.stok <= 0">
+                                    <div class="space-y-3">
+                                        <button disabled class="w-full py-2.5 bg-gray-100 text-gray-400 rounded-xl font-bold text-sm cursor-not-allowed border border-gray-200">
+                                            Stok Habis
+                                        </button>
+                                        <div class="p-4 bg-rose-50 rounded-2xl border border-rose-100">
+                                            <p class="text-[10px] text-rose-600 font-bold uppercase tracking-widest text-center leading-relaxed">
+                                                Waduh bolo, barang ini lagi laku keras sampai ludes! Cek produk lain di toko ini ya.
+                                            </p>
+                                        </div>
+                                        <a href="{{ route('shop.public', ['seller_id' => $itemShop->user_id]) }}" class="block w-full py-2 text-center text-[10px] font-black uppercase tracking-[0.1em] text-emerald-600 hover:underline">
+                                            Lihat Produk Toko Lainnya →
+                                        </a>
+                                    </div>
+                                </template>
                             @else
                                 <a href="{{ route('login') }}" class="block w-full py-2.5 bg-gray-900 text-white text-center rounded-xl font-bold text-sm transition-all">
                                     Login untuk Membeli
@@ -581,7 +606,68 @@
                     </div>
                 </div>
             </div>
-        </div>
+            {{-- RELATED PRODUCTS --}}
+            @if(isset($relatedItems) && $relatedItems->count() > 0)
+                <div class="mt-24 pt-12 border-t border-gray-100" data-aos="fade-up">
+                    <div class="flex items-center justify-between mb-8 px-2">
+                        <div>
+                            <h3 class="text-2xl font-black text-gray-900 tracking-tighter uppercase">Rekomendasi <span class="text-emerald-500">Serupa</span></h3>
+                            <p class="text-[10px] font-bold text-gray-400 uppercase tracking-[0.2em] mt-1">Mungkin bolo juga suka produk ini</p>
+                        </div>
+                        <a href="{{ route('shop.public') }}" class="text-[10px] font-black uppercase tracking-widest text-[#00AA5B] hover:underline">Lihat Semua →</a>
+                    </div>
+
+                    <div class="grid grid-cols-2 md:grid-cols-4 xl:grid-cols-6 gap-6">
+                        @foreach($relatedItems as $related)
+                        <div class="group bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-lg transition-all duration-300 flex flex-col h-full relative">
+                            {{-- IMAGE CONTAINER --}}
+                            <div class="relative aspect-square overflow-hidden bg-gray-50">
+                                @if($related->gambar)
+                                    <img src="{{ asset($related->gambar) }}"
+                                        class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                                        alt="{{ $related->nama_barang }}" loading="lazy">
+                                @else
+                                    <div class="w-full h-full flex items-center justify-center bg-gray-100 text-gray-300">
+                                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                        </svg>
+                                    </div>
+                                @endif
+
+                                @if($related->stok <= 0)
+                                    <div class="absolute inset-0 bg-black/40 flex items-center justify-center backdrop-blur-[2px]">
+                                        <span class="bg-white text-gray-900 px-3 py-1 text-[9px] font-black uppercase tracking-widest rounded-lg shadow-xl">Habis</span>
+                                    </div>
+                                @endif
+                            </div>
+
+                            {{-- CONTENT --}}
+                            <div class="p-3 flex flex-col flex-grow">
+                                <span class="text-[8px] uppercase font-bold tracking-widest text-emerald-500 mb-1 leading-none">{{ $related->kategori ?? 'Umum' }}</span>
+                                
+                                <h4 class="font-bold text-[10px] sm:text-[11px] text-gray-800 line-clamp-2 h-8 mb-2 group-hover:text-emerald-500 transition-colors leading-relaxed">
+                                    <a href="{{ route('shop.show', $related->id) }}" class="stretched-link">{{ $related->nama_barang }}</a>
+                                </h4>
+
+                                <div class="mt-auto">
+                                    <div class="flex items-center justify-between">
+                                        <div>
+                                            <span class="text-[10px] font-black text-gray-900">Rp</span>
+                                            <span class="text-xs font-black text-gray-900">{{ number_format($related->harga, 0, ',', '.') }}</span>
+                                        </div>
+                                        <div class="flex items-center gap-1">
+                                            <svg class="w-3 h-3 text-yellow-400 fill-current" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                                            <span class="text-[9px] font-bold text-gray-800">{{ number_format($related->reviews()->avg('rating') ?? 5, 1) }}</span>
+                                        </div>
+                                    </div>
+                                    <p class="text-[8px] font-bold text-gray-400 mt-1 uppercase tracking-tighter">{{ $related->total_terjual ?? 0 }} terjual</p>
+                                </div>
+                            </div>
+                        </div>
+                        @endforeach
+                    </div>
+                </div>
+            @endif        </div>
     </section>
 
     @include('components.cart-modal')

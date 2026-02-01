@@ -63,7 +63,11 @@ class MidtransCallbackController extends Controller
 
         // Update status SEMUA transaksi dengan parent_invoice yang sama (Transaction Splitting support)
         foreach ($transactions as $transaction) {
-            $transaction->update(['status' => $dbStatus]);
+            if ($dbStatus === 'failed') {
+                $transaction->failTransaction();
+            } else {
+                $transaction->update(['status' => $dbStatus]);
+            }
 
             // Jika sukses, kirim notifikasi ke Seller, Admin, dan User
             if ($dbStatus === 'success') {

@@ -92,10 +92,35 @@
 
                                 {{-- Tombol Bayar Sekarang (Muncul hanya jika pending) --}}
                                 @if($trx->status == 'pending' && $trx->snap_token)
-                                    <button onclick="payNow('{{ $trx->snap_token }}')" 
-                                        class="px-6 py-3 bg-indigo-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-indigo-700 transition-colors shadow-lg shadow-indigo-200">
-                                        Pay Now
-                                    </button>
+                                    @php
+                                        $expiryTime = $trx->created_at->addMinutes(15);
+                                        $isExpired = now()->greaterThan($expiryTime);
+                                        $remainingSeconds = now()->diffInSeconds($expiryTime, false);
+                                    @endphp
+
+                                    @if(!$isExpired)
+                                        <div class="flex flex-col items-end gap-2" x-data="{ 
+                                            timeLeft: {{ $remainingSeconds }},
+                                            timer: null,
+                                            formatTime(seconds) {
+                                                const mins = Math.floor(seconds / 60);
+                                                const secs = seconds % 60;
+                                                return `${mins}:${secs.toString().padStart(2, '0')}`;
+                                            }
+                                        }" x-init="timer = setInterval(() => { if(timeLeft > 0) timeLeft--; else { clearInterval(timer); window.location.reload(); } }, 1000)">
+                                            <button onclick="payNow('{{ $trx->snap_token }}')" 
+                                                class="px-6 py-3 bg-indigo-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-indigo-700 transition-colors shadow-lg shadow-indigo-200">
+                                                Pay Now
+                                            </button>
+                                            <span class="text-[9px] font-black text-rose-500 uppercase tracking-widest animate-pulse">
+                                                Sisa Waktu: <span x-text="formatTime(timeLeft)"></span>
+                                            </span>
+                                        </div>
+                                    @else
+                                        <span class="px-6 py-3 bg-gray-100 text-gray-400 rounded-xl text-[10px] font-black uppercase tracking-widest cursor-not-allowed">
+                                            Expired
+                                        </span>
+                                    @endif
                                 @endif
 
                                 {{-- Tombol Beri Ulasan (Jika Selesai) --}}

@@ -1225,12 +1225,9 @@
             const form = e.target;
             if (form.classList.contains('no-ajax')) return; 
             
-            // Check if it's a CMS form (has cms-form class or is inside a panel)
+            // Check if it's a CMS form (has cms-form class or is inside any CMS panel)
             const isCmsForm = form.classList.contains('cms-form') || 
-                             form.closest('.panel-general') || 
-                             form.closest('.panel-home') || 
-                             form.closest('.panel-logistics') || 
-                             form.closest('.panel-about');
+                             form.closest('[class*="panel-"]');
 
             if (isCmsForm) { 
                 e.preventDefault();
@@ -1239,9 +1236,10 @@
                 const submitBtn = form.querySelector('button[type="submit"]') || form.querySelector('button:not([type])');
                 const originalBtnText = submitBtn ? submitBtn.innerHTML : '';
                 
+                // Show floating loading if not a small button
                 if (submitBtn) {
                     submitBtn.disabled = true;
-                    submitBtn.innerHTML = '<svg class="animate-spin h-5 w-5 text-white mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>';
+                    submitBtn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i>';
                 }
                 
                 fetch(form.action, {
@@ -1260,19 +1258,33 @@
                     if (data.success) {
                         Swal.fire({
                             icon: 'success',
-                            title: 'Berhasil!',
+                            title: 'Beres Bolo! ✅',
                             text: data.message,
                             toast: true,
                             position: 'top-end',
                             showConfirmButton: false,
                             timer: 3000,
-                            timerProgressBar: true
+                            timerProgressBar: true,
+                            customClass: { popup: 'rounded-2xl' }
                         });
                         
-                        if (form.getAttribute('action').includes('delete-slider') || 
-                            form.getAttribute('action').includes('update-images') ||
-                            form.getAttribute('action').includes('couriers') ||
-                            form.getAttribute('action').includes('logo')) {
+                        // Handle Logo/Image Updates
+                        if (data.path && data.field) {
+                            const preview = document.getElementById('preview_' + data.field);
+                            if (preview) {
+                                preview.src = data.path;
+                                preview.classList.remove('opacity-20', 'grayscale');
+                            }
+                        } else if (data.path && form.getAttribute('action').includes('logo')) {
+                            const preview = document.getElementById('preview_site_logo');
+                            if (preview) preview.src = data.path;
+                        }
+
+                        // Special: ONLY reload for things that change the structure significantly
+                        // such as deleting sliders or adding/removing couriers
+                        const needsReload = ['delete-slider', 'couriers'].some(path => form.getAttribute('action').includes(path));
+                        
+                        if (needsReload) {
                             setTimeout(() => location.reload(), 1000);
                         }
                     } else {
@@ -1280,22 +1292,20 @@
                     }
                 })
                 .catch(async (err) => {
-                    let message = 'Terjadi kesalahan saat menyimpan data.';
-                    if (err.status === 422) {
+                    let message = 'Gagal menyimpan pengaturan bolo.';
+                    try {
                         const data = await err.json();
-                        message = Object.values(data.errors).flat().join('<br>');
-                    } else if (err.message) {
-                        message = err.message;
-                    }
+                        message = data.message || Object.values(data.errors).flat().join('<br>');
+                    } catch(e) {}
                     
                     Swal.fire({
                         icon: 'error',
-                        title: 'Gagal!',
+                        title: 'Waduh Error!',
                         html: message,
                         confirmButtonColor: '#4f46e5',
                         customClass: {
-                            popup: 'rounded-[1.5rem]',
-                            confirmButton: 'rounded-xl font-bold uppercase text-[10px] tracking-widest px-6 py-3'
+                            popup: 'rounded-[2rem]',
+                            confirmButton: 'rounded-xl font-bold uppercase text-[10px] tracking-widest px-8 py-4'
                         }
                     });
                 })

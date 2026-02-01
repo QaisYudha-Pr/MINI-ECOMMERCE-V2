@@ -78,4 +78,29 @@ class Transaction extends Model
             }
         });
     }
+
+    /**
+     * Gagal/Batalkan transaksi dan kembalikan stok
+     */
+    public function failTransaction()
+    {
+        if ($this->status === 'failed') {
+            return;
+        }
+
+        \DB::transaction(function () {
+            // Return stock
+            if (is_array($this->items_details)) {
+                foreach ($this->items_details as $itemDetail) {
+                    $item = \App\Models\ItemShop::find($itemDetail['id'] ?? null);
+                    if ($item) {
+                        $qty = $itemDetail['quantity'] ?? 1;
+                        $item->increment('stok', $qty);
+                    }
+                }
+            }
+
+            $this->update(['status' => 'failed']);
+        });
+    }
 }

@@ -420,8 +420,9 @@
                                 </span>
 
                                 {{-- Quick Add Button --}}
-                                <button @click.prevent="$store.cart.add(items.find(i => i.id === {{ $item->id }}))" 
-                                    class="p-2 bg-gray-50 rounded-xl text-gray-400 hover:bg-[#00AA5B] hover:text-white transition-all shadow-sm">
+                                <button @click.prevent="if({{ $item->stok }} > 0) $store.cart.add(items.find(i => i.id === {{ $item->id }})); else Swal.fire({icon: 'error', title: 'Habis bolo!', text: 'Produk ini sudah ludes terjual.', customClass: {popup: 'rounded-2xl'}})" 
+                                    :class="{{ $item->stok }} <= 0 ? 'opacity-50 cursor-not-allowed bg-gray-100 text-gray-300' : 'bg-gray-50 rounded-xl text-gray-400 hover:bg-[#00AA5B] hover:text-white transition-all shadow-sm'"
+                                    class="p-2 rounded-xl transition-all shadow-sm">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/>
                                     </svg>

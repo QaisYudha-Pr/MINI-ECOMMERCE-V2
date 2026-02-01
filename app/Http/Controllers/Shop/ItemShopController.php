@@ -94,7 +94,22 @@ class ItemShopController extends Controller
     public function show(ItemShop $itemShop)
     {
         $reviews = $itemShop->reviews()->latest()->get();
-        return view('shop.show', compact('itemShop', 'reviews'));
+        
+        // Related products: priority same category, then same seller
+        // We use shuffle and take to keep it interesting but relevant
+        $relatedItems = ItemShop::where('id', '!=', $itemShop->id)
+            ->where(function($q) use ($itemShop) {
+                $q->where('kategori', $itemShop->kategori)
+                  ->orWhere('user_id', $itemShop->user_id);
+            })
+            ->orderByRaw("CASE WHEN kategori = ? THEN 0 ELSE 1 END", [$itemShop->kategori])
+            ->latest()
+            ->take(10)
+            ->get()
+            ->shuffle()
+            ->take(6);
+
+        return view('shop.show', compact('itemShop', 'reviews', 'relatedItems'));
     }
 
     public function stats()

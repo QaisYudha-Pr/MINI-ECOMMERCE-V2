@@ -87,6 +87,10 @@ class CmsController extends Controller
                 ['key' => 'site_logo'],
                 ['value' => $path]
             );
+
+            if (request()->wantsJson()) {
+                return response()->json(['success' => true, 'message' => 'Logo berhasil diperbarui!', 'path' => asset($path)]);
+            }
         }
 
         return redirect()->back()->with('success', 'Logo berhasil diperbarui!');
@@ -171,6 +175,10 @@ class CmsController extends Controller
                 }
 
                 SiteSetting::updateOrCreate(['key' => $field], ['value' => $path]);
+
+                if (request()->wantsJson()) {
+                    return response()->json(['success' => true, 'message' => 'Gambar berhasil diperbarui!', 'path' => asset($path), 'field' => $field]);
+                }
                 continue;
             }
 
@@ -188,6 +196,10 @@ class CmsController extends Controller
                 }
 
                 SiteSetting::updateOrCreate(['key' => $field], ['value' => $path]);
+
+                if (request()->wantsJson()) {
+                    return response()->json(['success' => true, 'message' => 'Gambar berhasil diperbarui!', 'path' => asset($path), 'field' => $field]);
+                }
             }
         }
 
