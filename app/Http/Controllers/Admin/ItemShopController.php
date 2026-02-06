@@ -191,6 +191,7 @@ class ItemShopController extends Controller
         $this->authorize('update', $itemShop);
 
         $data = $request->validated();
+        $oldPrice = $itemShop->harga;
 
         if ($request->filled('gambar')) {
             $this->fileService->deleteFile($itemShop->gambar);
@@ -201,6 +202,19 @@ class ItemShopController extends Controller
         }
 
         $itemShop->update($data);
+
+        // Price Drop Alert
+        if ($itemShop->harga < $oldPrice) {
+            $users = $itemShop->favoritedBy()->get();
+            foreach ($users as $user) {
+                \App\Models\Notification::create([
+                    'user_id' => $user->id,
+                    'title' => 'HARGA TURUN BOLO! 🔥',
+                    'message' => "Barang impianmu \"{$itemShop->nama_barang}\" lagi turun harga jadi Rp " . number_format($itemShop->harga, 0, ',', '.') . ". Sikat mumpung murah!",
+                    'type' => 'price_drop',
+                ]);
+            }
+        }
 
         return redirect()->route('item-shop.index')->with('success', 'Produk berhasil diperbarui!');
     }

@@ -41,35 +41,64 @@ class DashboardController extends Controller
             $q->whereHas('itemShop', fn($iq) => $iq->where('user_id', $user->id));
         })->count();
 
-        // 2. User Specific Stats (Regular User)
-        // Only count legitimate orders (Paid, Shipped, Completed, or Waiting Confirmation)
+        // 2. Role-Aware Detailed Stats
+        $platformBalance = $isAdmin ? ($user->balance ?? 0) : 0;
+        $userFavoritesCount = $user->favoriteItems()->count();
+        $userReviewsCount = Review::where('user_id', $user->id)->count();
+        $outOfStockItems = 0;
+        $storeRating = 0;
+
+        if ($isAdmin) {
+            $recentTransactions = Transaction::with(['user', 'seller'])->latest()->take(10)->get();
+            $pendingOrders = Transaction::where('status', 'paid')->count();
+            $storeRating = Review::avg('rating') ?: 0;
+            $sellerTotalItems = 0; 
+        } elseif ($isSeller) {
+            $recentTransactions = Transaction::with('user')
+                ->where('seller_id', $user->id)
+                ->latest()
+                ->take(10)
+                ->get();
+            $pendingOrders = Transaction::where('status', 'paid')
+                ->get()
+                ->filter(function($tx) use ($user) {
+                    $details = is_array($tx->items_details) ? $tx->items_details : json_decode($tx->items_details, true);
+                    return collect($details)->contains(function($item) use ($user) {
+                        return ($item['user_id'] ?? $item['seller_id'] ?? null) == $user->id;
+                    });
+                })->count();
+            $outOfStockItems = ItemShop::where('user_id', $user->id)->where('stok', '<=', 0)->count();
+            $storeRating = Review::whereHas('itemShop', fn($q) => $q->where('user_id', $user->id))->avg('rating') ?: 0;
+            $sellerTotalItems = ItemShop::where('user_id', $user->id)->count();
+        } else {
+            // General User (Bolo)
+            $sellerTotalItems = 0;
+            $recentTransactions = Transaction::where('user_id', $user->id)
+                ->latest()
+                ->take(5)
+                ->get();
+            $pendingOrders = 0;
+        }
+        
         $userTransactionsCount = Transaction::where('user_id', $user->id)
             ->whereIn('status', ['paid', 'success', 'shipped', 'completed', 'waiting_confirmation'])
             ->count();
-        $userFavoritesCount = $user->favoriteItems()->count();
-        $userReviewsCount = Review::where('user_id', $user->id)->count();
-        $recentTransactions = Transaction::where('user_id', $user->id)
-            ->latest()
-            ->take(5)
-            ->get();
+
+        // Check if platform has any items at all
+        $platformHasItems = ItemShop::exists();
+        $userHasTransactions = Transaction::where('user_id', $user->id)->exists();
         
-        $platformBalance = $isAdmin ? $user->platform_balance : 0;
-        
-        // 2.5 Store Rating (Custom Metric for Seller/Admin)
-        if ($isSeller) {
-            $storeRating = Review::whereHas('itemShop', fn($q) => $q->where('user_id', $user->id))->avg('rating') ?: 0;
-        } else {
-            $storeRating = Review::avg('rating') ?: 0;
-        }
-        
+        // Profile completeness check for address & pinpoint
+        $profileIncomplete = empty($user->alamat) || empty($user->latitude) || empty($user->longitude);
+
         // 3. Fetch all paid/completed transactions for detailed analysis
         $transactions = Transaction::whereIn('status', ['paid', 'success', 'shipped', 'completed'])->get();
 
-        // 3. Category Filter Logic
+        // 4. Category Filter Logic
         $selectedCategory = $request->get('category', 'all');
         $categories = ItemShop::distinct()->pluck('kategori')->filter();
 
-        // 4. Detailed Metrics Logic (Revenue by Item/Category & Stats Cleanup)
+        // 5. Detailed Metrics Logic (Revenue by Item/Category & Stats Cleanup)
         $itemStats = [];
         $totalEarnings = 0;
         $totalOrdersCount = 0;
@@ -207,6 +236,47 @@ class DashboardController extends Controller
             ->take(10)
             ->get();
 
+        // 9. Growth Metrics (This week vs Last week)
+        $thisWeekStart = Carbon::now()->startOfWeek();
+        $lastWeekStart = Carbon::now()->subWeek()->startOfWeek();
+        $lastWeekEnd = Carbon::now()->subWeek()->endOfWeek();
+
+        $itemGrowth = 0;
+        $orderGrowth = 0;
+        $userGrowth = 0;
+        
+        $activePromotions = 0; // Placeholder for future use
+
+        // Item Growth
+        $lastWeekItems = ItemShop::when(!$isAdmin && $isSeller, fn($q) => $q->where('user_id', $user->id))
+            ->whereBetween('created_at', [$lastWeekStart, $lastWeekEnd])
+            ->count();
+        $thisWeekItems = ItemShop::when(!$isAdmin && $isSeller, fn($q) => $q->where('user_id', $user->id))
+            ->where('created_at', '>=', $thisWeekStart)
+            ->count();
+        $itemGrowth = $lastWeekItems > 0 ? (($thisWeekItems - $lastWeekItems) / $lastWeekItems) * 100 : ($thisWeekItems > 0 ? 100 : 0);
+
+        // User Growth (Admin Only)
+        $lastWeekUsers = User::whereBetween('created_at', [$lastWeekStart, $lastWeekEnd])->count();
+        $thisWeekUsers = User::where('created_at', '>=', $thisWeekStart)->count();
+        $userGrowth = $lastWeekUsers > 0 ? (($thisWeekUsers - $lastWeekUsers) / $lastWeekUsers) * 100 : ($thisWeekUsers > 0 ? 100 : 0);
+
+        // Order Growth
+        $lastWeekOrders = Transaction::whereIn('status', ['paid', 'success', 'shipped', 'completed'])
+            ->whereBetween('created_at', [$lastWeekStart, $lastWeekEnd])
+            ->count();
+        $thisWeekOrders = Transaction::whereIn('status', ['paid', 'success', 'shipped', 'completed'])
+            ->where('created_at', '>=', $thisWeekStart)
+            ->count();
+        
+        // Logical Fix: If no orders last week but there are orders this week, growth is +100%. 
+        // If no orders last week AND no orders this week, growth is 0%.
+        if ($lastWeekOrders > 0) {
+            $orderGrowth = (($thisWeekOrders - $lastWeekOrders) / $lastWeekOrders) * 100;
+        } else {
+            $orderGrowth = $thisWeekOrders > 0 ? 100 : 0;
+        }
+
         return view('dashboard', compact(
             'totalItems',
             'totalUsers',
@@ -226,7 +296,16 @@ class DashboardController extends Controller
             'recentTransactions',
             'storeRating',
             'notifications',
-            'platformBalance'
+            'platformBalance',
+            'itemGrowth',
+            'orderGrowth',
+            'userGrowth',
+            'pendingOrders',
+            'outOfStockItems',
+            'platformHasItems',
+            'userHasTransactions',
+            'sellerTotalItems',
+            'profileIncomplete',
         ));
     }
 

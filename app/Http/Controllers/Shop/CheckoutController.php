@@ -112,6 +112,7 @@ class CheckoutController extends Controller
                     'status' => 'pending',
                     'payment_method' => $request->payment_method,
                     'alamat' => $request->alamat,
+                    'catatan_alamat' => $request->catatan_alamat,
                     'items_details' => $items,
                     'courier_name' => $request->courier_name,
                     'courier_service' => $request->courier_service,

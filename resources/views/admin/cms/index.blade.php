@@ -140,7 +140,7 @@
                                                         <div class="absolute inset-y-0 left-0 pl-10 flex items-center pointer-events-none text-slate-300 group-focus-within:text-indigo-600 transition-colors">
                                                             <i class="fa-solid fa-store"></i>
                                                         </div>
-                                                        <input type="text" name="site_name" value="{{ $settings['site_name'] ?? 'MiniQ-Store' }}" 
+                                                        <input type="text" name="site_name" value="{{ $settings['site_name'] ?? 'Q-Store' }}" 
                                                             class="w-full pl-20 pr-10 py-7 bg-slate-50 border border-slate-100 rounded-[2.5rem] text-sm font-black text-slate-900 focus:ring-8 focus:ring-indigo-600/5 focus:border-indigo-600 focus:bg-white transition-all duration-300 outline-none shadow-sm"
                                                             placeholder="Masukkan Nama Situs...">
                                                     </div>
@@ -159,7 +159,11 @@
                                                 </div>
                                             </div>
 
-                                            <div class="pt-6 flex justify-end">
+                                            <div class="pt-6 flex justify-end gap-4">
+                                                <button type="button" onclick="confirmReset('umum')" class="px-8 py-7 bg-white text-rose-500 border-2 border-rose-100 rounded-[2.5rem] font-black uppercase text-[11px] tracking-[0.3em] hover:bg-rose-50 transition-all duration-300">
+                                                    <i class="fa-solid fa-rotate-left mr-2"></i>
+                                                    RESET DEFAULT
+                                                </button>
                                                 <button type="submit" class="group flex items-center gap-4 px-12 py-7 bg-[#0F172A] text-white rounded-[2.5rem] font-black uppercase text-[11px] tracking-[0.3em] shadow-2xl hover:bg-black hover:scale-[1.05] active:scale-95 transition-all duration-500 border-b-4 border-black/30">
                                                     <span>UPDATE IDENTITAS</span>
                                                     <i class="fa-solid fa-check-circle text-indigo-400 group-hover:scale-125 transition-transform"></i>
@@ -174,6 +178,12 @@
 
                     {{-- HOME SETTINGS --}}
                     <div x-show="tab === 'home'" x-cloak x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-4" x-transition:enter-end="opacity-100 translate-y-0" class="space-y-8 panel-home">
+                        <div class="flex justify-end mb-4">
+                            <button type="button" onclick="confirmReset('home')" class="px-8 py-5 bg-white text-rose-500 border-2 border-rose-100 rounded-[2rem] font-black uppercase text-[10px] tracking-widest hover:bg-rose-50 transition-all flex items-center gap-2">
+                                <i class="fa-solid fa-trash-arrow-up"></i>
+                                RESET SEMUA KONTEN HOME KE DEFAULT
+                            </button>
+                        </div>
                         <div class="bg-white rounded-[2rem] shadow-xl shadow-gray-100 overflow-hidden border border-gray-100">
                             <div class="p-8 border-b border-gray-50 bg-gray-50/50 flex justify-between items-center">
                                 <div>
@@ -212,11 +222,18 @@
                                         @endforeach
                                     </div>
                                 @else
-                                    <div class="py-20 text-center border-2 border-dashed border-gray-100 rounded-[2rem]">
-                                        <div class="w-16 h-16 bg-gray-50 rounded-2xl flex items-center justify-center mx-auto mb-4 text-gray-300">
-                                            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                                    <div class="py-12 text-center border-2 border-dashed border-gray-100 rounded-[2rem] bg-gray-50/30">
+                                        <div class="flex justify-center gap-4 mb-6">
+                                            @for($i=1; $i<=3; $i++)
+                                            <div class="w-32 aspect-[21/9] rounded-lg overflow-hidden border border-gray-200 grayscale opacity-50">
+                                                <img src="{{ asset('banners/banner'.$i.'.svg') }}" class="w-full h-full object-cover">
+                                            </div>
+                                            @endfor
                                         </div>
-                                        <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Belum ada slide banner动态</p>
+                                        <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest leading-relaxed">
+                                            Menggunakan Banner Default Q-Store<br>
+                                            <span class="text-[8px] font-bold text-indigo-400 italic">Unggah gambar baru untuk mengganti default</span>
+                                        </p>
                                     </div>
                                 @endif
                             </div>
@@ -232,7 +249,8 @@
                                     @if(isset($settings['hero_banner']) && $settings['hero_banner'])
                                         <img src="{{ asset($settings['hero_banner']) }}" class="w-full h-full object-cover" id="preview_hero_banner">
                                     @else
-                                        <div class="w-full h-full flex items-center justify-center text-slate-300 font-black italic uppercase tracking-widest text-[10px]" id="preview_hero_banner_container">No Banner Uploaded</div>
+                                        <img src="{{ asset('banners/hero_default.svg') }}" class="w-full h-full object-cover opacity-30 grayscale" id="preview_hero_banner">
+                                        <div class="absolute inset-0 flex items-center justify-center text-slate-400 font-black italic uppercase tracking-widest text-[9px]" id="preview_hero_banner_container">Default Q-Store Banner</div>
                                     @endif
                                 </div>
                                 <form action="{{ route('admin.cms.update-images') }}" method="POST" enctype="multipart/form-data" class="flex flex-col lg:flex-row gap-6">
@@ -319,12 +337,6 @@
                                             <input type="number" name="shipping_per_kg" value="{{ $settings['shipping_per_kg'] ?? '1000' }}" 
                                                 class="w-full px-8 py-6 bg-slate-50 border border-slate-200 rounded-[2rem] text-sm font-black focus:ring-8 focus:ring-indigo-600/5 focus:border-indigo-600 transition-all outline-none">
                                         </div>
-
-                                        <div class="space-y-4 group">
-                                            <label class="block text-[11px] font-black uppercase tracking-[0.2em] text-slate-400 px-2 group-focus-within:text-indigo-600">BIAYA LAYANAN</label>
-                                            <input type="number" name="admin_fee" value="{{ $settings['admin_fee'] ?? '2000' }}" 
-                                                class="w-full px-8 py-6 bg-slate-50 border border-slate-200 rounded-[2rem] text-sm font-black focus:ring-8 focus:ring-indigo-600/5 focus:border-indigo-600 transition-all outline-none">
-                                        </div>
                                     </div>
 
                                     <div class="bg-indigo-50/50 p-10 rounded-[2.5rem] border border-indigo-100/50 flex flex-col md:flex-row gap-8 items-center mt-4">
@@ -334,9 +346,15 @@
                                         <div class="flex-1">
                                             <h4 class="text-xs font-black text-indigo-900 uppercase tracking-[0.3em] mb-2">LOGIKA HARGA AKHIR BOLO</h4>
                                             <p class="text-[11px] font-bold text-indigo-700/80 italic leading-relaxed uppercase tracking-tight">
-                                                ((Minimal + Biaya Jarak + Biaya Berat) × <span class="text-indigo-900 underline font-black decoration-indigo-200 decoration-4 underline-offset-8">Multiplier Kurir</span>) + Biaya Layanan Global
+                                                ((Minimal + Biaya Jarak + Biaya Berat) × <span class="text-indigo-900 underline font-black decoration-indigo-200 decoration-4 underline-offset-8">Multiplier Kurir</span>) + Extra Kurir
+                                            </p>
+                                            <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mt-2">
+                                                *Biaya Layanan (Admin Fee) ditambahkan otomatis pada Total Akhir Belanja (Grand Total).
                                             </p>
                                         </div>
+                                        <button type="button" onclick="confirmReset('logistik')" class="w-full md:w-auto px-8 py-6 bg-white text-rose-500 border-2 border-rose-100 rounded-[2rem] font-black uppercase text-[10px] tracking-widest hover:bg-rose-50 transition-all shrink-0">
+                                            RESET TARIF
+                                        </button>
                                         <button type="submit" class="w-full md:w-auto px-10 py-6 bg-[#0F172A] text-white rounded-[2rem] font-black uppercase text-[10px] tracking-[0.3em] hover:bg-black transition-all shadow-xl border-b-4 border-black/20 shrink-0">
                                             <span>SIMPAN TARIF BOLO</span>
                                         </button>
@@ -466,7 +484,10 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div class="flex justify-end pt-6">
+                                <div class="flex justify-end pt-6 gap-4">
+                                    <button type="button" onclick="confirmReset('about')" class="px-8 py-6 bg-white text-rose-500 border-2 border-rose-100 rounded-[2.5rem] font-black uppercase text-[11px] tracking-[0.3em] hover:bg-rose-50 transition-all duration-300">
+                                        RESET ABOUT
+                                    </button>
                                     <button class="px-12 py-6 bg-slate-900 text-white rounded-[2.5rem] font-black uppercase text-[11px] tracking-[0.3em] hover:bg-black hover:scale-[1.02] active:scale-95 transition-all duration-300 shadow-2xl shadow-slate-200">SIMPAN KONTEN ABOUT BOLO</button>
                                 </div>
                             </form>
@@ -637,7 +658,10 @@
                                     </div>
                                 </div>
 
-                                <div class="flex justify-end pt-8">
+                                <div class="flex justify-end pt-8 gap-4">
+                                    <button type="button" onclick="confirmReset('revenue')" class="px-10 py-7 bg-white text-rose-500 border-2 border-rose-100 rounded-[3rem] font-black uppercase text-[11px] tracking-[0.3em] hover:bg-rose-50 transition-all duration-300">
+                                        RESET PARAMETER
+                                    </button>
                                     <button type="submit" class="group flex items-center gap-6 px-14 py-7 bg-slate-900 text-white rounded-[3rem] font-black uppercase text-[11px] tracking-[0.3em] hover:bg-black hover:scale-[1.02] active:scale-95 transition-all duration-300 shadow-2xl shadow-slate-200 border-b-4 border-black/30">
                                         <span>update parameter bolo</span>
                                         <i class="fa-solid fa-arrow-right-long group-hover:translate-x-2 transition-transform"></i>
@@ -786,20 +810,23 @@
                                             
                                             <div class="space-y-2">
                                                 <label class="block text-[9px] font-black text-slate-400 uppercase ml-4 tracking-widest">Teks Copyright</label>
-                                                <input type="text" name="footer_copyright" value="{{ $settings['footer_copyright'] ?? '' }}" 
+                                                <input type="text" name="footer_copyright" value="{{ $settings['footer_copyright'] ?? '© 2026 Q-Store Mojokerto.' }}" 
                                                     class="w-full px-10 py-6 bg-slate-50 border border-slate-100 rounded-[2rem] text-sm font-black focus:ring-8 focus:ring-indigo-600/5 focus:border-indigo-600 focus:bg-white transition-all outline-none"
-                                                    placeholder="Contoh: &copy; 2026 MiniQ-Store.">
+                                                    placeholder="Contoh: &copy; 2026 Q-Store.">
                                             </div>
 
                                             <div class="space-y-2">
                                                 <label class="block text-[9px] font-black text-slate-400 uppercase ml-4 tracking-widest">Alamat Fisik Toko</label>
-                                                <textarea name="footer_address" rows="3" class="w-full px-10 py-6 bg-slate-50 border border-slate-100 rounded-[2rem] text-sm font-black focus:ring-8 focus:ring-indigo-600/5 focus:border-indigo-600 focus:bg-white transition-all resize-none outline-none" placeholder="Alamat lengkap bolo...">{{ $settings['footer_address'] ?? '' }}</textarea>
+                                                <textarea name="footer_address" rows="3" class="w-full px-10 py-6 bg-slate-50 border border-slate-100 rounded-[2rem] text-sm font-black focus:ring-8 focus:ring-indigo-600/5 focus:border-indigo-600 focus:bg-white transition-all resize-none outline-none" placeholder="Alamat lengkap bolo...">{{ $settings['footer_address'] ?? 'Jl. Benteng Pancasila, Mojokerto, Jawa Timur' }}</textarea>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                                 
-                                <div class="p-10 sm:p-16 pt-0 flex justify-end">
+                                <div class="p-10 sm:p-16 pt-0 flex justify-end gap-4">
+                                    <button type="button" onclick="confirmReset('footer')" class="px-8 py-7 bg-white text-rose-500 border-2 border-rose-100 rounded-[2.5rem] font-black uppercase text-[11px] tracking-[0.3em] hover:bg-rose-50 transition-all duration-300">
+                                        RESET FOOTER
+                                    </button>
                                     <button type="submit" class="group flex items-center gap-4 px-12 py-7 bg-[#0F172A] text-white rounded-[2.5rem] font-black uppercase text-[11px] tracking-[0.3em] shadow-2xl hover:bg-black hover:scale-[1.05] active:scale-95 transition-all duration-500 border-b-4 border-black/30">
                                         <span>SIMPAN FOOTER BOLO</span>
                                         <i class="fa-solid fa-check-double text-indigo-400 group-hover:rotate-12 transition-transform"></i>
@@ -1216,6 +1243,45 @@
             }).then((result) => {
                 if (result.isConfirmed) {
                     form.requestSubmit();
+                }
+            });
+        }
+
+        function confirmReset(type) {
+            Swal.fire({
+                title: 'Reset ke Default?',
+                text: `Semua konten pada bagian ${type.toUpperCase()} akan dikembalikan ke pengaturan awal pabrik bolo!`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#000000',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Ya, Reset Bolo!',
+                cancelButtonText: 'Batal',
+                customClass: {
+                    popup: 'rounded-[1.5rem]',
+                    confirmButton: 'rounded-xl font-bold uppercase text-[10px] tracking-widest px-6 py-3',
+                    cancelButton: 'rounded-xl font-bold uppercase text-[10px] tracking-widest px-6 py-3'
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    const form = document.createElement('form');
+                    form.method = 'POST';
+                    form.action = "{{ route('admin.cms.reset') }}";
+                    
+                    const csrf = document.createElement('input');
+                    csrf.type = 'hidden';
+                    csrf.name = '_token';
+                    csrf.value = "{{ csrf_token() }}";
+                    
+                    const typeInput = document.createElement('input');
+                    typeInput.type = 'hidden';
+                    typeInput.name = 'type';
+                    typeInput.value = type;
+                    
+                    form.appendChild(csrf);
+                    form.appendChild(typeInput);
+                    document.body.appendChild(form);
+                    form.submit();
                 }
             });
         }

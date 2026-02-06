@@ -62,6 +62,7 @@ Route::middleware('auth')->group(function () {
         Route::delete('/', [ProfileController::class, 'destroy'])->name('destroy');
         Route::patch('/avatar', [ProfileController::class, 'updateAvatar'])->name('avatar.update');
         Route::patch('/banner', [ProfileController::class, 'updateBanner'])->name('banner.update');
+        Route::post('/quick-address', [ProfileController::class, 'updateQuickAddress'])->name('update-quick-address');
     });
 
     // Follow system
@@ -150,6 +151,7 @@ Route::middleware('auth')->group(function () {
             Route::post('/update-images', [CmsController::class, 'updateImages'])->name('update-images');
             Route::post('/update-settings', [CmsController::class, 'updateSettings'])->name('settings.update');
             Route::post('/delete-slider', [CmsController::class, 'deleteSlider'])->name('delete-slider');
+            Route::post('/reset', [CmsController::class, 'resetToDefault'])->name('reset');
             Route::get('/revenue/export', [CmsController::class, 'exportRevenue'])->name('revenue.export');
 
             // Courier Management

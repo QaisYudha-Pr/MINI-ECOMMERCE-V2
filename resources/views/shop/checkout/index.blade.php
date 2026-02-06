@@ -149,13 +149,63 @@
                                 </div>
                             </div>
                             
-                            <div class="relative group">
-                                <div class="absolute -top-3 left-6 flex items-center justify-center">
-                                    <span class="bg-indigo-600 text-white text-[8px] font-black uppercase tracking-[0.2em] px-3 py-1 rounded-full shadow-lg">Detail Alamat & Patokan</span>
+                            <div class="space-y-6">
+                                {{-- 1. Alamat Hasil Peta (INFO ONLY) --}}
+                                <div class="p-6 bg-slate-50 border-2 border-dashed border-slate-200 rounded-[2rem] relative group transition-all">
+                                    <div class="absolute -top-3 left-6 flex items-center justify-center">
+                                        <span class="bg-slate-400 text-white text-[8px] font-black uppercase tracking-[0.2em] px-3 py-1 rounded-full shadow-lg">Lokasi Terpilih (Otomatis)</span>
+                                    </div>
+                                    <div class="flex items-start gap-4 mt-2">
+                                        <div class="w-10 h-10 bg-white rounded-xl flex items-center justify-center text-slate-300 shrink-0 shadow-sm border border-slate-100">
+                                            <svg class="w-5 h-5 font-bold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                                        </div>
+                                        <div class="flex-1">
+                                            <textarea name="alamat" id="alamat" rows="2" readonly
+                                                class="w-full bg-transparent border-none p-0 text-[11px] font-bold text-slate-500 leading-relaxed focus:ring-0 cursor-default"
+                                                placeholder="Geser pin pada peta untuk menentukan lokasi..."></textarea>
+                                            
+                                            <div id="osm-suggestion-checkout" class="mt-2"></div>
+                                        </div>
+                                    </div>
+
+                                    {{-- Google Maps Helper --}}
+                                    <div class="mt-4 pt-4 border-t border-slate-200/50 flex flex-wrap items-center gap-3">
+                                        <button type="button" onclick="window.open('https://www.google.com/maps', '_blank')" 
+                                            class="text-[9px] font-black text-indigo-600 uppercase tracking-widest flex items-center gap-1.5 hover:underline">
+                                            <i class="fa-brands fa-google"></i> Buka Google Maps
+                                        </button>
+                                        <span class="text-slate-300">|</span>
+                                        <button type="button" onclick="pasteCoordinates()" 
+                                            class="text-[9px] font-black text-emerald-600 uppercase tracking-widest flex items-center gap-1.5 hover:underline">
+                                            <i class="fa-solid fa-paste"></i> Paste Koordinat
+                                        </button>
+                                        <button type="button" onclick="showCoordTutorial()" 
+                                            class="w-5 h-5 bg-slate-100 text-slate-400 rounded-full flex items-center justify-center hover:bg-indigo-600 hover:text-white transition-all">
+                                            <i class="fa-solid fa-question text-[8px]"></i>
+                                        </button>
+                                    </div>
                                 </div>
-                                <textarea name="alamat" id="alamat" rows="3" 
-                                    class="w-full bg-slate-50/50 border-2 border-slate-100 rounded-[2rem] px-8 py-6 text-sm focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 focus:bg-white transition-all placeholder:text-slate-300 font-bold leading-relaxed shadow-sm"
-                                    placeholder="Contoh: Perumahan Indah, Blok A-12, Cat pagar warna hijau bolo..." required></textarea>
+
+                                {{-- 2. Detail Patokan (THE MAIN INPUT) --}}
+                                <div class="relative group">
+                                    <div class="absolute -top-3 left-6 flex items-center justify-center z-10">
+                                        <span class="bg-indigo-600 text-white text-[8px] font-black uppercase tracking-[0.2em] px-3 py-1 rounded-full shadow-lg">Detail & Patokan (Wajib Isi)</span>
+                                    </div>
+                                    <textarea name="catatan_alamat" id="catatan_alamat" rows="3" 
+                                        class="w-full bg-white border-4 border-indigo-100/50 rounded-[2.5rem] px-8 py-8 text-sm focus:ring-8 focus:ring-indigo-500/5 focus:border-indigo-500 transition-all placeholder:text-slate-300 font-bold leading-relaxed shadow-xl shadow-indigo-100/20"
+                                        placeholder="Tuliskan detail rumah bolo, misal: Depan masjid Al-Ikhlas, Gerbang biru, Belakang laundry..."></textarea>
+                                    
+                                    <div class="absolute top-8 right-8 text-indigo-200 group-focus-within:text-indigo-400 transition-colors">
+                                        <i class="fa-solid fa-map-pin text-3xl"></i>
+                                    </div>
+
+                                    <div class="absolute bottom-4 right-8">
+                                        <div class="flex items-center gap-2 px-3 py-1 bg-indigo-50 rounded-full border border-indigo-100">
+                                            <span class="w-1.5 h-1.5 bg-indigo-500 rounded-full animate-pulse"></span>
+                                            <span class="text-[8px] font-black text-indigo-600 uppercase tracking-widest">Kurir butuh ini bolo</span>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -227,9 +277,12 @@
                                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg>
                                         </div>
                                         <div>
-                                            <p class="text-sm font-black text-slate-800 uppercase tracking-tight">Otomatis Terverifikasi</p>
-                                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">Transfer / Virtual Account</p>
+                                            <p class="text-sm font-black text-slate-800 uppercase tracking-tight">Smart Pay (Otomatis)</p>
+                                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">Transfer, QRIS, & VA</p>
                                         </div>
+                                    </div>
+                                    <div class="hidden peer-checked:block">
+                                        <span class="text-[8px] font-black bg-indigo-600 text-white px-2 py-0.5 rounded-full uppercase tracking-widest">Recommended</span>
                                     </div>
                                 </div>
                             </label>
@@ -241,8 +294,8 @@
                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
                                     </div>
                                     <div>
-                                        <p class="text-sm font-black text-slate-800 uppercase tracking-tight">Bayar di Tempat (COD)</p>
-                                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">Bayar Saat Barang Sampai</p>
+                                        <p class="text-sm font-black text-slate-800 uppercase tracking-tight">Bayar Ditempat (COD)</p>
+                                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">Bayar cash ke kurir bolo</p>
                                     </div>
                                 </div>
                             </label>
@@ -704,6 +757,59 @@
             resultsBox.classList.add('hidden');
         };
 
+        async function pasteCoordinates() {
+            const text = await navigator.clipboard.readText();
+            const coordRegex = /([-+]?\d{1,2}\.\d+),\s*([-+]?\d{1,3}\.\d+)/;
+            const match = text.match(coordRegex);
+            
+            if (match) {
+                const lat = match[1];
+                const lon = match[2];
+                selectLocation(lat, lon, "Lokasi dari Paste Koordinat (" + lat + ", " + lon + ")");
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Koordinat Terpasang!',
+                    text: 'Peta langsung meluncur ke titik bolo.',
+                    toast: true, position: 'top-end', showConfirmButton: false, timer: 2000
+                });
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Bukan Koordinat',
+                    text: 'Pastikan formatnya lat, lng ya bolo!',
+                    toast: true, position: 'top-end', showConfirmButton: false, timer: 2000
+                });
+            }
+        }
+
+        function showCoordTutorial() {
+            Swal.fire({
+                title: '<span class="text-xl font-black uppercase tracking-tighter">Cara Ambil Koordinat</span>',
+                html: `
+                    <div class="text-left space-y-4 p-2">
+                        <div class="flex gap-4">
+                            <div class="w-8 h-8 rounded-full bg-indigo-600 text-white flex-shrink-0 flex items-center justify-center font-black text-xs">1</div>
+                            <p class="text-[11px] font-bold text-slate-600">Buka <b>Google Maps</b>, cari lokasimu atau tahan lama (long-press) pada titik yang kamu mau.</p>
+                        </div>
+                        <div class="flex gap-4">
+                            <div class="w-8 h-8 rounded-full bg-indigo-600 text-white flex-shrink-0 flex items-center justify-center font-black text-xs">2</div>
+                            <p class="text-[11px] font-bold text-slate-600">Akan muncul angka koordinat (contoh: <b>-7.481, 112.443</b>). Klik angka tersebut untuk menyalin/copy.</p>
+                        </div>
+                        <div class="flex gap-4">
+                            <div class="w-8 h-8 rounded-full bg-indigo-600 text-white flex-shrink-0 flex items-center justify-center font-black text-xs">3</div>
+                            <p class="text-[11px] font-bold text-slate-600">Balik ke sini, lalu klik tombol <span class="text-emerald-600 font-black uppercase tracking-widest text-[9px] px-2 py-0.5 bg-emerald-50 rounded border border-emerald-100">Paste Koordinat</span> bolo!</p>
+                        </div>
+                    </div>
+                `,
+                confirmButtonText: 'IYO PAHAM BOLO!',
+                confirmButtonColor: '#4f46e5',
+                customClass: {
+                    popup: 'rounded-[2.5rem]',
+                    confirmButton: 'rounded-2xl px-8 py-3 text-xs font-black uppercase tracking-[0.2em]'
+                }
+            });
+        }
+
         async function updateAddress(lat, lng) {
             document.getElementById('lat').value = lat;
             document.getElementById('lng').value = lng;
@@ -715,9 +821,26 @@
                 });
                 const data = await res.json();
                 if (data && data.display_name) {
-                    alamatArea.value = data.display_name;
+                    const suggestionEl = document.getElementById('osm-suggestion-checkout');
+                    if (suggestionEl) {
+                        suggestionEl.innerHTML = `
+                            <div class="mt-4 p-4 bg-indigo-50 rounded-[2rem] border border-indigo-100 flex items-start gap-3 animate-in fade-in slide-in-from-top-2">
+                                <div class="w-8 h-8 bg-indigo-600 rounded-xl flex items-center justify-center text-white shrink-0 shadow-lg">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                </div>
+                                <div class="flex-1">
+                                    <p class="text-[10px] text-indigo-900 font-black uppercase tracking-widest mb-1">DETEKSI ALAMAT PETA:</p>
+                                    <p class="text-[11px] text-indigo-700 font-medium leading-relaxed italic mb-2">"${data.display_name}"</p>
+                                    <button type="button" onclick="document.getElementById('alamat').value = '${data.display_name.replace(/'/g, "\\'")}'; this.parentElement.parentElement.remove();" 
+                                            class="px-4 py-2 bg-indigo-600 text-white text-[9px] font-black uppercase tracking-widest rounded-xl hover:bg-indigo-700 transition-all shadow-md">
+                                        Gunakan Alamat Ini
+                                    </button>
+                                </div>
+                            </div>
+                        `;
+                    }
 
-                    // OTOMATIS SYNC KE BITESHIP
+                    // OTOMATIS SYNC KE BITESHIP (Tetap lakukan ini untuk kalkulasi ongkir)
                     const addr = data.address;
                     const keyword = addr.subdistrict || addr.village || addr.city_district || addr.city || addr.town;
                     if (keyword) {
@@ -833,9 +956,9 @@
                                     <svg class="w-2.5 h-2.5 transition-transform" :class="showDetail ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 9l-7 7-7-7"/></svg>
                                 </button>
                                 
-                                <div x-show="showDetail" x-cloak x-collapse class="mt-4 pt-4 border-t border-slate-100/50 grid grid-cols-2 sm:grid-cols-4 gap-4">
+                                <div x-show="showDetail" x-cloak x-collapse class="mt-4 pt-4 border-t border-slate-100/50 grid grid-cols-2 sm:grid-cols-5 gap-4">
                                     <div class="flex flex-col">
-                                        <span class="text-[7px] font-black text-slate-400 uppercase tracking-widest">Biaya Dasar</span>
+                                        <span class="text-[7px] font-black text-slate-400 uppercase tracking-widest">Minimal</span>
                                         <span class="text-[9px] font-black text-slate-700">Rp${rate.breakdown.base_fee.toLocaleString('id-ID')}</span>
                                     </div>
                                     <div class="flex flex-col">
@@ -847,8 +970,12 @@
                                         <span class="text-[9px] font-black text-slate-700">Rp${rate.breakdown.weight_fee.toLocaleString('id-ID')}</span>
                                     </div>
                                     <div class="flex flex-col">
-                                        <span class="text-[7px] font-black text-slate-400 uppercase tracking-widest">Kurir</span>
-                                        <span class="text-[9px] font-black text-indigo-600">Rp${(rate.breakdown.service_extra || 0).toLocaleString('id-ID')}</span>
+                                        <span class="text-[7px] font-black text-slate-400 uppercase tracking-widest">Multiplier</span>
+                                        <span class="text-[9px] font-black text-indigo-600">x${rate.breakdown.multiplier}</span>
+                                    </div>
+                                    <div class="flex flex-col">
+                                        <span class="text-[7px] font-black text-slate-400 uppercase tracking-widest">Extra Kurir</span>
+                                        <span class="text-[9px] font-black text-emerald-600">Rp${(rate.breakdown.service_extra || 0).toLocaleString('id-ID')}</span>
                                     </div>
                                 </div>
                             </div>
@@ -1023,8 +1150,25 @@
             e.preventDefault();
             const btn = document.getElementById('btn-pay');
             const alamat = document.getElementById('alamat').value;
+            const catatan_alamat = document.getElementById('catatan_alamat').value;
 
             if(!alamat) return Swal.fire('Error', 'Tentukan lokasi dulu bolo!', 'warning');
+
+            // --- VALIDASI PATOKAN (Wajib & Detail) ---
+            if(!catatan_alamat || catatan_alamat.trim().length < 15) {
+                return Swal.fire({
+                    icon: 'warning',
+                    iconColor: '#4f46e5',
+                    title: '<span class="text-lg font-black uppercase tracking-tighter">Patokan Kurang Detail!</span>',
+                    html: '<p class="text-xs font-bold text-slate-500 uppercase tracking-widest leading-relaxed">Mohon tuliskan detail rumah atau patokan (misal: warna pagar, depan toko apa, dll) <b>minimal 15 karakter</b> biar kurir gak bingung nyari alamatmu bolo!</p>',
+                    confirmButtonText: 'SIAP BOLO!',
+                    confirmButtonColor: '#4f46e5',
+                    customClass: {
+                        popup: 'rounded-[2rem]',
+                        confirmButton: 'rounded-xl px-8 py-3 text-[10px] font-black uppercase tracking-widest'
+                    }
+                });
+            }
 
             btn.disabled = true;
             btn.innerHTML = '<span class="animate-pulse">SINKRONISASI STOK...</span>';
@@ -1033,6 +1177,7 @@
 
             const payload = {
                 alamat: alamat,
+                catatan_alamat: catatan_alamat,
                 payment_method: document.querySelector('input[name="payment_method"]:checked').value,
                 cart: checkoutItems,
                 shipping_fee: globalShippingFee,

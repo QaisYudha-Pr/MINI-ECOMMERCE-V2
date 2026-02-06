@@ -84,6 +84,38 @@ class ProfileController extends Controller
         return Redirect::route('profile.edit')->with('status', 'profile-updated');
     }
 
+    /**
+     * Update address quickly from navigation modal
+     */
+    public function updateQuickAddress(Request $request)
+    {
+        $request->validate([
+            'alamat' => 'required|string',
+            'area_id' => 'required|string'
+        ]);
+
+        $user = Auth::user();
+
+        if ($user) {
+            $user->alamat = $request->alamat;
+            // Optionally store area_id if you have a column for it
+            // For now we'll just store the string address
+            $user->save();
+
+            // Save to session so it persists for guest/checkout flow too
+            session(['selected_address' => $request->alamat]);
+            session(['destination_area_id' => $request->area_id]);
+
+            return response()->json(['status' => 'success']);
+        }
+
+        // For guests, just save to session
+        session(['selected_address' => $request->alamat]);
+        session(['destination_area_id' => $request->area_id]);
+
+        return response()->json(['status' => 'success']);
+    }
+
     public function destroy(Request $request): RedirectResponse
     {
         $request->validateWithBag('userDeletion', [

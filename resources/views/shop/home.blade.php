@@ -102,34 +102,63 @@
         <section class="max-w-7xl mx-auto px-4 sm:px-8 mt-6">
             <div class="swiper bannerSwiper rounded-[2.5rem] overflow-hidden shadow-2xl relative group">
                 <div class="swiper-wrapper">
-                    @php
-                        $sliders = isset($settings['home_sliders']) ? json_decode($settings['home_sliders'], true) : [];
-                    @endphp
+                        @php
+                            $sliders = isset($settings['home_sliders']) ? json_decode($settings['home_sliders'], true) : [];
+                        @endphp
 
-                    @forelse($sliders as $slider)
-                        <div class="swiper-slide">
-                            <div class="relative w-full h-[180px] sm:h-[350px]">
-                                <img src="{{ asset($slider) }}" class="w-full h-full object-cover">
-                                <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
-                                {{-- Overlay Title --}}
-                                <div class="absolute inset-0 flex items-center px-12">
-                                    <div class="max-w-md">
-                                        <h2 class="text-xl sm:text-4xl font-black text-white leading-tight">
-                                            {{ $settings['home_title'] ?? 'Belanja Keren di Mojokerto' }}
-                                        </h2>
+                        @if(count($sliders) > 0)
+                            @foreach($sliders as $slider)
+                                <div class="swiper-slide">
+                                    <div class="relative w-full h-[200px] sm:h-[350px] bg-slate-100">
+                                        <img src="{{ asset($slider) }}" class="w-full h-full object-cover">
+                                        <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
+                                        <div class="absolute inset-0 flex items-center px-8 sm:px-16">
+                                            <div class="max-w-xl text-left">
+                                                <h2 class="text-2xl sm:text-5xl font-black text-white leading-tight drop-shadow-lg italic uppercase tracking-tighter">
+                                                    {{ $settings['home_title'] ?? 'Belanja Keren di Mojokerto' }}
+                                                </h2>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        </div>
-                    @empty
-                        {{-- Fallback if no sliders --}}
-                        <div class="swiper-slide">
-                            <div class="relative w-full h-[180px] sm:h-[350px]">
-                                <img src="{{ asset('banners/banner1.png') }}" class="w-full h-full object-cover">
-                                <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
-                            </div>
-                        </div>
-                    @endforelse
+                            @endforeach
+                        @else
+                            {{-- Default Banners if CMS is empty --}}
+                            @php
+                                $defaults = [
+                                    ['title' => 'SELAMAT DATANG DI Q-STORE', 'desc' => 'Pusat belanja UMKM Mojokerto paling lengkap bolo!', 'bg' => 'bg-indigo-600'],
+                                    ['title' => 'PRODUK LOKAL PILIHAN', 'desc' => 'Dukung ekonomi lokal dengan belanja produk asli Mojokerto.', 'bg' => 'bg-emerald-600'],
+                                ];
+                            @endphp
+                            @foreach($defaults as $index => $banner)
+                                <div class="swiper-slide">
+                                    <div class="relative w-full h-[200px] sm:h-[350px] {{ $banner['bg'] }}">
+                                        {{-- Fixed: Using direct SVG generation for absolute reliability --}}
+                                        <div class="absolute inset-0 flex items-center justify-center opacity-10 pointer-events-none overflow-hidden">
+                                            <i class="fa-solid fa-store text-[20rem] -rotate-12 translate-x-20"></i>
+                                        </div>
+
+                                        <div class="absolute inset-0 bg-gradient-to-tr from-black/40 to-transparent"></div>
+                                        
+                                        <div class="absolute inset-0 flex items-center px-8 sm:px-16">
+                                            <div class="max-w-2xl text-left">
+                                                <p class="text-[10px] sm:text-xs font-black text-white/70 uppercase tracking-[0.4em] mb-4">PLATFORM RESMI Q-STORE</p>
+                                                <h2 class="text-3xl sm:text-6xl font-black text-white leading-none drop-shadow-2xl italic uppercase tracking-tighter mb-4">
+                                                    {{ $banner['title'] }}
+                                                </h2>
+                                                <p class="text-[10px] sm:text-sm font-bold text-white/80 uppercase tracking-[0.2em] max-w-lg leading-relaxed">
+                                                    {{ $banner['desc'] }}
+                                                </p>
+                                                <div class="mt-8 flex gap-4">
+                                                    <div class="w-12 h-1 bg-white/30 rounded-full"></div>
+                                                    <div class="w-12 h-1 bg-white/10 rounded-full"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            @endforeach
+                        @endif
                 </div>
                 
                 {{-- Pagination Dots --}}
@@ -144,39 +173,60 @@
             </div>
         </section>
 
-        {{-- 3. BENEFIT SECTION (REPLACING SEARCH STRIP) --}}
+        {{-- 3. BENEFIT SECTION (NEW: FLOATING LUXURY DESIGN) --}}
         <section class="max-w-7xl mx-auto px-8 mt-12">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <!-- Benefit 1 -->
-                <div class="group bg-white p-6 rounded-[2rem] border border-gray-100 shadow-sm hover:shadow-md transition-all flex items-center gap-5">
-                    <div class="w-14 h-14 bg-orange-50 rounded-2xl flex items-center justify-center text-orange-500 group-hover:scale-110 transition-transform">
-                        <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- Benefit 1: UMKM Pilihan -->
+                <div class="group relative bg-white p-8 rounded-[3rem] border border-slate-100 shadow-xl shadow-slate-200/50 hover:shadow-orange-500/10 hover:-translate-y-2 transition-all duration-500 overflow-hidden">
+                    {{-- Abstract Background Element --}}
+                    <div class="absolute -right-6 -bottom-6 text-orange-500/5 rotate-12 group-hover:scale-125 transition-transform duration-700">
+                        <i class="fa-solid fa-shop text-[10rem]"></i>
                     </div>
-                    <div>
-                        <h4 class="text-sm font-black text-gray-900 uppercase tracking-tight">Gratis Ongkir</h4>
-                        <p class="text-[10px] text-gray-500 font-bold uppercase tracking-widest mt-1">Min. Belanja Rp0</p>
-                    </div>
-                </div>
-
-                <!-- Benefit 2 -->
-                <div class="group bg-white p-6 rounded-[2rem] border border-gray-100 shadow-sm hover:shadow-md transition-all flex items-center gap-5">
-                    <div class="w-14 h-14 bg-green-50 rounded-2xl flex items-center justify-center text-[#00AA5B] group-hover:scale-110 transition-transform">
-                        <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
-                    </div>
-                    <div>
-                        <h4 class="text-sm font-black text-gray-900 uppercase tracking-tight">MiniQ Original</h4>
-                        <p class="text-[10px] text-gray-500 font-bold uppercase tracking-widest mt-1">Garansi Produk Asli</p>
+                    
+                    <div class="relative z-10 flex flex-col gap-6">
+                        <div class="w-16 h-16 bg-gradient-to-br from-orange-400 to-orange-600 rounded-[1.5rem] flex items-center justify-center text-white shadow-lg shadow-orange-200 ring-4 ring-orange-50 transition-transform group-hover:rotate-6">
+                            <i class="fa-solid fa-shop text-2xl"></i>
+                        </div>
+                        <div>
+                            <h4 class="text-lg font-black text-slate-900 uppercase tracking-tight mb-1">UMKM PILIHAN</h4>
+                            <p class="text-[11px] text-slate-400 font-bold uppercase tracking-[0.2em] leading-relaxed">Produk Lokal Terkurasi Dari Jantung Mojokerto</p>
+                        </div>
                     </div>
                 </div>
 
-                <!-- Benefit 3 -->
-                <div class="group bg-white p-6 rounded-[2rem] border border-gray-100 shadow-sm hover:shadow-md transition-all flex items-center gap-5">
-                    <div class="w-14 h-14 bg-indigo-50 rounded-2xl flex items-center justify-center text-indigo-600 group-hover:scale-110 transition-transform">
-                        <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                <!-- Benefit 2: Q-Store Verified -->
+                <div class="group relative bg-[#00AA5B] p-8 rounded-[3rem] shadow-xl shadow-emerald-200 hover:shadow-emerald-500/20 hover:-translate-y-2 transition-all duration-500 overflow-hidden">
+                    {{-- Abstract Background Element --}}
+                    <div class="absolute -right-6 -bottom-6 text-white/10 -rotate-12 group-hover:scale-125 transition-transform duration-700">
+                        <i class="fa-solid fa-circle-check text-[10rem]"></i>
                     </div>
-                    <div>
-                        <h4 class="text-sm font-black text-gray-900 uppercase tracking-tight">COD Mojokerto</h4>
-                        <p class="text-[10px] text-gray-500 font-bold uppercase tracking-widest mt-1">Local Pride</p>
+
+                    <div class="relative z-10 flex flex-col gap-6">
+                        <div class="w-16 h-16 bg-white/20 backdrop-blur-md rounded-[1.5rem] flex items-center justify-center text-white shadow-xl ring-4 ring-white/10 transition-transform group-hover:-rotate-6">
+                            <i class="fa-solid fa-circle-check text-2xl"></i>
+                        </div>
+                        <div>
+                            <h4 class="text-lg font-black text-white uppercase tracking-tight mb-1">Q-STORE VERIFIED</h4>
+                            <p class="text-[11px] text-white/70 font-bold uppercase tracking-[0.2em] leading-relaxed">Jaminan Kualitas & Keaslian Produk 100%</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Benefit 3: Fast Delivery -->
+                <div class="group relative bg-white p-8 rounded-[3rem] border border-slate-100 shadow-xl shadow-slate-200/50 hover:shadow-indigo-500/10 hover:-translate-y-2 transition-all duration-500 overflow-hidden">
+                    {{-- Abstract Background Element --}}
+                    <div class="absolute -right-6 -bottom-6 text-indigo-500/5 rotate-12 group-hover:scale-125 transition-transform duration-700">
+                        <i class="fa-solid fa-truck-fast text-[10rem]"></i>
+                    </div>
+
+                    <div class="relative z-10 flex flex-col gap-6">
+                        <div class="w-16 h-16 bg-gradient-to-br from-indigo-500 to-indigo-700 rounded-[1.5rem] flex items-center justify-center text-white shadow-lg shadow-indigo-200 ring-4 ring-indigo-50 transition-transform group-hover:rotate-6">
+                            <i class="fa-solid fa-truck-fast text-2xl"></i>
+                        </div>
+                        <div>
+                            <h4 class="text-lg font-black text-slate-900 uppercase tracking-tight mb-1">FAST DELIVERY</h4>
+                            <p class="text-[11px] text-slate-400 font-bold uppercase tracking-[0.2em] leading-relaxed">Pengiriman Kilat Khusus Wilayah Mojokerto</p>
+                        </div>
                     </div>
                 </div>
             </div>

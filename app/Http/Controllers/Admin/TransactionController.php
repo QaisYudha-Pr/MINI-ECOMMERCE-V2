@@ -10,20 +10,48 @@ use Illuminate\Http\Request;
 
 class TransactionController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         $user = auth()->user();
         
         $query = Transaction::query()->with(['user', 'seller', 'courier', 'courierService']);
 
-        // Jika bukan admin beneran, hanya bisa lihat pesanan yang seller_id-nya adalah dia
-        if (!$user->hasRole('admin')) {
-            $query->where('seller_id', $user->id);
+        // Proteksi Logic: Admin atau Seller hanya boleh lihat orderan yang masuk ke tokonya sendiri.
+        // Gak perlu ngintip tetangga bolo, fokus urus pesanan dewe-dewe biar berkah!
+        $query->where('seller_id', $user->id);
+
+        // Filter Status (Sync logic with buyer side)
+        if ($request->filled('status')) {
+            $status = $request->status;
+            if ($status === 'pending') {
+                $query->whereIn('status', ['pending', 'paid', 'waiting_confirmation']);
+            } elseif ($status === 'success') {
+                $query->whereIn('status', ['success', 'shipped', 'delivered']);
+            } elseif ($status === 'completed') {
+                $query->where('status', 'completed');
+            } else {
+                $query->where('status', $status);
+            }
+        }
+
+        // Search Logic
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('invoice_number', 'like', "%{$search}%")
+                  ->orWhere('items_details', 'like', "%{$search}%");
+            });
+        }
+
+        // Date Filter Logic
+        if ($request->filled('date_filter')) {
+            $days = (int)$request->date_filter;
+            $query->where('created_at', '>=', now()->subDays($days));
         }
 
         $transactions = $query->latest()->paginate(10);
         
-        // Ambil semua kurir (untuk Admin)
+        // Ambil semua kurir (untuk Admin/Seller menugaskan)
         $couriers = User::role('courier')->get();
 
         return view('admin.transactions.index', compact('transactions', 'couriers'));
@@ -38,18 +66,26 @@ class TransactionController extends Controller
         $transaction->update([
             'courier_id' => $request->courier_id,
             'status' => 'shipped', // Otomatis set status ke shipped saat assign kurir
-            'resi' => 'INTERNAL-' . strtoupper(str()->random(8)), // Generate resi internal otomatis
+            'resi' => 'MJK-' . strtoupper(str()->random(8)), // Prefix Mojokerto bolo
+        ]);
+
+        // Notif Kurir (Biar kurirnya tahu ada job)
+        Notification::create([
+            'user_id' => $request->courier_id,
+            'title' => 'Ada Tugas Baru, Bolo! 🛵',
+            'message' => "Segera jemput paket #{$transaction->invoice_number} di toko {$transaction->seller->name}.",
+            'type' => 'info'
         ]);
 
         // Notif User
         Notification::create([
             'user_id' => $transaction->user_id,
             'title' => 'Pesanan Dikirim! 🚚',
-            'message' => "Hahaha asik bolo! Pesanan #{$transaction->invoice_number} lagi meluncur ke tempatmu.",
+            'message' => "Hahaha asik bolo! Pesanan #{$transaction->invoice_number} lagi meluncur ke tempatmu dibawa kurir internal.",
             'type' => 'info'
         ]);
 
-        return back()->with('success', 'Kurir berhasil ditugaskan & status berubah jadi Shipped!');
+        return back()->with('success', 'Kurir internal berhasil ditugaskan & status berubah jadi Shipped!');
     }
 
     public function updateResi(Request $request, Transaction $transaction)

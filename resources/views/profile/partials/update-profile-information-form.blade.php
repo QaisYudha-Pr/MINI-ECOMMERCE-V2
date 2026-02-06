@@ -54,10 +54,14 @@
         </div>
 
         <div>
-            <x-input-label for="alamat" :value="__('Detail Alamat Lengkap')" class="ml-1 text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2" />
+            <div class="flex items-center justify-between mb-2">
+                <x-input-label for="alamat" :value="__('Detail Alamat Lengkap')" class="ml-1 text-[10px] font-black uppercase tracking-widest text-gray-400" />
+                <span class="text-[9px] font-black text-indigo-500 uppercase tracking-tighter">Saran: Tambahkan patokan (cth: cat rumah biru, depan masjid)</span>
+            </div>
             <textarea id="alamat" name="alamat" 
                 class="w-full bg-gray-50 border-2 border-gray-50 focus:border-indigo-500 focus:bg-white rounded-[2rem] px-6 py-4 text-xs font-bold transition-all outline-none leading-relaxed" 
-                rows="4" placeholder="Contoh: Jl. Raya No. 123, SMKN 1 Dlanggu...">{{ old('alamat', $user->alamat) }}</textarea>
+                rows="4" placeholder="Contoh: Jl. Raya No. 123, SMKN 1 Dlanggu (Rumah pagar hitam cat biru)...">{{ old('alamat', $user->alamat) }}</textarea>
+            <div id="osm-suggestion"></div>
             <x-input-error class="mt-2" :messages="$errors->get('alamat')" />
         </div>
 
@@ -73,11 +77,32 @@
                         <p class="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Tentukan lokasi pengiriman kamu agar ongkir pembeli akurat bolo!</p>
                     </div>
                 </div>
-                {{-- Locate Me Button --}}
-                <button type="button" onclick="navigator.geolocation.getCurrentPosition(p => window.selectSellerLocation(p.coords.latitude, p.coords.longitude, 'Lokasimu Saat Ini'))" 
-                    class="p-2.5 bg-indigo-50 text-indigo-600 rounded-xl hover:bg-indigo-600 hover:text-white transition-all cursor-pointer shadow-sm border border-indigo-100" title="Gunakan Lokasi Saat Ini">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-                </button>
+                {{-- Helper Buttons --}}
+                <div class="flex gap-2">
+                    <button type="button" onclick="window.open('https://www.google.com/maps', '_blank')" 
+                        class="p-2.5 bg-rose-50 text-rose-600 rounded-xl hover:bg-rose-600 hover:text-white transition-all cursor-pointer shadow-sm border border-rose-100 flex items-center gap-2" title="Buka Google Maps untuk Akurasi">
+                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 010-5 2.5 2.5 0 010 5z"/></svg>
+                        <span class="text-[9px] font-black uppercase tracking-widest hidden sm:inline">Cek G-Maps</span>
+                    </button>
+                    <button type="button" onclick="navigator.geolocation.getCurrentPosition(p => window.selectSellerLocation(p.coords.latitude, p.coords.longitude, 'Lokasimu Saat Ini'))" 
+                        class="p-2.5 bg-indigo-50 text-indigo-600 rounded-xl hover:bg-indigo-600 hover:text-white transition-all cursor-pointer shadow-sm border border-indigo-100" title="Gunakan Lokasi Saat Ini">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                    </button>
+                </div>
+            </div>
+
+            <div class="bg-indigo-50/50 rounded-2xl p-4 border border-indigo-100/50 flex items-start gap-4">
+                <div class="w-8 h-8 bg-indigo-600 rounded-xl flex items-center justify-center text-white shrink-0 shadow-lg">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                </div>
+                <div class="flex-1">
+                    <h4 class="text-[10px] font-black text-indigo-900 uppercase tracking-widest mb-1">Tips Pinpoint Akurat:</h4>
+                    <ul class="text-[9px] text-indigo-700 font-bold uppercase tracking-tight leading-relaxed list-disc ml-3">
+                        <li>Gunakan tombol "Lokasi Saat Ini" jika sedang di lokasi.</li>
+                        <li>Jika meleset, buka Google Maps, cari rumahmu, copy koordinatnya (Angka), lalu geser marker map di bawah secara manual.</li>
+                        <li>**Pastikan titik marker berhenti tepat di atap rumahmu bolo!**</li>
+                    </ul>
+                </div>
             </div>
 
             <div class="relative group">

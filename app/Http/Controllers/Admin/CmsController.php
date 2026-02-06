@@ -337,4 +337,58 @@ class CmsController extends Controller
     {
         return Excel::download(new RevenueExport, 'Laporan_Keuangan_MiniQ_' . date('d_M_Y') . '.xlsx');
     }
+
+    public function resetToDefault(Request $request)
+    {
+        $type = $request->input('type');
+        $keys = [];
+
+        switch ($type) {
+            case 'umum':
+                $keys = ['site_logo', 'site_name', 'site_tagline'];
+                break;
+            case 'home':
+                $keys = ['hero_banner', 'home_title', 'trusted_sellers_title', 'trusted_sellers_subtitle', 'home_sliders'];
+                break;
+            case 'logistik':
+                $keys = ['shipping_base_fee', 'shipping_per_km', 'shipping_per_kg'];
+                break;
+            case 'about':
+                $keys = ['about_hero_title', 'about_hero_desc', 'about_mission_1', 'about_mission_2', 'about_image'];
+                break;
+            case 'revenue':
+                $keys = ['free_shipping_min_order', 'free_shipping_max_dist', 'free_shipping_limit_dist', 'free_shipping_subsidy', 'admin_fee', 'seller_commission_pct'];
+                break;
+            case 'footer':
+                $keys = ['footer_social_ig', 'footer_social_wa', 'footer_social_fb', 'footer_copyright', 'footer_address'];
+                break;
+        }
+
+        foreach ($keys as $key) {
+            $setting = SiteSetting::where('key', $key)->first();
+            if ($setting) {
+                // If it's an image, delete the file
+                if (in_array($key, ['site_logo', 'hero_banner', 'about_image'])) {
+                     if (file_exists(public_path($setting->value))) {
+                        unlink(public_path($setting->value));
+                    }
+                } elseif ($key === 'home_sliders') {
+                    $sliderArray = json_decode($setting->value, true);
+                    if (is_array($sliderArray)) {
+                        foreach ($sliderArray as $path) {
+                            if (file_exists(public_path($path))) {
+                                unlink(public_path($path));
+                            }
+                        }
+                    }
+                }
+                $setting->delete();
+            }
+        }
+
+        if (request()->wantsJson()) {
+            return response()->json(['success' => true, 'message' => "Pengaturan " . ucfirst($type) . " berhasil direset ke default!"]);
+        }
+        return back()->with('success', "Pengaturan " . ucfirst($type) . " berhasil direset ke default!");
+    }
 }

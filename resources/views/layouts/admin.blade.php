@@ -70,6 +70,16 @@
             </div>
 
             <div class="flex items-center gap-4">
+                {{-- Global Cart --}}
+                <button @click="$store.cart.show = true" class="relative p-2.5 text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 rounded-xl transition-all duration-300 group">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                    </svg>
+                    <template x-if="$store.cart.items.length > 0">
+                        <span class="absolute top-2 right-2 bg-rose-500 text-white text-[8px] font-black w-4 h-4 rounded-full flex items-center justify-center border-2 border-white animate-bounce" x-text="$store.cart.items.length"></span>
+                    </template>
+                </button>
+
                 {{-- Global Notifications --}}
                 <div x-data="{ unreadCount: {{ auth()->user()->notifications()->where('is_read', false)->count() }} }">
                     <x-dropdown align="right" width="80">
@@ -159,75 +169,75 @@
         :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'">
         <div class="h-full px-3 py-4 overflow-y-auto">
             <ul class="space-y-2 font-medium">
-                {{-- Dashboard --}}
+                {{-- MAIN SECTION --}}
+                <div class="pb-2">
+                    <span class="px-3 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Menu Utama</span>
+                </div>
                 <li>
                     <a href="{{ route('dashboard') }}" class="flex items-center p-3 text-slate-700 rounded-xl hover:bg-slate-50 group {{ request()->routeIs('dashboard') ? 'bg-indigo-50 text-indigo-700' : '' }}">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 transition duration-75 {{ request()->routeIs('dashboard') ? 'text-indigo-700' : 'text-slate-400 group-hover:text-slate-900' }}">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 6h9.75M10.5 6a1.5 1.5 0 1 1-3 0m3 0a1.5 1.5 0 1 0-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-9.75 0h9.75" />
                         </svg>
-                        <span class="ms-3">Dashboard</span>
+                        <span class="ms-3 text-xs font-bold uppercase tracking-wider">Dashboard</span>
                     </a>
                 </li>
-                <!-- home -->
                 <li>
                     <a href="{{ route('home') }}" class="flex items-center p-3 text-slate-700 rounded-xl hover:bg-slate-50 group {{ request()->routeIs('home') ? 'bg-indigo-50 text-indigo-700' : '' }}">
                         <svg class="w-5 h-5 transition duration-75 {{ request()->routeIs('home') ? 'text-indigo-700' : 'text-slate-400 group-hover:text-slate-900' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
                         </svg>
-                        <span class="ms-3">Home</span>
+                        <span class="ms-3 text-xs font-bold uppercase tracking-wider">Ke Toko (Home)</span>
                     </a>
                 </li>
 
-                {{-- User Section --}}
-                @unless(Auth::user()->hasRole('seller') || Auth::user()->hasRole('admin'))
+                {{-- CUSTOMER HUB: For everyone who shops --}}
                 <div class="pt-4 pb-2">
-                    <span class="px-3 text-xs font-semibold text-slate-400 uppercase tracking-wider">Shopping Hub</span>
+                    <span class="px-3 text-[10px] font-black text-[#00AA5B] uppercase tracking-[0.2em]">Pusat Belanja</span>
                 </div>
                 <li>
-                    <a href="{{ route('shop.public') }}" class="flex items-center p-3 text-slate-700 rounded-xl hover:bg-slate-50 group {{ request()->routeIs('shop.public') ? 'bg-indigo-50 text-indigo-700' : '' }}">
-                        <svg class="w-5 h-5 transition duration-75 {{ request()->routeIs('shop.public') ? 'text-indigo-700' : 'text-slate-400 group-hover:text-slate-900' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <a href="{{ route('transactions.index') }}" class="flex items-center p-3 text-slate-700 rounded-xl hover:bg-slate-50 group {{ request()->routeIs('transactions.*') ? 'bg-green-50 text-[#00AA5B]' : '' }}">
+                        <svg class="w-5 h-5 transition duration-75 {{ request()->routeIs('transactions.*') ? 'text-[#00AA5B]' : 'text-slate-400 group-hover:text-slate-900' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
                         </svg>
-                        <span class="ms-3">Jelajah Toko</span>
+                        <span class="ms-3 text-xs font-bold uppercase tracking-wider">Pesanan Saya</span>
                     </a>
                 </li>
                 <li>
-                    <a href="{{ route('wishlist.index') }}" class="flex items-center p-3 text-slate-700 rounded-xl hover:bg-slate-50 group {{ request()->routeIs('wishlist.*') ? 'bg-indigo-50 text-indigo-700' : '' }}">
-                        <svg class="w-5 h-5 transition duration-75 {{ request()->routeIs('wishlist.*') ? 'text-indigo-700' : 'text-slate-400 group-hover:text-slate-900' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <a href="{{ route('wishlist.index') }}" class="flex items-center p-3 text-slate-700 rounded-xl hover:bg-slate-50 group {{ request()->routeIs('wishlist.*') ? 'bg-green-50 text-[#00AA5B]' : '' }}">
+                        <svg class="w-5 h-5 transition duration-75 {{ request()->routeIs('wishlist.*') ? 'text-[#00AA5B]' : 'text-slate-400 group-hover:text-slate-900' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
                         </svg>
-                        <span class="ms-3">Barang Favorit</span>
+                        <span class="ms-3 text-xs font-bold uppercase tracking-wider">Daftar Suka</span>
                     </a>
                 </li>
                 <li>
-                    <a href="{{ route('reviews.index') }}" class="flex items-center p-3 text-slate-700 rounded-xl hover:bg-slate-50 group {{ request()->routeIs('reviews.index') ? 'bg-indigo-50 text-indigo-700' : '' }}">
-                        <svg class="w-5 h-5 transition duration-75 {{ request()->routeIs('reviews.index') ? 'text-indigo-700' : 'text-slate-400 group-hover:text-slate-900' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <a href="{{ route('reviews.index') }}" class="flex items-center p-3 text-slate-700 rounded-xl hover:bg-slate-50 group {{ request()->routeIs('reviews.index') ? 'bg-green-50 text-[#00AA5B]' : '' }}">
+                        <svg class="w-5 h-5 transition duration-75 {{ request()->routeIs('reviews.index') ? 'text-[#00AA5B]' : 'text-slate-400 group-hover:text-slate-900' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.382-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
                         </svg>
-                        <span class="ms-3">Ulasan Saya</span>
+                        <span class="ms-3 text-xs font-bold uppercase tracking-wider">Ulasan Saya</span>
                     </a>
                 </li>
-                @endunless
 
-                {{-- Seller Centre --}}
+                {{-- SELLER CENTRE --}}
                 @if(Auth::user()->hasRole('seller') || Auth::user()->hasRole('admin'))
                 <div class="pt-4 pb-2">
-                    <span class="px-3 text-xs font-semibold text-slate-400 uppercase tracking-wider">Seller Centre</span>
+                    <span class="px-3 text-[10px] font-black text-indigo-600 uppercase tracking-[0.2em]">Seller Centre</span>
                 </div>
                 <li>
                     <a href="{{ route('item-shop.index') }}" class="flex items-center p-3 text-slate-700 rounded-xl hover:bg-slate-50 group {{ request()->routeIs('item-shop.*') ? 'bg-indigo-50 text-indigo-700' : '' }}">
                         <svg class="w-5 h-5 transition duration-75 {{ request()->routeIs('item-shop.*') ? 'text-indigo-700' : 'text-slate-400 group-hover:text-slate-900' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
                         </svg>
-                        <span class="ms-3">My Products</span>
+                        <span class="ms-3 text-xs font-bold uppercase tracking-wider">Produk Saya</span>
                     </a>
                 </li>
                 <li>
                     <a href="{{ route('admin.transactions.index') }}" class="flex items-center p-3 text-slate-700 rounded-xl hover:bg-slate-50 group {{ request()->routeIs('admin.transactions.*') ? 'bg-indigo-50 text-indigo-700' : '' }}">
                         <svg class="w-5 h-5 transition duration-75 {{ request()->routeIs('admin.transactions.*') ? 'text-indigo-700' : 'text-slate-400 group-hover:text-slate-900' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                         </svg>
-                        <span class="ms-3">Orders Management</span>
+                        <span class="ms-3 text-xs font-bold uppercase tracking-wider">Pesanan Masuk</span>
                     </a>
                 </li>
                 <li>
@@ -235,28 +245,28 @@
                         <svg class="w-5 h-5 transition duration-75 {{ request()->routeIs('admin.withdrawals.*') ? 'text-indigo-700' : 'text-slate-400 group-hover:text-slate-900' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
-                        <span class="ms-3">
+                        <span class="ms-3 text-xs font-bold uppercase tracking-wider">
                             @if(Auth::user()->hasRole('admin'))
                                 Manajemen Payout
                             @else
-                                Tarik Saldo
+                                Keuangan & Saldo
                             @endif
                         </span>
                     </a>
                 </li>
                 @endif
 
-                {{-- Administration --}}
+                {{-- ADMINISTRATION --}}
                 @if(Auth::user()->hasRole('admin') || Auth::user()->hasPermissionTo('lihat-user'))
                 <div class="pt-4 pb-2">
-                    <span class="px-3 text-xs font-semibold text-slate-400 uppercase tracking-wider">Administration</span>
+                    <span class="px-3 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Administrasi</span>
                 </div>
                 <li>
                     <a href="{{ route('users.index') }}" class="flex items-center p-3 text-slate-700 rounded-xl hover:bg-slate-50 group {{ request()->routeIs('users.*') ? 'bg-indigo-50 text-indigo-700' : '' }}">
                         <svg class="w-5 h-5 transition duration-75 {{ request()->routeIs('users.*') ? 'text-indigo-700' : 'text-slate-400 group-hover:text-slate-900' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
                         </svg>
-                        <span class="ms-3">Manage Users</span>
+                        <span class="ms-3 text-xs font-bold uppercase tracking-wider">Kelola User</span>
                     </a>
                 </li>
                 @if(Auth::user()->hasRole('admin'))
@@ -265,23 +275,23 @@
                         <svg class="w-5 h-5 transition duration-75 {{ request()->routeIs('admin.sellers.*') ? 'text-indigo-700' : 'text-slate-400 group-hover:text-slate-900' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
                         </svg>
-                        <span class="ms-3">Seller Requests</span>
+                        <span class="ms-3 text-xs font-bold uppercase tracking-wider">Permintaan Seller</span>
                     </a>
                 </li>
                 @endif
                 @endif
 
-                {{-- Appearance --}}
+                {{-- SYSTEM SETTINGS --}}
                 @if(Auth::user()->hasRole('admin'))
                 <div class="pt-4 pb-2">
-                    <span class="px-3 text-xs font-semibold text-slate-400 uppercase tracking-wider">Settings</span>
+                    <span class="px-3 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Pengaturan</span>
                 </div>
                 <li>
                     <a href="{{ route('admin.cms.index') }}" class="flex items-center p-3 text-slate-700 rounded-xl hover:bg-slate-50 group {{ request()->routeIs('admin.cms.*') ? 'bg-indigo-50 text-indigo-700' : '' }}">
                         <svg class="w-5 h-5 transition duration-75 {{ request()->routeIs('admin.cms.*') ? 'text-indigo-700' : 'text-slate-400 group-hover:text-slate-900' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
                         </svg>
-                        <span class="ms-3">Konfigurasi Situs</span>
+                        <span class="ms-3 text-xs font-bold uppercase tracking-wider">Konfigurasi Situs</span>
                     </a>
                 </li>
                 @endif
@@ -404,6 +414,7 @@
     @stack('scripts')
 
     {{-- Global Alert Script --}}
+    <x-cart-modal />
     <script>
         @if(session('success'))
         Swal.fire({

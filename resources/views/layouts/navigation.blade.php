@@ -1,6 +1,60 @@
 <nav x-data="{
     open: false,
     kategoriOpen: false,
+    addressModal: false,
+    searchQuery: '',
+    searchResults: [],
+    selectedArea: null,
+    isLoading: false,
+
+    async searchArea() {
+        if (this.searchQuery.length < 3) {
+            this.searchResults = [];
+            return;
+        }
+        
+        this.isLoading = true;
+        try {
+            const response = await fetch(`{{ route('shipping.search-area') }}?q=${this.searchQuery}`);
+            const data = await response.json();
+            this.searchResults = data.areas || [];
+        } catch (error) {
+            console.error('Error fetching areas:', error);
+        } finally {
+            this.isLoading = false;
+        }
+    },
+
+    selectArea(area) {
+        this.selectedArea = area;
+        this.searchQuery = area.name;
+        this.searchResults = [];
+    },
+
+    async updateAddress() {
+        if (!this.selectedArea) return;
+
+        try {
+            const response = await fetch(`{{ route('profile.update-quick-address') }}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                body: JSON.stringify({
+                    alamat: this.selectedArea.name,
+                    area_id: this.selectedArea.id
+                })
+            });
+
+            if (response.ok) {
+                window.location.reload();
+            }
+        } catch (error) {
+            console.error('Error updating address:', error);
+        }
+    },
+
     init() {
         // Alpine Store handles the cart now
     }
@@ -265,16 +319,76 @@
                         </x-slot>
 
                         <x-slot name="content">
-                            <x-dropdown-link :href="route('dashboard')">{{ __('Dashboard') }}</x-dropdown-link>
-                            <x-dropdown-link :href="route('wishlist.index')">{{ __('Daftar Suka') }}</x-dropdown-link>
-                            <x-dropdown-link :href="route('profile.edit')">{{ __('Profile') }}</x-dropdown-link>
-                            @role('admin')
-                                <x-dropdown-link :href="route('admin.cms.index')">{{ __('Admin Settings') }}</x-dropdown-link>
-                            @endrole
-                            <form method="POST" action="{{ route('logout') }}">
-                                @csrf
-                                <x-dropdown-link :href="route('logout')" onclick="event.preventDefault(); this.closest('form').submit();">{{ __('Log Out') }}</x-dropdown-link>
-                            </form>
+                            <div class="px-4 py-3 bg-gray-50 border-b border-gray-100 mb-1 rounded-t-xl">
+                                <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Akun Saya</p>
+                                <p class="text-xs font-bold text-gray-900 truncate">{{ Auth::user()->name }}</p>
+                            </div>
+
+                            {{-- SHOPPING GROUP --}}
+                            <div class="px-2 pb-1">
+                                <div class="px-3 py-1 text-[9px] font-black text-[#00AA5B] uppercase tracking-widest">Belanja</div>
+                                <x-dropdown-link :href="route('transactions.index')" class="text-xs font-bold py-2 hover:bg-green-50 rounded-lg">
+                                    <div class="flex items-center gap-2">
+                                        <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" /></svg>
+                                        Riwayat Pesanan
+                                    </div>
+                                </x-dropdown-link>
+                                <x-dropdown-link :href="route('wishlist.index')" class="text-xs font-bold py-2 hover:bg-green-50 rounded-lg">
+                                    <div class="flex items-center gap-2">
+                                        <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" /></svg>
+                                        Daftar Suka
+                                    </div>
+                                </x-dropdown-link>
+                                <x-dropdown-link :href="route('reviews.index')" class="text-xs font-bold py-2 hover:bg-green-50 rounded-lg">
+                                    <div class="flex items-center gap-2">
+                                        <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.382-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" /></svg>
+                                        Ulasan Saya
+                                    </div>
+                                </x-dropdown-link>
+                            </div>
+
+                            {{-- SELLER / ADMIN GROUP --}}
+                            @if(auth()->user()->hasRole('seller') || auth()->user()->hasRole('admin'))
+                            <div class="px-2 py-1 border-t border-gray-50">
+                                <div class="px-3 py-1 text-[9px] font-black text-indigo-600 uppercase tracking-widest">Manajemen</div>
+                                <x-dropdown-link :href="route('dashboard')" class="text-xs font-bold py-2 hover:bg-indigo-50 rounded-lg">
+                                    <div class="flex items-center gap-2">
+                                        <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.5 6h9.75M10.5 6a1.5 1.5 0 1 1-3 0m3 0a1.5 1.5 0 1 0-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-9.75 0h9.75" /></svg>
+                                        Panel Kontrol
+                                    </div>
+                                </x-dropdown-link>
+                                @role('admin')
+                                <x-dropdown-link :href="route('admin.cms.index')" class="text-xs font-bold py-2 hover:bg-indigo-50 rounded-lg">
+                                    <div class="flex items-center gap-2">
+                                        <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                                        Konfigurasi Situs
+                                    </div>
+                                </x-dropdown-link>
+                                @endrole
+                            </div>
+                            @endif
+
+                            <div class="px-2 py-1 border-t border-gray-50">
+                                <div class="px-3 py-1 text-[9px] font-black text-gray-400 uppercase tracking-widest">Pengaturan</div>
+                                <x-dropdown-link :href="route('profile.edit')" class="text-xs font-bold py-2 hover:bg-gray-50 rounded-lg">
+                                    <div class="flex items-center gap-2">
+                                        <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
+                                        Edit Profil
+                                    </div>
+                                </x-dropdown-link>
+                                
+                                <form method="POST" action="{{ route('logout') }}">
+                                    @csrf
+                                    <x-dropdown-link :href="route('logout')" 
+                                        class="text-xs font-bold py-2 text-red-600 hover:bg-red-50 rounded-lg"
+                                        onclick="event.preventDefault(); this.closest('form').submit();">
+                                        <div class="flex items-center gap-2">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
+                                            Keluar Akun
+                                        </div>
+                                    </x-dropdown-link>
+                                </form>
+                            </div>
                         </x-slot>
                     </x-dropdown>
                 </div>
@@ -301,10 +415,16 @@
     {{-- 3. SUB NAV (LOCATION) --}}
     <div class="bg-white border-t border-gray-50 hidden md:block">
         <div class="max-w-7xl mx-auto px-4 h-8 flex items-center text-[11px] text-gray-500">
-            <div class="flex items-center gap-1 cursor-pointer hover:text-gray-700">
+            <div @click="addressModal = true" class="flex items-center gap-1 cursor-pointer hover:text-gray-700">
                 <svg class="w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
                 <span>Dikirim ke</span>
-                <span class="font-bold text-gray-800">Alamat Anda</span>
+                <span class="font-bold text-gray-800">
+                    @auth
+                        {{ Str::limit(Auth::user()->alamat ?? (session('selected_address') ?? 'Alamat Anda'), 25) }}
+                    @else
+                        {{ Str::limit(session('selected_address') ?? 'Alamat Anda', 25) }}
+                    @endauth
+                </span>
                 <svg class="w-3 h-3 ml-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
             </div>
         </div>
@@ -320,31 +440,41 @@
             <x-responsive-nav-link :href="route('home')" :active="request()->routeIs('home')" class="rounded-2xl">
                 {{ __('Home') }}
             </x-responsive-nav-link>
-            <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')" class="rounded-2xl">
-                {{ __('Dashboard') }}
-            </x-responsive-nav-link>
+            
+            <div class="pt-2 pb-1 px-4">
+                <span class="text-[10px] font-black text-[#00AA5B] uppercase tracking-widest">Aktivitas Belanja</span>
+            </div>
             <x-responsive-nav-link :href="route('shop.public')" :active="request()->routeIs('shop.public')" class="rounded-2xl">
-                {{ __('Produk') }}
+                {{ __('Jelajah Produk') }}
+            </x-responsive-nav-link>
+            <x-responsive-nav-link :href="route('transactions.index')" :active="request()->routeIs('transactions.*')" class="rounded-2xl">
+                {{ __('Riwayat Pesanan') }}
             </x-responsive-nav-link>
             <x-responsive-nav-link :href="route('wishlist.index')" :active="request()->routeIs('wishlist.*')" class="rounded-2xl">
                 {{ __('Daftar Suka') }}
             </x-responsive-nav-link>
+            <x-responsive-nav-link :href="route('reviews.index')" :active="request()->routeIs('reviews.index')" class="rounded-2xl">
+                {{ __('Ulasan Saya') }}
+            </x-responsive-nav-link>
 
             @auth
-                @unlessrole('admin')
-                    <x-responsive-nav-link :href="route('transactions.index')" :active="request()->routeIs('transactions.*')" class="rounded-2xl">
-                        {{ __('Riwayat Pesanan') }}
+                @if(auth()->user()->hasRole('seller') || auth()->user()->hasRole('admin'))
+                    <div class="pt-2 pb-1 px-4 border-t border-gray-50 mt-2">
+                        <span class="text-[10px] font-black text-indigo-600 uppercase tracking-widest">Pusat Seller</span>
+                    </div>
+                    <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')" class="rounded-2xl">
+                        {{ __('Dashboard Seller') }}
                     </x-responsive-nav-link>
-                @endunlessrole
+                @endif
             @endauth
 
             @guest
-                <x-responsive-nav-link :href="route('seller.create')" class="rounded-2xl text-[#00AA5B] font-bold">
+                <x-responsive-nav-link :href="route('seller.create')" class="rounded-2xl text-[#00AA5B] font-bold border-2 border-dashed border-green-100 mt-4">
                     {{ __('Mulai Berjualan') }}
                 </x-responsive-nav-link>
             @else
                 @unlessrole('seller|admin')
-                    <x-responsive-nav-link :href="route('seller.create')" class="rounded-2xl text-[#00AA5B] font-bold">
+                    <x-responsive-nav-link :href="route('seller.create')" class="rounded-2xl text-[#00AA5B] font-bold border-2 border-dashed border-green-100 mt-4">
                         {{ __('Mulai Berjualan') }}
                     </x-responsive-nav-link>
                 @endunlessrole
@@ -392,6 +522,96 @@
                         class="flex justify-center items-center py-4 rounded-2xl font-black uppercase tracking-widest text-[11px] bg-indigo-600 text-white shadow-lg shadow-indigo-100">Register</a>
                 </div>
             @endguest
+        </div>
+    </div>
+    {{-- ADDRESS MODAL (DESIGN FROM IMAGE 2) --}}
+    <div x-show="addressModal" 
+         class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm"
+         x-transition:enter="transition ease-out duration-300"
+         x-transition:enter-start="opacity-0 scale-95"
+         x-transition:enter-end="opacity-100 scale-100"
+         x-transition:leave="transition ease-in duration-200"
+         x-transition:leave-start="opacity-100 scale-100"
+         x-transition:leave-end="opacity-0 scale-95"
+         x-cloak>
+        
+        <div class="bg-white w-full max-w-[500px] rounded-[2rem] overflow-hidden shadow-2xl relative" @click.away="addressModal = false">
+            {{-- Close Button --}}
+            <button @click="addressModal = false" class="absolute right-6 top-6 text-slate-400 hover:text-slate-600 transition-colors">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+            </button>
+
+            <div class="p-8 pb-4">
+                <h3 class="text-xl font-black text-slate-900 tracking-tight leading-none mb-2">Mau kirim belanjaan kemana?</h3>
+                <p class="text-[13px] text-slate-400 font-medium leading-relaxed">Pilih area untuk estimasi ongkir, dan **lengkapi alamat (No. Rumah/Jalan)** di profil untuk kurir.</p>
+            </div>
+
+            <div class="px-8 py-4">
+                @auth
+                    {{-- Selected Address Card --}}
+                    <div class="border-2 border-emerald-500 bg-emerald-50/10 rounded-2xl p-5 relative border-l-[6px]">
+                        <div class="flex items-center gap-2 mb-2">
+                            <span class="text-xs font-black text-slate-900">Rumah</span>
+                            <span class="px-2 py-0.5 bg-slate-100 text-[9px] font-black text-slate-400 uppercase rounded">Utama</span>
+                        </div>
+                        <div class="font-black text-slate-900 text-[15px] mb-1">{{ Auth::user()->name }}</div>
+                        <div class="text-[13px] text-slate-600 mb-2">{{ Auth::user()->phone ?? '-' }}</div>
+                        <p class="text-[12px] text-slate-500 leading-relaxed mb-4">{{ Auth::user()->alamat ?? 'Belum mengatur alamat' }}</p>
+                        
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-1.5 text-emerald-600">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                                <span class="text-[11px] font-black uppercase tracking-wider">Sudah Pinpoint</span>
+                            </div>
+                            <svg class="w-5 h-5 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>
+                        </div>
+                    </div>
+
+                    <a href="{{ route('profile.edit') }}" class="w-full mt-4 flex justify-center py-3 border border-slate-200 rounded-2xl text-[11px] font-black text-slate-600 uppercase tracking-widest hover:bg-slate-50 transition-all">Pilih Alamat Lainnya</a>
+                @else
+                    <div class="py-10 text-center bg-slate-50 rounded-[2rem] border border-dashed border-slate-200">
+                        <p class="text-sm font-black text-slate-400 uppercase tracking-widest">Silakan login untuk mengatur alamat</p>
+                        <a href="{{ route('login') }}" class="mt-4 inline-block px-6 py-2 bg-indigo-600 text-white rounded-xl text-[10px] font-black uppercase tracking-[0.2em]">Login Sekarang</a>
+                    </div>
+                @endauth
+            </div>
+
+            <div class="px-8 pt-6 pb-10 border-t border-slate-50 mt-4">
+                <h4 class="font-black text-slate-900 text-sm mb-4">Mau pakai cara lain?</h4>
+                <div class="flex gap-2">
+                    <div class="relative flex-1">
+                        <svg class="w-4 h-4 absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                        <input 
+                            type="text" 
+                            x-model="searchQuery" 
+                            @input.debounce.500ms="searchArea()"
+                            placeholder="Pilih kota atau kecamatan" 
+                            class="w-full pl-11 pr-4 py-3.5 bg-slate-50 border-none rounded-2xl text-xs font-bold focus:ring-2 focus:ring-indigo-500">
+                        
+                        {{-- Search Results --}}
+                        <div x-show="searchResults.length > 0" 
+                             class="absolute left-0 right-0 top-full mt-2 bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden z-[110]"
+                             x-cloak>
+                            <template x-for="area in searchResults" :key="area.id">
+                                <div @click="selectArea(area)" 
+                                     class="px-5 py-3 text-[11px] font-bold text-slate-600 hover:bg-slate-50 cursor-pointer border-b border-slate-50 last:border-none">
+                                    <span x-text="area.name"></span>
+                                </div>
+                            </template>
+                        </div>
+
+                        {{-- Loading --}}
+                        <div x-show="isLoading" class="absolute right-4 top-1/2 -translate-y-1/2">
+                            <svg class="animate-spin h-4 w-4 text-indigo-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                        </div>
+                    </div>
+                    <button 
+                        @click="updateAddress()"
+                        :disabled="!selectedArea"
+                        :class="selectedArea ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-100 block' : 'bg-slate-100 text-slate-400 cursor-not-allowed'"
+                        class="px-6 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all">Gunakan</button>
+                </div>
+            </div>
         </div>
     </div>
 </nav>

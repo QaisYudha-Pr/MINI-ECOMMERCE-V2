@@ -55,7 +55,7 @@ class CartController extends Controller
         }
     }
 
-    public function index()
+    public function index(Request $request)
     {
         // Auto-fail expired pending transactions for this user
         $expired = Transaction::where('user_id', Auth::id())
@@ -67,17 +67,56 @@ class CartController extends Controller
             $t->failTransaction();
         }
 
-        $transactions = Transaction::where('user_id', Auth::id())
-            ->latest()
-            ->get();
+        $query = Transaction::where('user_id', Auth::id())->with(['seller']);
+
+        // Filter Status
+        if ($request->filled('status')) {
+            $status = $request->status;
+            if ($status === 'pending') {
+                $query->whereIn('status', ['pending', 'paid', 'waiting_confirmation']);
+            } elseif ($status === 'success') {
+                $query->whereIn('status', ['success', 'shipped', 'delivered']);
+            } elseif ($status === 'completed') {
+                $query->where('status', 'completed');
+            } else {
+                $query->where('status', $status);
+            }
+        }
+
+        $transactions = $query->latest()->paginate(10);
 
         return view('shop.cart.index', compact('transactions'));
     }
 
     public function show(Transaction $transaction)
     {
-        if ($transaction->user_id !== Auth::id()) {
-            abort(403);
+        $user = Auth::user();
+
+        // Check ownership or role access
+        if ($transaction->user_id !== $user->id && 
+            !$user->hasRole('admin') && 
+            $transaction->seller_id !== $user->id) {
+            abort(403, 'Akses ditolak bolo, ini bukan pesananmu!');
+        }
+
+        // Extra check: If they are admin/seller but NOT the seller for this specific transaction
+        if ($user->hasRole('admin') || $user->hasRole('seller')) {
+            // Kita ingin admin yang login sebagai seller HANYA bisa lihat order miliknya
+            // Kecuali dia super-admin (asumsi role 'admin' di sistem ini adalah role seller tertinggi/platform owner)
+            // Namun user minta: "jangan biarkan admin jg bisa melihat order toko lain"
+            if ($transaction->seller_id !== $user->id && $transaction->user_id !== $user->id) {
+                 // Check if it's strictly the platform owner
+                 // If the platform design is everyone is a seller + admin cap, then we restrict.
+                 abort(403, 'Anda tidak diizinkan melihat pesanan toko lain.');
+            }
+        }
+
+        // Support Ajax for live status check
+        if (request()->ajax()) {
+            return response()->json([
+                'status' => $transaction->status,
+                'status_label' => strtoupper($transaction->status)
+            ]);
         }
 
         // Check for expired Specifically on show

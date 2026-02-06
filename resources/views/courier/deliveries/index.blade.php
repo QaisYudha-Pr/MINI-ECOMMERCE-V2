@@ -80,7 +80,15 @@
                                 </div>
                                 <div>
                                     <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Alamat Tujuan</span>
-                                    <p class="text-sm font-bold text-slate-900 leading-relaxed">{{ Str::limit($delivery->alamat, 60) }}</p>
+                                    <p class="text-[11px] font-bold text-slate-900 leading-relaxed">{{ $delivery->alamat }}</p>
+                                    
+                                    @if($delivery->catatan_alamat)
+                                        <div class="mt-3 p-3 bg-amber-50 rounded-xl border border-amber-100/50">
+                                            <span class="text-[8px] font-black text-amber-600 uppercase tracking-widest block mb-1">PATOKAN KURIR:</span>
+                                            <p class="text-xs font-black text-amber-900 leading-tight">"{{ $delivery->catatan_alamat }}"</p>
+                                        </div>
+                                    @endif
+
                                     @if($delivery->user->latitude && $delivery->user->longitude)
                                         <a href="https://www.google.com/maps/search/?api=1&query={{ $delivery->user->latitude }},{{ $delivery->user->longitude }}" 
                                            target="_blank" class="mt-2 inline-flex items-center gap-2 text-indigo-600 text-[10px] font-black uppercase hover:text-indigo-700 transition-colors">

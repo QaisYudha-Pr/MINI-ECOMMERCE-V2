@@ -131,16 +131,16 @@ class ShippingService
             $isDisabled = false;
             $disableReason = '';
 
-            // Cek jika ada batasan jarak
-            if ($courier->max_distance && $distance > $courier->max_distance) {
-                $isDisabled = true;
-                $disableReason = 'Jarak melebihi batas maksimum';
-            }
-
-            // Cek jika ada batasan berat
+            // 1. Cek Batasan Berat (Jika berat > max motor, otomatis harus pke mobil/pilihan lain)
             if ($courier->max_weight && $totalWeightKg > $courier->max_weight) {
                 $isDisabled = true;
-                $disableReason = 'Berat melebihi batas maksimum';
+                $disableReason = "Barang terlalu berat ({$totalWeightKg}kg) bolo!";
+            }
+
+            // 2. Cek Batasan Jarak
+            if ($courier->max_distance && $distance > $courier->max_distance) {
+                $isDisabled = true;
+                $disableReason = 'Jarak melebihi batas operasional';
             }
 
             // Rumus: (Ongkir Dasar * Multiplier) + Extra Fee Kurir

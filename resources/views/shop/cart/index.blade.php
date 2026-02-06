@@ -1,173 +1,227 @@
-<x-admin-layout>
-    {{-- Menambahkan script Midtrans Snap --}}
+﻿<x-admin-layout>
+    {{-- Script Midtrans Snap --}}
     <script type="text/javascript" src="https://app.sandbox.midtrans.com/snap/snap.js"
         data-client-key="{{ config('services.midtrans.client_key') }}"></script>
 
-    <div class="py-12 bg-gray-50 min-h-screen">
+    <div class="py-12 bg-[#F8FAFC] min-h-screen">
         <div class="max-w-7xl mx-auto px-6">
-            <h2 class="text-2xl font-black text-gray-900 mb-8 uppercase tracking-widest">
-                Order <span class="text-indigo-600">History</span>
-            </h2>
+            {{-- Modern Header --}}
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-10" data-aos="fade-right">
+                <div>
+                    <h2 class="text-3xl font-black text-gray-900 tracking-tighter uppercase italic">Riwayat <span class="text-indigo-600">Belanja</span></h2>
+                    <p class="text-[10px] font-bold text-gray-400 uppercase tracking-[0.2em] mt-1">Pantau status & detail pesanan bolo</p>
+                </div>
+
+                {{-- Horizontal Status Chips (Tokopedia Style) --}}
+                <div class="flex items-center gap-2 overflow-x-auto pb-4 md:pb-0 scrollbar-hide">
+                    @php 
+                        $currentStatus = request('status', 'Semua'); 
+                        $statusOptions = [
+                            'Semua' => 'Semua',
+                            'Berlangsung' => 'pending',
+                            'Berhasil' => 'success',
+                            'Selesai' => 'completed',
+                        ];
+                    @endphp
+                    @foreach($statusOptions as $label => $slug)
+                        <a href="{{ $label == 'Semua' ? route('transactions.index') : route('transactions.index', ['status' => $slug]) }}" 
+                           class="whitespace-nowrap px-6 py-2.5 rounded-full text-[10px] font-black uppercase tracking-widest transition-all duration-300
+                           {{ ($currentStatus == $slug || ($currentStatus == 'Semua' && $label == 'Semua')) 
+                              ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-100' 
+                              : 'bg-white text-gray-500 border border-gray-100 hover:border-indigo-200 hover:bg-indigo-50' }}">
+                            {{ $label }}
+                        </a>
+                    @endforeach
+                </div>
+            </div>
 
             <div class="space-y-6">
-                @forelse ($transactions as $trx)
-                    <div class="bg-white rounded-[2rem] p-8 border border-gray-100 shadow-sm hover:shadow-md transition-all">
-                        <div class="flex flex-wrap justify-between items-center gap-4 mb-6">
-                            <div>
-                                <span class="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Invoice</span>
-                                <h3 class="text-lg font-black text-gray-900">{{ $trx->invoice_number }}</h3>
-                                <p class="text-[10px] font-bold text-gray-400 mt-1">{{ $trx->created_at->translatedFormat('d F Y, H.i') }} WIB</p>
-                            </div>
-                            <div class="text-right">
-                                {{-- Warna Status yang lebih lengkap --}}
-                                @php
-                                    $statusClasses = [
-                                        'pending' => 'bg-yellow-100 text-yellow-600',
-                                        'success' => 'bg-green-100 text-green-600',
-                                        'shipped' => 'bg-blue-100 text-blue-600',
-                                        'delivered' => 'bg-purple-100 text-purple-600',
-                                        'completed' => 'bg-indigo-100 text-indigo-600',
-                                        'failed' => 'bg-red-100 text-red-600',
-                                        'expired' => 'bg-gray-100 text-gray-600',
-                                    ];
-                                    $currentClass = $statusClasses[$trx->status] ?? 'bg-blue-100 text-blue-600';
-                                @endphp
-                                <span class="inline-block px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest {{ $currentClass }}">
-                                    {{ $trx->status }}
-                                </span>
-                            </div>
-                        </div>
+                {{-- Search Bar --}}
+                <div class="relative group mb-8">
+                    <input type="text" placeholder="Cari transaksi atau nama produk..." class="w-full bg-white border-none rounded-2xl py-4 pl-14 pr-6 text-xs font-bold text-gray-600 shadow-sm focus:ring-4 focus:ring-indigo-500/10 transition-all">
+                    <svg class="w-5 h-5 text-gray-300 absolute left-6 top-1/2 -translate-y-1/2 group-focus-within:text-indigo-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                </div>
 
-                        {{-- Resi Display --}}
-                        @if($trx->resi)
-                            <div class="mb-4 p-4 bg-gray-50 rounded-2xl border border-gray-100">
-                                <span class="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-1">Tracking Number (Resi)</span>
-                                <div class="flex items-center gap-2">
-                                    <span class="text-sm font-black text-gray-900">{{ $trx->resi }}</span>
-                                    <span class="text-[10px] bg-indigo-100 text-indigo-600 px-2 py-0.5 rounded-md font-bold uppercase">{{ $trx->courier_name }}</span>
+                @forelse($transactions as $trx)
+                    @php
+                        // Enhanced Status Mapping
+                        $clientStatusLabel = match($trx->status) {
+                            'pending' => 'MENUNGGU PEMBAYARAN',
+                            'waiting_confirmation' => 'MENUNGGU KONFIRMASI',
+                            'paid', 'success' => 'SUCCESS',
+                            'shipped' => 'SEDANG DIKIRIM',
+                            'delivered' => 'SAMPAI DI TUJUAN',
+                            'completed' => 'PESANAN SELESAI',
+                            'failed' => 'TRANSAKSI GAGAL',
+                            default => strtoupper($trx->status)
+                        };
+                        $clientStatusColor = match($trx->status) {
+                            'pending', 'waiting_confirmation' => 'text-amber-500 bg-amber-50',
+                            'paid', 'success' => 'text-emerald-600 bg-emerald-50',
+                            'shipped', 'delivered' => 'text-blue-600 bg-blue-50',
+                            'completed' => 'text-indigo-600 bg-indigo-50',
+                            default => 'text-gray-500 bg-gray-50'
+                        };
+                        
+                        $items = $trx->items_details;
+                        $firstItem = collect($items)->first();
+                        $otherCount = count($items) - 1;
+                        $seller = $trx->seller;
+                    @endphp
+
+                    <div class="bg-white rounded-[2rem] p-6 md:p-8 shadow-sm hover:shadow-xl hover:shadow-indigo-500/5 border border-transparent hover:border-indigo-100 transition-all group relative overflow-hidden">
+                        {{-- Card Header: Invoice & Status --}}
+                        <div class="flex flex-wrap items-center justify-between gap-4 mb-6 pb-6 border-b border-gray-50">
+                            <div class="flex items-center gap-4">
+                                <div class="w-10 h-10 bg-indigo-50 rounded-xl flex items-center justify-center text-indigo-500 shadow-inner">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
+                                </div>
+                                <div class="flex flex-wrap items-center gap-x-3 gap-y-1">
+                                    <span class="text-xs font-black text-gray-900 uppercase italic">Belanja</span>
+                                    <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{{ $trx->created_at->translatedFormat('d M Y') }}</span>
+                                    <span class="px-3 py-1 rounded-lg {{ $clientStatusColor }} text-[9px] font-black uppercase tracking-widest border border-current/10">
+                                        {{ $clientStatusLabel }}
+                                    </span>
+                                    <span class="text-[10px] font-bold text-gray-300">{{ $trx->invoice_number }}</span>
                                 </div>
                             </div>
-                        @endif
-
-                        <div class="border-t border-b border-gray-50 py-6 my-6">
-                            <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-4">Items Purchased</p>
-                            @if(is_array($trx->items_details))
-                                @foreach ($trx->items_details as $item)
-                                    <div class="flex justify-between items-center mb-2">
-                                        <span class="text-sm font-bold text-gray-700">
-                                            <span class="text-indigo-600 font-black mr-1">{{ $item['quantity'] ?? 1 }}x</span>
-                                            {{ $item['nama_barang'] ?? ($item['name'] ?? 'Item') }}
-                                        </span>
-                                        <span class="text-sm font-black text-gray-900">
-                                            Rp {{ number_format($item['harga'] ?? ($item['price'] ?? 0), 0, ',', '.') }}
-                                        </span>
-                                    </div>
-                                @endforeach
-                            @endif
+                            
+                            {{-- Seller Badge --}}
+                            <div class="flex items-center gap-2 px-3 py-1.5 bg-slate-50 rounded-full border border-gray-100">
+                                <svg class="w-3 h-3 text-emerald-500 fill-current" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                                <span class="text-[10px] font-black text-gray-800 tracking-tight uppercase line-clamp-1 italic">{{ $seller->nama_toko ?? $seller->name ?? "Toko Bolo" }}</span>
+                            </div>
                         </div>
 
-                        <div class="flex justify-between items-center">
-                            <div>
-                                <span class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Total Amount</span>
-                                <p class="text-xl font-black text-indigo-600 leading-none mt-1">
-                                    Rp {{ number_format($trx->total_price, 0, ',', '.') }}
-                                </p>
+                        {{-- Card Body: Product Info --}}
+                        <div class="flex flex-col md:flex-row gap-8 items-start md:items-center">
+                            <div class="flex-1 flex gap-6">
+                                <div class="w-16 h-16 md:w-20 md:h-20 bg-slate-100 rounded-2xl border border-white shadow-inner overflow-hidden shrink-0 group-hover:scale-110 transition-transform duration-500">
+                                    <img src="{{ asset($firstItem['gambar'] ?? 'image/default-product.jpg') }}" class="w-full h-full object-cover">
+                                </div>
+                                <div class="min-w-0">
+                                    <h3 class="text-sm md:text-base font-black text-gray-900 uppercase tracking-tighter line-clamp-1 group-hover:text-indigo-600 transition-colors">
+                                        {{ $firstItem['nama_barang'] ?? ($firstItem['name'] ?? "Produk Bolo") }}
+                                    </h3>
+                                    <p class="text-[10px] font-bold text-gray-400 mt-1 uppercase tracking-widest italic">
+                                        {{ $firstItem['quantity'] ?? 1 }} Barang x Rp{{ number_format($firstItem['harga'] ?? 0, 0, ",", ".") }}
+                                    </p>
+                                    @if($otherCount > 0)
+                                        <p class="text-[9px] font-black text-indigo-600 mt-3 inline-block bg-indigo-50 px-2 py-1 rounded-md uppercase tracking-widest border border-indigo-100/50">
+                                            +{{ $otherCount }} Produk Lainnya
+                                        </p>
+                                    @endif
+                                </div>
                             </div>
 
-                            <div class="flex gap-3">
-                                {{-- Tombol Konfirmasi Barang Diterima --}}
-                                @if(in_array($trx->status, ['shipped', 'delivered']))
+                            {{-- Price column --}}
+                            <div class="flex flex-col items-end md:pl-10 md:border-l border-gray-50 min-w-[150px]">
+                                <span class="text-[9px] font-black text-gray-400 uppercase tracking-[0.2em] mb-1">Total Belanja</span>
+                                <span class="text-xl font-black text-indigo-600 tracking-tighter italic">Rp{{ number_format($trx->total_price, 0, ",", ".") }}</span>
+                            </div>
+                        </div>
+
+                        {{-- Card Footer: Actions --}}
+                        <div class="mt-8 pt-6 border-t border-gray-50 flex flex-wrap items-center justify-between gap-4">
+                            <a href="{{ route('transactions.show', $trx->id) }}" class="text-[10px] font-black text-indigo-500 hover:text-indigo-700 uppercase tracking-widest flex items-center gap-2 transition-all">
+                                <span>Lihat Detail Transaksi</span>
+                                <svg class="w-3 h-3 translate-y-[-1px]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
+                            </a>
+
+                            <div class="flex items-center gap-3">
+                                {{-- Pay Now for Pending --}}
+                                @if($trx->status == "pending" && $trx->snap_token)
+                                    <button onclick="payNow('{{ $trx->snap_token }}')" class="px-8 py-3.5 bg-emerald-500 text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-emerald-100 hover:bg-emerald-600 transition-all">
+                                        Bayar Sekarang
+                                    </button>
+                                @endif
+
+                                {{-- Confirm Receipt --}}
+                                @if(in_array($trx->status, ["shipped", "delivered"]))
                                     <form action="{{ route('transactions.confirm', $trx->id) }}" method="POST">
                                         @csrf
-                                        <button type="submit" onclick="return confirm('Apakah barang sudah diterima dengan baik bolo?')"
-                                            class="px-6 py-3 {{ $trx->status == 'delivered' ? 'bg-green-600 animate-pulse' : 'bg-gray-800' }} text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:scale-105 transition-all shadow-lg {{ $trx->status == 'delivered' ? 'shadow-green-200' : 'shadow-gray-200' }}">
-                                            @if($trx->status == 'delivered')
-                                                ✅ Pesanan Diterima
-                                            @else
-                                                Konfirmasi Diterima
-                                            @endif
+                                        <button type="submit" onclick="return confirm('Sudah terima barangnya bolo?')" class="px-8 py-3.5 bg-indigo-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-indigo-100 hover:bg-slate-900 transition-all">
+                                            Konfirmasi Selesai
                                         </button>
                                     </form>
                                 @endif
 
-                                {{-- Tombol Bayar Sekarang (Muncul hanya jika pending) --}}
-                                @if($trx->status == 'pending' && $trx->snap_token)
-                                    @php
-                                        $expiryTime = $trx->created_at->addMinutes(15);
-                                        $isExpired = now()->greaterThan($expiryTime);
-                                        $remainingSeconds = now()->diffInSeconds($expiryTime, false);
-                                    @endphp
-
-                                    @if(!$isExpired)
-                                        <div class="flex flex-col items-end gap-2" x-data="{ 
-                                            timeLeft: {{ $remainingSeconds }},
-                                            timer: null,
-                                            formatTime(seconds) {
-                                                const mins = Math.floor(seconds / 60);
-                                                const secs = seconds % 60;
-                                                return `${mins}:${secs.toString().padStart(2, '0')}`;
-                                            }
-                                        }" x-init="timer = setInterval(() => { if(timeLeft > 0) timeLeft--; else { clearInterval(timer); window.location.reload(); } }, 1000)">
-                                            <button onclick="payNow('{{ $trx->snap_token }}')" 
-                                                class="px-6 py-3 bg-indigo-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-indigo-700 transition-colors shadow-lg shadow-indigo-200">
-                                                Pay Now
-                                            </button>
-                                            <span class="text-[9px] font-black text-rose-500 uppercase tracking-widest animate-pulse">
-                                                Sisa Waktu: <span x-text="formatTime(timeLeft)"></span>
-                                            </span>
-                                        </div>
-                                    @else
-                                        <span class="px-6 py-3 bg-gray-100 text-gray-400 rounded-xl text-[10px] font-black uppercase tracking-widest cursor-not-allowed">
-                                            Expired
-                                        </span>
-                                    @endif
-                                @endif
-
-                                {{-- Tombol Beri Ulasan (Jika Selesai) --}}
-                                @if($trx->status == 'completed')
-                                    <button onclick="showReviewModal('{{ $trx->invoice_number }}', {{ json_encode($trx->items_details) }})" 
-                                        class="px-6 py-3 bg-yellow-400 text-gray-900 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-yellow-500 transition-colors shadow-lg shadow-yellow-100 flex items-center gap-2">
-                                        <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                                {{-- Review Button --}}
+                                @if($trx->status == "completed")
+                                    <button onclick="showReviewModal('{{ $trx->invoice_number }}', {{ json_encode($trx->items_details) }})" class="px-6 py-3 bg-white border-2 border-amber-500 text-amber-500 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-amber-50 transition-all">
                                         Beri Ulasan
                                     </button>
                                 @endif
                                 
-                                <a href="{{ route('transactions.show', $trx->id) }}" class="px-6 py-3 bg-gray-900 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-gray-700 transition-colors">
-                                    Details
+                                {{-- Buy Again (Mockup for now) --}}
+                                <a href="{{ route('shop.public') }}" class="px-8 py-3.5 bg-gray-900 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-black transition-all">
+                                    Beli Lagi
                                 </a>
+
+                                <button class="p-3 bg-gray-50 text-gray-400 rounded-xl hover:bg-gray-100 transition-all border border-gray-100">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 12h.01M12 12h.01M19 12h.01M6 12a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0z"/></svg>
+                                </button>
                             </div>
                         </div>
+
+                        {{-- Progress Bar Decor --}}
+                        @if(in_array($trx->status, ["pending", "paid", "success", "shipped"]))
+                        <div class="absolute bottom-0 left-0 w-full h-[2px] bg-gray-50">
+                            <div class="h-full bg-indigo-500 {{ $trx->status == 'shipped' ? 'w-2/3' : 'w-1/3' }} animate-pulse"></div>
+                        </div>
+                        @endif
                     </div>
                 @empty
-                    <div class="text-center py-20 bg-white rounded-[2rem] border border-dashed border-gray-300">
-                        <p class="text-gray-500 font-black uppercase tracking-widest text-xs">Belum ada transaksi</p>
+                    <div class="text-center py-24 bg-white rounded-[3rem] border border-gray-100 shadow-sm">
+                        <div class="w-24 h-24 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-6">
+                            <svg class="w-12 h-12 text-slate-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
+                        </div>
+                        <h3 class="text-xl font-black text-gray-900 uppercase italic">Kosong, Bolo!</h3>
+                        <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-2">Daftar belanjamu masih kosong nih bolo.</p>
+                        <a href="{{ route('shop.public') }}" class="inline-block mt-8 px-10 py-4 bg-indigo-600 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl shadow-indigo-100 hover:-translate-y-1 transition-all">Mulai Belanja</a>
                     </div>
                 @endforelse
+
+                <div class="pb-20">
+                    {{ $transactions->links() }}
+                </div>
             </div>
         </div>
     </div>
 
-    {{-- Script untuk memicu Popup Midtrans --}}
+    {{-- Review Modal Script & Helper --}}
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script type="text/javascript">
+        function payNow(snapToken) {
+            window.snap.pay(snapToken, {
+                onSuccess: function(result) { window.location.reload(); },
+                onPending: function(result) { window.location.reload(); },
+                onError: function(result) { alert("Pembayaran gagal bolo!"); }
+            });
+        }
+
         function showReviewModal(invoice, items) {
-            let itemsHtml = items.map(item => `
-                <div class="flex items-center gap-4 p-4 bg-slate-50 rounded-2xl mb-3 border border-slate-100">
+            let itemsHtml = items.map(item => {
+                let img = item.gambar ? "/" + item.gambar : "/image/default-product.jpg";
+                return `
+                <div class="flex items-center gap-4 p-4 bg-slate-50 rounded-2xl mb-3 border border-slate-100 group hover:border-indigo-300 transition-all">
+                    <img src="${img}" class="w-12 h-12 rounded-xl object-cover shadow-sm bg-gray-50">
                     <div class="flex-1 text-left">
-                        <p class="text-xs font-black text-gray-900">${item.nama_barang || item.name}</p>
-                        <p class="text-[10px] text-gray-400 font-bold uppercase">Beri rating produk ini</p>
+                        <p class="text-[11px] font-black text-gray-900 uppercase line-clamp-1">${item.nama_barang || item.name}</p>
+                        <p class="text-[9px] text-gray-400 font-bold uppercase tracking-wider">Beri rating produk bolo</p>
                     </div>
-                    <a href="/shop/items/${item.id}" class="bg-indigo-600 text-white px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-indigo-700 transition-all">
-                        Rating Sekarang
+                    <a href="/shop/items/${item.id}" class="bg-indigo-600 text-white px-4 py-2.5 rounded-xl text-[9px] font-black uppercase tracking-widest hover:bg-slate-900 transition-all">
+                        Ulas
                     </a>
                 </div>
-            `).join('');
+            `}).join("");
 
             Swal.fire({
-                title: '<span class="text-xl font-black uppercase tracking-widest">Beri Ulasan Bolo!</span>',
+                title: '<span class="text-xl font-black uppercase tracking-tight italic">Beri <span class="text-indigo-600">Ulasan</span> Bolo!</span>',
                 html: `
                     <div class="mt-4">
-                        <p class="text-xs text-gray-500 mb-6 font-bold uppercase">Pilih produk dari invoice <span class="text-indigo-600">${invoice}</span> untuk diulas:</p>
-                        <div class="max-h-[300px] overflow-y-auto px-1">
+                        <p class="text-[10px] text-gray-500 mb-6 font-bold uppercase tracking-widest">Pilih produk dari invoice <span class="text-indigo-600 font-black">${invoice}</span>:</p>
+                        <div class="max-h-[350px] overflow-y-auto px-1 scrollbar-hide">
                             ${itemsHtml}
                         </div>
                     </div>
@@ -175,21 +229,7 @@
                 showConfirmButton: false,
                 showCloseButton: true,
                 customClass: {
-                    popup: 'rounded-[2.5rem]',
-                }
-            });
-        }
-
-        function payNow(snapToken) {
-            window.snap.pay(snapToken, {
-                onSuccess: function(result) {
-                    window.location.reload();
-                },
-                onPending: function(result) {
-                    window.location.reload();
-                },
-                onError: function(result) {
-                    alert("Pembayaran gagal!");
+                    popup: 'rounded-[2.5rem] border-none shadow-2xl',
                 }
             });
         }

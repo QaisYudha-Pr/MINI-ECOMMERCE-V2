@@ -265,7 +265,12 @@
             function updateLocationStore(lat, lng, address = null) {
                 if (latInput) latInput.value = parseFloat(lat).toFixed(6);
                 if (lngInput) lngInput.value = parseFloat(lng).toFixed(6);
-                if (address && addressInput) addressInput.value = address;
+                // Don't overwrite address if it's already filled and the new one is null
+                if (address && addressInput) {
+                    if (!addressInput.value || confirm('Gunakan alamat dari hasil pencarian ini?')) {
+                        addressInput.value = address;
+                    }
+                }
             }
 
             async function reverseGeocode(lat, lng) {
@@ -274,8 +279,23 @@
                         headers: { 'User-Agent': 'MiniQ-Store-App' }
                     });
                     const data = await res.json();
-                    if (data && data.display_name) {
-                        addressInput.value = data.display_name;
+                    if (data && data.display_name && addressInput) {
+                        const suggestionEl = document.getElementById('osm-suggestion');
+                        if (suggestionEl) {
+                            suggestionEl.innerHTML = `
+                                <div class="mt-2 p-2 bg-indigo-50 rounded-lg border border-indigo-100 flex items-start gap-2 animate-in fade-in slide-in-from-top-1">
+                                    <svg class="w-4 h-4 text-indigo-500 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                    <div class="flex-1">
+                                        <p class="text-[10px] text-indigo-700 font-bold leading-tight">Saran Alamat dari Peta:</p>
+                                        <p class="text-[10px] text-indigo-600 line-clamp-1 italic">${data.display_name}</p>
+                                        <button type="button" onclick="document.getElementById('alamat').value = '${data.display_name.replace(/'/g, "\\'")}'; this.parentElement.parentElement.remove();" 
+                                                class="mt-1 text-[10px] bg-indigo-600 text-white px-2 py-0.5 rounded font-black hover:bg-indigo-700 transition-colors uppercase">
+                                            Gunakan Alamat Ini
+                                        </button>
+                                    </div>
+                                </div>
+                            `;
+                        }
                     }
                 } catch(err) {}
             }

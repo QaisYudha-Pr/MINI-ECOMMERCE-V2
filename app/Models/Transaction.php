@@ -11,7 +11,7 @@ class Transaction extends Model
 
     protected $fillable = [
         'user_id', 'seller_id', 'courier_id', 'courier_service_id', 'invoice_number', 'parent_invoice', 
-        'total_price', 'status', 'payment_method', 'alamat', 'items_details', 
+        'total_price', 'status', 'payment_method', 'alamat', 'catatan_alamat', 'items_details', 
         'snap_token', 'shipping_fee', 'admin_fee',
         'courier_name', 'courier_service', 'destination_area_id', 'resi', 'completed_at', 'delivery_proof'
     ];
@@ -61,13 +61,29 @@ class Transaction extends Model
             $commissionAmount = ($itemsPrice * $commissionPercent) / 100;
 
             // Distribusikan uang ke seller
-            // Seller menerima = Harga Barang + Ongkir - Komisi
-            $netSellerAmount = ($itemsPrice + $this->shipping_fee) - $commissionAmount;
+            // Seller menerima = Harga Barang - Komisi (Ongkir dipisah jika ada kurir)
+            $netSellerAmount = $itemsPrice - $commissionAmount;
             
             if ($this->seller_id) {
                 $seller = User::find($this->seller_id);
                 if ($seller) {
                     $seller->increment('balance', $netSellerAmount);
+                }
+            }
+
+            // Distribusikan Ongkir ke Kurir (Jika pakai kurir internal)
+            if ($this->courier_id) {
+                $courier = User::find($this->courier_id);
+                if ($courier) {
+                    $courier->increment('balance', $this->shipping_fee);
+                }
+            } else {
+                // Jika tidak ada kurir (misal kirim sendiri), ongkir masuk ke seller
+                if ($this->seller_id) {
+                    $seller = User::find($this->seller_id);
+                    if ($seller) {
+                        $seller->increment('balance', $this->shipping_fee);
+                    }
                 }
             }
 
