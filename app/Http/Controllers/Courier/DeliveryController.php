@@ -12,13 +12,32 @@ class DeliveryController extends Controller
 {
     public function index()
     {
-        $deliveries = Transaction::where('courier_id', Auth::id())
-            ->whereIn('status', ['shipped', 'completed'])
-            ->with('user')
+        $courierId = Auth::id();
+        
+        // Base Query for Stats
+        $statsQuery = Transaction::where('courier_id', $courierId);
+        
+        // Sesuaikan dengan status di database: ['shipped', 'success', 'delivered', 'completed']
+        $totalTugas = (clone $statsQuery)->whereIn('status', ['shipped', 'delivered', 'success', 'completed'])->count();
+        $perluDikirim = (clone $statsQuery)->where('status', 'shipped')->count();
+        $selesai = (clone $statsQuery)->whereIn('status', ['delivered', 'success', 'completed'])->count();
+
+        $deliveries = Transaction::where('courier_id', $courierId)
+            ->whereIn('status', ['shipped', 'delivered', 'success', 'completed'])
+            ->with(['user', 'seller'])
             ->latest()
             ->paginate(10);
 
-        return view('courier.deliveries.index', compact('deliveries'));
+        return view('courier.deliveries.index', compact('deliveries', 'totalTugas', 'perluDikirim', 'selesai'));
+    }
+
+    public function show(Transaction $transaction)
+    {
+        if ($transaction->courier_id !== Auth::id()) {
+            abort(403);
+        }
+
+        return view('courier.deliveries.show', compact('transaction'));
     }
 
     public function complete(Request $request, Transaction $transaction)

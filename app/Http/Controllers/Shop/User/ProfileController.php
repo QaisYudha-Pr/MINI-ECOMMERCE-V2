@@ -7,8 +7,10 @@ use App\Http\Requests\ProfileUpdateRequest;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\View\View;
+use App\Models\User;
 
 class ProfileController extends Controller
 {
@@ -16,10 +18,19 @@ class ProfileController extends Controller
     {
         $user = $request->user();
         $followedSellers = $user->following()->withCount(['itemShops'])->get();
+
+        // Most popular theme among all users
+        $popularTheme = User::select('theme_color', DB::raw('count(*) as total'))
+            ->whereNotNull('theme_color')
+            ->where('theme_color', '!=', '')
+            ->groupBy('theme_color')
+            ->orderByDesc('total')
+            ->first()?->theme_color ?? 'indigo';
         
         return view('shop.user.profile', [
             'user' => $user,
             'followedSellers' => $followedSellers,
+            'popularTheme' => $popularTheme,
         ]);
     }
 
@@ -85,9 +96,28 @@ class ProfileController extends Controller
     }
 
     /**
+     * Update theme color via AJAX (instant switch)
+     * Accepts preset names OR custom hex color
+     */
+    public function updateTheme(Request $request)
+    {
+        $request->validate([
+            'theme_color' => ['required', 'string', 'regex:/^(emerald|rose|amber|slate|indigo|#[0-9a-fA-F]{6})$/'],
+        ]);
+
+        $request->user()->update(['theme_color' => $request->theme_color]);
+
+        return response()->json([
+            'status' => 'success',
+            'theme_color' => $request->theme_color,
+        ]);
+    }
+
+    /**
      * Update address quickly from navigation modal
      */
     public function updateQuickAddress(Request $request)
+
     {
         $request->validate([
             'alamat' => 'required|string',

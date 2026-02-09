@@ -1,13 +1,13 @@
 <x-admin-layout>
     <div class="py-12 bg-gray-50 min-h-screen">
         <div class="max-w-7xl mx-auto px-6">
-            <h2 class="text-2xl font-black text-gray-900 mb-8 uppercase tracking-widest">
-                Ulasan <span class="text-indigo-600">Saya</span>
+            <h2 class="text-2xl font-bold text-gray-900 mb-8">
+                Ulasan <span class="text-emerald-600">Saya</span>
             </h2>
 
             <div class="grid gap-6">
                 @forelse ($reviews as $review)
-                    <div class="bg-white rounded-[2rem] p-8 border border-gray-100 shadow-sm">
+                    <div class="bg-white rounded-2xl p-8 border border-gray-100 shadow-sm">
                         <div class="flex gap-6">
                             <div class="w-24 h-24 bg-slate-50 rounded-2xl flex-shrink-0 overflow-hidden border border-slate-100">
                                 @if($review->itemShop && $review->itemShop->gambar)
@@ -21,7 +21,7 @@
                             <div class="flex-1">
                                 <div class="flex justify-between items-start">
                                     <div>
-                                        <h3 class="text-lg font-black text-gray-900">{{ $review->itemShop->nama_barang ?? 'Produk dihapus' }}</h3>
+                                        <h3 class="text-lg font-bold text-gray-900">{{ $review->itemShop->nama_barang ?? 'Produk dihapus' }}</h3>
                                         <div class="flex items-center gap-1 mt-1">
                                             @for ($i = 1; $i <= 5; $i++)
                                                 <svg class="w-4 h-4 {{ $i <= $review->rating ? 'text-yellow-400' : 'text-gray-200' }}" fill="currentColor" viewBox="0 0 20 20">
@@ -30,9 +30,9 @@
                                             @endfor
                                         </div>
                                     </div>
-                                    <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{{ $review->created_at->diffForHumans() }}</span>
+                                    <span class="text-xs font-bold text-gray-400">{{ $review->created_at->diffForHumans() }}</span>
                                 </div>
-                                <p class="mt-4 text-gray-600 text-sm italic font-medium">"{{ $review->comment }}"</p>
+                                <p class="mt-4 text-gray-600 text-sm font-medium">"{{ $review->comment }}"</p>
                                 
                                 @if($review->photo)
                                     <div class="mt-4">
@@ -43,12 +43,13 @@
                         </div>
                     </div>
                 @empty
-                    <div class="text-center py-20 bg-white rounded-[2rem] border border-dashed border-gray-300">
-                        <p class="text-gray-500 font-black uppercase tracking-widest text-xs">Belum ada ulasan yang kamu berikan bolo</p>
-                        <a href="{{ route('transactions.index') }}" class="inline-block mt-4 bg-indigo-600 text-white px-6 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest">Lihat Riwayat Belanja</a>
+                    <div class="text-center py-20 bg-white rounded-2xl border border-dashed border-gray-300">
+                        <p class="text-gray-500 font-semibold text-xs">Belum ada ulasan yang kamu berikan bolo</p>
+                        <a href="{{ route('transactions.index') }}" class="inline-block mt-4 bg-emerald-600 text-white px-6 py-2 rounded-xl text-xs font-semibold">Lihat Riwayat Belanja</a>
                     </div>
                 @endforelse
             </div>
         </div>
     </div>
 </x-admin-layout>
+

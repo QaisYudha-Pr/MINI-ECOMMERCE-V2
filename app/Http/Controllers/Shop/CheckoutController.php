@@ -118,6 +118,8 @@ class CheckoutController extends Controller
                     'courier_service' => $request->courier_service,
                     'courier_service_id' => $request->courier_service_id,
                     'destination_area_id' => $request->destination_area_id,
+                    'lat' => $request->lat,
+                    'lng' => $request->lng,
                 ]);
 
                 $createdTransactions[] = $transaction;

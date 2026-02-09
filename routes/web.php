@@ -12,6 +12,7 @@ use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\SellerValidationController;
 use App\Http\Controllers\Admin\CmsController;
 use App\Http\Controllers\Admin\ItemShopController as AdminItemShopController;
+use App\Http\Controllers\Admin\VoucherController;
 use App\Http\Controllers\Shop\ItemShopController as ShopItemShopController;
 use App\Http\Controllers\Shop\CartController;
 use App\Http\Controllers\Shop\CheckoutController;
@@ -19,6 +20,8 @@ use App\Http\Controllers\Api\MidtransCallbackController;
 use App\Http\Controllers\Admin\WithdrawalController;
 use App\Http\Controllers\ShippingController;
 use App\Http\Controllers\FollowController;
+use App\Http\Controllers\ChatController;
+use App\Http\Controllers\Shop\User\SellerReviewController;
  
 /*
 |--------------------------------------------------------------------------
@@ -50,7 +53,10 @@ Route::middleware('auth')->group(function () {
  
     // Dashboard for both Admin and User
     Route::get('/dashboard', DashboardController::class)->name('dashboard');
-    Route::post('/notifications/mark-as-read', [DashboardController::class, 'markAsRead'])->name('notifications.mark-as-read');
+    Route::post('/notifications/mark-as-read/{id?}', [DashboardController::class, 'markAsRead'])->name('notifications.mark-as-read');
+    Route::match(['delete', 'post'], '/notifications/{id}/delete', [DashboardController::class, 'destroyNotification'])->name('notifications.destroy');
+    Route::post('/notifications/delete-all', [DashboardController::class, 'destroyAllNotifications'])->name('notifications.destroy-all');
+    Route::post('/notifications/broadcast', [DashboardController::class, 'broadcast'])->name('notifications.broadcast');
     Route::get('/how-to', fn() => view('admin.how-to'))->name('how-to');
     Route::redirect('/admin/dashboard', '/dashboard');
     Route::redirect('/user/dashboard', '/dashboard');
@@ -63,6 +69,7 @@ Route::middleware('auth')->group(function () {
         Route::patch('/avatar', [ProfileController::class, 'updateAvatar'])->name('avatar.update');
         Route::patch('/banner', [ProfileController::class, 'updateBanner'])->name('banner.update');
         Route::post('/quick-address', [ProfileController::class, 'updateQuickAddress'])->name('update-quick-address');
+        Route::patch('/theme', [ProfileController::class, 'updateTheme'])->name('theme.update');
     });
 
     // Follow system
@@ -75,6 +82,31 @@ Route::middleware('auth')->group(function () {
     // Favorites
     Route::get('/wishlist', [FavoriteController::class, 'index'])->name('wishlist.index');
     Route::post('/favorite/{item}', [FavoriteController::class, 'toggle'])->name('favorite.toggle');
+
+    // Cart Management
+    Route::prefix('cart')->name('cart.')->group(function () {
+        Route::get('/', [CartController::class, 'cartIndex'])->name('index');
+        Route::post('/add', [CartController::class, 'addToCart'])->name('add');
+        Route::patch('/{cart}', [CartController::class, 'updateCart'])->name('update');
+        Route::delete('/{cart}', [CartController::class, 'removeFromCart'])->name('remove');
+        Route::delete('/', [CartController::class, 'clearCart'])->name('clear');
+        Route::post('/apply-voucher', [CartController::class, 'applyVoucher'])->name('apply-voucher');
+        Route::get('/count', [CartController::class, 'cartCount'])->name('count');
+    });
+
+    // Chat/Inbox System
+    Route::prefix('chat')->name('chat.')->group(function () {
+        Route::get('/', [ChatController::class, 'index'])->name('index');
+        Route::get('/unread/count', [ChatController::class, 'unreadCount'])->name('unread');
+        Route::get('/start/{seller}', [ChatController::class, 'startChat'])->name('start');
+        Route::get('/{conversation}', [ChatController::class, 'show'])->name('show');
+        Route::get('/{conversation}/poll', [ChatController::class, 'pollMessages'])->name('poll');
+        Route::post('/', [ChatController::class, 'store'])->name('store');
+        Route::post('/{conversation}/send', [ChatController::class, 'sendMessage'])->name('send');
+        Route::post('/seller/{seller}', [ChatController::class, 'startFromProduct'])->name('startProduct');
+        Route::put('/message/{message}', [ChatController::class, 'editMessage'])->name('message.edit');
+        Route::delete('/message/{message}', [ChatController::class, 'deleteMessage'])->name('message.delete');
+    });
  
     // Seller Registration
     Route::get('/become-seller', [SellerController::class, 'create'])->name('seller.create');
@@ -94,16 +126,19 @@ Route::middleware('auth')->group(function () {
     
     Route::get('/my-reviews', [ReviewController::class, 'index'])->name('reviews.index');
     Route::post('/item-shop/{itemShop}/review', [ReviewController::class, 'store'])->name('reviews.store');
+    Route::post('/transactions/{transaction}/seller-review', [SellerReviewController::class, 'store'])->name('seller-reviews.store');
  
     // Shipping Routes
     Route::prefix('shipping')->name('shipping.')->group(function () {
         Route::get('/search-area', [ShippingController::class, 'searchArea'])->name('search-area');
         Route::post('/get-rates', [ShippingController::class, 'getRates'])->name('get-rates');
+        Route::post('/seller-coordinates', [ShippingController::class, 'getSellerCoordinates'])->name('seller-coordinates');
     });
 
     // Courier Specific Routes (DIPISAH DARI ADMIN)
     Route::middleware(['auth', 'role:courier'])->prefix('courier')->name('courier.')->group(function () {
         Route::get('/deliveries', [\App\Http\Controllers\Courier\DeliveryController::class, 'index'])->name('deliveries.index');
+        Route::get('/deliveries/{transaction}', [\App\Http\Controllers\Courier\DeliveryController::class, 'show'])->name('deliveries.show');
         Route::post('/deliveries/{transaction}/complete', [\App\Http\Controllers\Courier\DeliveryController::class, 'complete'])->name('deliveries.complete');
     });
 
@@ -117,8 +152,10 @@ Route::middleware('auth')->group(function () {
         // Transaction Management
         Route::middleware('role:admin|seller')->group(function () {
             Route::get('transactions', [\App\Http\Controllers\Admin\TransactionController::class, 'index'])->name('admin.transactions.index');
+            Route::get('transactions/{transaction}', [\App\Http\Controllers\Admin\TransactionController::class, 'show'])->name('admin.transactions.show');
             Route::post('transactions/{transaction}/resi', [\App\Http\Controllers\Admin\TransactionController::class, 'updateResi'])->name('admin.transactions.resi');
             Route::post('transactions/{transaction}/assign-courier', [\App\Http\Controllers\Admin\TransactionController::class, 'updateCourier'])->name('admin.transactions.assign');
+            Route::post('transactions/{transaction}/confirm-cod', [\App\Http\Controllers\Admin\TransactionController::class, 'confirmCod'])->name('admin.transactions.confirm-cod');
         });
 
         // Product Management (Resource for internal use)
@@ -137,10 +174,21 @@ Route::middleware('auth')->group(function () {
         });
 
         // Withdrawals
-        Route::middleware('role:admin|seller')->prefix('withdrawals')->name('admin.withdrawals.')->group(function () {
+        Route::middleware('role:admin|seller|courier')->prefix('withdrawals')->name('admin.withdrawals.')->group(function () {
             Route::get('/', [WithdrawalController::class, 'index'])->name('index');
             Route::post('/', [WithdrawalController::class, 'store'])->name('store');
             Route::put('/{withdrawal}', [WithdrawalController::class, 'update'])->name('update');
+        });
+
+        // Voucher Management
+        Route::middleware('role:admin|seller')->prefix('vouchers')->name('admin.vouchers.')->group(function () {
+            Route::get('/', [VoucherController::class, 'index'])->name('index');
+            Route::get('/create', [VoucherController::class, 'create'])->name('create');
+            Route::post('/', [VoucherController::class, 'store'])->name('store');
+            Route::get('/{voucher}/edit', [VoucherController::class, 'edit'])->name('edit');
+            Route::put('/{voucher}', [VoucherController::class, 'update'])->name('update');
+            Route::delete('/{voucher}', [VoucherController::class, 'destroy'])->name('destroy');
+            Route::post('/{voucher}/toggle', [VoucherController::class, 'toggle'])->name('toggle');
         });
 
         // CMS Settings

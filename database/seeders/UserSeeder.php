@@ -37,7 +37,6 @@ class UserSeeder extends Seeder
             'name' => 'user',
             'email' => 'user@gmail.com',
             'password' => bcrypt('user1234'),
-            'nama_toko' => 'Bolo Shop Mojokerto',
             'alamat' => 'Kecamatan Magersari, Mojokerto',
             'latitude' => -7.4682,
             'longitude' => 112.4501,
@@ -47,10 +46,10 @@ class UserSeeder extends Seeder
 
         // Tambah satu seller khusus untuk testing variasi lokasi
         $seller = User::create([
-            'name' => 'Penjual Jauh',
+            'name' => 'Bakol Nyeni',
             'email' => 'seller@gmail.com',
             'password' => bcrypt('seller1234'),
-            'nama_toko' => 'Toko Jauh Banget',
+            'nama_toko' => 'Toko Seje Dewe',
             'alamat' => 'Sooko, Kabupaten Mojokerto',
             'latitude' => -7.4921,
             'longitude' => 112.4135,

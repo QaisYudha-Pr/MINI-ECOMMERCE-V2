@@ -27,7 +27,7 @@
                 
                 {{-- LEFT: PRODUCT IMAGES --}}
                 <div class="lg:col-span-4 lg:sticky lg:top-24 space-y-4">
-                    <div class="aspect-square rounded-[2rem] overflow-hidden border border-gray-100 shadow-sm bg-gray-50">
+                    <div class="aspect-square rounded-2xl overflow-hidden border border-gray-100 shadow-sm bg-gray-50">
                         <img src="{{ $itemShop->gambar ? asset($itemShop->gambar) : 'https://via.placeholder.com/800' }}" 
                              class="w-full h-full object-cover shadow-inner">
                     </div>
@@ -41,9 +41,16 @@
                         <div class="flex items-center gap-3 text-sm">
                             <span class="text-gray-500">Terjual <span class="text-gray-900 font-bold">{{ $itemShop->stok > 100 ? '1 rb+' : $itemShop->stok . ' terjual' }}</span></span>
                             <div class="w-1 h-1 bg-gray-300 rounded-full"></div>
-                            <div class="flex items-center gap-1">
-                                <svg class="w-4 h-4 text-yellow-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
-                                <span class="text-gray-900 font-bold">{{ number_format($itemShop->reviews()->avg('rating') ?? 5, 1) }}</span>
+                            <div class="flex items-center gap-1.5">
+                                <div class="flex items-center gap-0.5">
+                                    @php $rating = (float)($itemShop->reviews()->avg('rating') ?? 5); @endphp
+                                    @for($i = 1; $i <= 5; $i++)
+                                        <svg class="w-3.5 h-3.5 {{ $i <= $rating ? 'text-amber-400' : ($i - 0.8 <= $rating ? 'text-amber-300' : 'text-gray-200') }} fill-current" viewBox="0 0 20 20">
+                                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                                        </svg>
+                                    @endfor
+                                </div>
+                                <span class="text-gray-900 font-bold">{{ number_format($rating, 1) }}</span>
                                 <span class="text-gray-400">({{ $itemShop->reviews()->count() }} rating)</span>
                             </div>
                         </div>
@@ -60,17 +67,38 @@
                                 <img src="{{ $itemShop->user->avatar ? (Str::startsWith($itemShop->user->avatar, ['http://', 'https://']) ? $itemShop->user->avatar : asset($itemShop->user->avatar)) : 'https://ui-avatars.com/api/?name='.urlencode($itemShop->user->nama_toko ?? $itemShop->user->name ?? 'Admin').'&background=EBF4FF&color=7F9CF5' }}" 
                                      class="w-12 h-12 rounded-full border border-gray-100 object-cover">
                                 <div>
-                                    <h3 class="font-bold text-gray-900 group-hover/seller:text-[#00AA5B] transition-colors uppercase text-sm tracking-tight">{{ $itemShop->user->nama_toko ?? $itemShop->user->name ?? 'Official Store' }}</h3>
-                                    <p class="text-[10px] text-green-500 font-bold flex items-center gap-1 uppercase tracking-wider">
-                                        <span class="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></span>
-                                        Online
-                                    </p>
+                                    <h3 class="font-bold text-gray-900 group-hover/seller:text-emerald-600 transition-colors uppercase text-sm tracking-tight">{{ $itemShop->user->nama_toko ?? $itemShop->user->name ?? 'Official Store' }}</h3>
+                                    <div class="flex items-center gap-2">
+                                        <p class="text-xs text-emerald-500 font-bold flex items-center gap-1">
+                                            <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></span>
+                                            Online
+                                        </p>
+                                        @if($itemShop->user->seller_rating)
+                                            <span class="text-[11px] text-slate-300">|</span>
+                                            <div class="flex items-center gap-1">
+                                                <svg class="w-3 h-3 text-amber-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                                                <span class="text-xs font-bold text-amber-600">{{ number_format($itemShop->user->seller_rating, 1) }}</span>
+                                                <span class="text-[11px] text-slate-400">({{ $itemShop->user->seller_rating_count ?? 0 }})</span>
+                                            </div>
+                                            @if($itemShop->user->is_top_seller)
+                                                <span class="text-xs font-bold text-white bg-amber-500 px-1.5 py-0.5 rounded">Top</span>
+                                            @endif
+                                        @endif
+                                    </div>
                                 </div>
                             </div>
-                            <div class="px-4 py-2 border border-gray-200 rounded-lg text-[10px] font-black uppercase tracking-widest text-gray-600 group-hover/seller:border-[#00AA5B] group-hover/seller:text-[#00AA5B] transition-all">
+                            <div class="px-4 py-2 border border-gray-200 rounded-lg text-xs font-semibold text-gray-600 group-hover/seller:border-emerald-600 group-hover/seller:text-emerald-600 transition-all">
                                 Kunjungi Toko
                             </div>
                         </a>
+                        @auth
+                        @if(auth()->id() !== $itemShop->user_id)
+                        <a href="{{ route('chat.start', $itemShop->user) }}" class="px-4 py-2 bg-emerald-600 text-white rounded-lg text-xs font-semibold hover:bg-[#008f4d] transition-all flex items-center gap-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+                            Chat Penjual
+                        </a>
+                        @endif
+                        @endauth
                     </div>
 
                     <div class="space-y-4" x-data="{ tab: 'detail' }">
@@ -109,7 +137,7 @@
                                     <h4 class="font-bold text-gray-900 mb-2">Informasi Pengiriman</h4>
                                     <p class="text-gray-600 leading-relaxed text-xs">Pesanan sebelum jam 15:00 WIB akan dikirim pada hari yang sama. Estimasi pengiriman tergantung pada lokasi dan kurir yang dipilih.</p>
                                 </div>
-                                <div class="p-4 bg-orange-50 rounded-2xl border border-orange-100 italic text-[11px] text-orange-700">
+                                <div class="p-4 bg-orange-50 rounded-2xl border border-orange-100 text-[11px] text-orange-700">
                                     *Warna produk mungkin sedikit berbeda karena pencahayaan pada foto atau pengaturan layar monitor Anda.
                                 </div>
                             </div>
@@ -131,13 +159,13 @@
                                                 <svg class="w-3 h-3 {{ $i <= $review->rating ? 'fill-current' : 'text-gray-200' }}" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
                                             @endfor
                                         </div>
-                                        <span class="text-[10px] text-gray-400">{{ $review->created_at->diffForHumans() }}</span>
+                                        <span class="text-xs text-gray-400">{{ $review->created_at->diffForHumans() }}</span>
                                     </div>
                                     <p class="text-sm font-bold text-gray-900 mb-1">{{ $review->user->name }}</p>
                                     <p class="text-sm text-gray-600 line-clamp-2">{{ $review->comment }}</p>
                                 </div>
                             @empty
-                                <p class="text-gray-400 text-sm italic">Belum ada ulasan untuk produk ini.</p>
+                                <p class="text-gray-400 text-sm">Belum ada ulasan untuk produk ini.</p>
                             @endforelse
                         </div>
                     </div>
@@ -239,7 +267,7 @@
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
                                 </button>
                             </div>
-                            <span class="text-sm font-medium" :class="item.stok <= 0 ? 'text-rose-500 font-black' : 'text-gray-900'">
+                            <span class="text-sm font-medium" :class="item.stok <= 0 ? 'text-rose-500 font-bold' : 'text-gray-900'">
                                 <span x-text="item.stok <= 0 ? 'STOK HABIS BOLO!' : 'Stok: ' + item.stok"></span>
                             </span>
                         </div>
@@ -271,11 +299,11 @@
                                             Stok Habis
                                         </button>
                                         <div class="p-4 bg-rose-50 rounded-2xl border border-rose-100">
-                                            <p class="text-[10px] text-rose-600 font-bold uppercase tracking-widest text-center leading-relaxed">
+                                            <p class="text-xs text-rose-600 font-bold text-center leading-relaxed">
                                                 Waduh bolo, barang ini lagi laku keras sampai ludes! Cek produk lain di toko ini ya.
                                             </p>
                                         </div>
-                                        <a href="{{ route('shop.public', ['seller_id' => $itemShop->user_id]) }}" class="block w-full py-2 text-center text-[10px] font-black uppercase tracking-[0.1em] text-emerald-600 hover:underline">
+                                        <a href="{{ route('shop.public', ['seller_id' => $itemShop->user_id]) }}" class="block w-full py-2 text-center text-xs font-semibold uppercase tracking-[0.1em] text-emerald-600 hover:underline">
                                             Lihat Produk Toko Lainnya →
                                         </a>
                                     </div>
@@ -326,10 +354,10 @@
                 }
             }">
                 <div class="flex items-center gap-4 px-2">
-                    <div class="h-12 w-1.5 bg-indigo-600 rounded-full"></div>
+                    <div class="h-12 w-1.5 bg-emerald-600 rounded-full"></div>
                     <div>
-                        <h2 class="text-3xl font-black text-gray-900 uppercase tracking-tighter leading-none">Ulasan <span class="text-indigo-600">Pembeli</span></h2>
-                        <p class="text-xs font-bold text-gray-400 mt-1 uppercase tracking-widest">Apa yang mereka katakan tentang produk ini</p>
+                        <h2 class="text-3xl font-bold text-gray-900 leading-none">Ulasan <span class="text-emerald-600">Pembeli</span></h2>
+                        <p class="text-xs font-bold text-gray-400 mt-1">Apa yang mereka katakan tentang produk ini</p>
                     </div>
                 </div>
 
@@ -347,11 +375,11 @@
                 @endphp
 
                 {{-- SUMMARY BOX --}}
-                <div class="bg-white p-8 rounded-[3rem] shadow-xl shadow-gray-100 border border-gray-50">
+                <div class="bg-white p-8 rounded-2xl shadow-xl shadow-gray-100 border border-gray-50">
                     <div class="grid md:grid-cols-3 gap-12 items-center">
                         <div class="text-center md:border-r border-gray-100 pr-8">
                             <div class="flex items-center justify-center gap-2 mb-2">
-                                <span class="text-6xl font-black text-gray-900 tracking-tighter">{{ number_format($avgRating, 1) }}</span>
+                                <span class="text-6xl font-bold text-gray-900 tracking-tighter">{{ number_format($avgRating, 1) }}</span>
                                 <span class="text-gray-400 font-bold text-xl">/ 5.0</span>
                             </div>
                             <div class="flex justify-center text-yellow-400 mb-4">
@@ -384,11 +412,11 @@
                 @php $reviewPhotos = $itemShop->reviews()->whereNotNull('photo')->latest()->take(10)->get(); @endphp
                 @if($reviewPhotos->count() > 0)
                     <div class="space-y-4">
-                        <h4 class="text-sm font-black uppercase tracking-widest text-gray-900 px-2">Foto dari Pembeli</h4>
+                        <h4 class="text-sm font-semibold text-gray-900 px-2">Foto dari Pembeli</h4>
                         <div class="flex gap-4 overflow-x-auto pb-4 px-2 no-scrollbar">
                             @foreach($reviewPhotos as $rp)
                                 <div class="flex-shrink-0 w-32 h-32 rounded-2xl overflow-hidden border-2 border-white shadow-md hover:scale-105 transition-transform cursor-pointer"
-                                     onclick="Swal.fire({imageUrl: '{{ asset($rp->photo) }}', showConfirmButton: false, customClass: {popup: 'rounded-3xl'}})">
+                                     onclick="Swal.fire({imageUrl: '{{ asset($rp->photo) }}', showConfirmButton: false, customClass: {popup: 'rounded-2xl'}})">
                                     <img src="{{ asset($rp->photo) }}" class="w-full h-full object-cover">
                                 </div>
                             @endforeach
@@ -400,7 +428,7 @@
                     {{-- Sidebar Filters & Form (Kiri) --}}
                     <div class="md:col-span-1 space-y-8 sticky top-24">
                         {{-- FILTER REVIEWS --}}
-                        <div class="bg-white p-6 rounded-[2rem] border border-gray-100 shadow-sm">
+                        <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
                             <h4 class="font-bold text-gray-900 mb-6 flex items-center gap-2">
                                 <svg class="w-4 h-4 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 01-.293.707V17l-4 4v-6.586a1 1 0 01.293-.707L15.414 7.293A1 1 0 0015 6H5a1 1 0 00-1 1v2.586a1 1 0 01-.293.707L3.293 10.293A1 1 0 003 11v8a1 1 0 001 1h16a1 1 0 001-1v-8a1 1 0 00-.293-.707L16 6V4z"/></svg>
                                 Filter Ulasan
@@ -408,7 +436,7 @@
                             
                             <div class="space-y-6">
                                 <div>
-                                    <p class="text-[10px] font-black uppercase text-gray-400 mb-3 tracking-widest">Media</p>
+                                    <p class="text-xs font-semibold uppercase text-gray-400 mb-3 tracking-widest">Media</p>
                                     <label class="flex items-center gap-3 cursor-pointer group">
                                         <input type="checkbox" x-model="filters.media" class="w-5 h-5 rounded-lg border-gray-200 text-emerald-500 focus:ring-emerald-500 transition-all">
                                         <span class="text-sm text-gray-600 group-hover:text-emerald-600 transition-colors">Dengan Foto & Video</span>
@@ -416,7 +444,7 @@
                                 </div>
 
                                 <div>
-                                    <p class="text-[10px] font-black uppercase text-gray-400 mb-3 tracking-widest">Rating</p>
+                                    <p class="text-xs font-semibold uppercase text-gray-400 mb-3 tracking-widest">Rating</p>
                                     <div class="space-y-2">
                                         @for($i=5; $i>=1; $i--)
                                             <label class="flex items-center gap-3 cursor-pointer group">
@@ -433,8 +461,8 @@
                         </div>
 
                         @auth
-                            <div class="bg-white p-8 rounded-[2rem] shadow-xl shadow-gray-200/50 border border-white">
-                                <h4 class="text-xs font-black uppercase tracking-widest mb-6 text-gray-900">Tulis Ulasan</h4>
+                            <div class="bg-white p-8 rounded-2xl shadow-xl shadow-gray-200/50 border border-white">
+                                <h4 class="text-xs font-semibold mb-6 text-gray-900">Tulis Ulasan</h4>
                                 <form action="{{ route('reviews.store', $itemShop->id) }}" method="POST" enctype="multipart/form-data" class="space-y-5" 
                                     x-data="{ 
                                         rating: 5, 
@@ -475,9 +503,9 @@
 
                                     {{-- Modal Cropper --}}
                                     <div x-show="showCropper" class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm" x-cloak>
-                                        <div class="bg-white rounded-[2.5rem] p-8 max-w-xl w-full shadow-2xl" @click.away="showCropper = false">
+                                        <div class="bg-white rounded-2xl p-8 max-w-xl w-full shadow-lg" @click.away="showCropper = false">
                                             <div class="flex justify-between items-center mb-6">
-                                                <h3 class="text-xl font-black uppercase tracking-tighter">Sesuaikan Foto</h3>
+                                                <h3 class="text-xl font-semibold">Sesuaikan Foto</h3>
                                                 <button type="button" @click="showCropper = false" class="text-gray-400 hover:text-gray-600">
                                                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
                                                 </button>
@@ -486,14 +514,14 @@
                                                 <img id="cropper-target" src="" class="max-w-full block">
                                             </div>
                                             <div class="grid grid-cols-2 gap-4">
-                                                <button type="button" @click="showCropper = false" class="py-4 bg-gray-100 text-gray-500 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-gray-200 transition-all">Batal</button>
-                                                <button type="button" @click="saveCrop" class="py-4 bg-indigo-600 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-xl shadow-indigo-100 hover:bg-indigo-700 transition-all">Potong & Simpan</button>
+                                                <button type="button" @click="showCropper = false" class="py-4 bg-gray-100 text-gray-500 rounded-2xl font-bold text-xs hover:bg-gray-200 transition-all">Batal</button>
+                                                <button type="button" @click="saveCrop" class="py-4 bg-emerald-600 text-white rounded-2xl font-bold text-xs shadow-xl shadow-emerald-100 hover:bg-emerald-700 transition-all">Potong & Simpan</button>
                                             </div>
                                         </div>
                                     </div>
 
                                     <div>
-                                        <label class="text-[10px] font-black uppercase text-gray-400 block mb-3">Rate this product</label>
+                                        <label class="text-xs font-semibold uppercase text-gray-400 block mb-3">Rate this product</label>
                                         <div class="flex items-center gap-2 bg-gray-50 p-4 rounded-2xl border border-gray-100">
                                             <template x-for="i in 5">
                                                 <button type="button" @click="rating = i" class="transition-all duration-200 transform hover:scale-125 focus:outline-none">
@@ -502,12 +530,12 @@
                                                     </svg>
                                                 </button>
                                             </template>
-                                            <span class="ml-auto text-xs font-black text-gray-400" x-text="rating + '/5'"></span>
+                                            <span class="ml-auto text-xs font-medium text-gray-400" x-text="rating + '/5'"></span>
                                         </div>
                                     </div>
 
                                     <div>
-                                        <label class="text-[10px] font-black uppercase text-gray-400 block mb-2">Upload Photo (Optional)</label>
+                                        <label class="text-xs font-semibold uppercase text-gray-400 block mb-2">Upload Photo (Optional)</label>
                                         <div class="relative group">
                                             <input type="file" name="photo" accept="image/*" class="hidden" id="review-photo" 
                                                 @change="handleFile($event)">
@@ -515,7 +543,7 @@
                                                 <template x-if="!preview">
                                                     <div class="text-center">
                                                         <svg class="w-8 h-8 text-gray-400 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-                                                        <span class="text-[10px] font-black uppercase text-gray-400">Pilih Foto</span>
+                                                        <span class="text-xs font-semibold uppercase text-gray-400">Pilih Foto</span>
                                                     </div>
                                                 </template>
                                                 <template x-if="preview">
@@ -534,20 +562,20 @@
                                     </div>
 
                                     <div>
-                                        <label class="text-[10px] font-black uppercase text-gray-400 block mb-2">Message</label>
-                                        <textarea name="comment" rows="4" class="w-full p-4 rounded-2xl border-gray-100 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-indigo-500 text-sm transition-all resize-none outline-none" placeholder="Tell us about the product..." required></textarea>
+                                        <label class="text-xs font-semibold uppercase text-gray-400 block mb-2">Message</label>
+                                        <textarea name="comment" rows="4" class="w-full p-4 rounded-2xl border-gray-100 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-emerald-500 text-sm transition-all resize-none outline-none" placeholder="Tell us about the product..." required></textarea>
                                     </div>
-                                    <button type="submit" class="w-full py-4 bg-gray-900 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-lg hover:bg-black transition-all transform hover:-translate-y-1">
+                                    <button type="submit" class="w-full py-4 bg-gray-900 text-white rounded-2xl font-bold text-xs shadow-lg hover:bg-black transition-all transform hover:-translate-y-1">
                                         Submit Review
                                     </button>
                                 </form>
                             </div>
                         @else
-                            <div class="bg-indigo-600 p-8 rounded-[2.5rem] text-center text-white shadow-xl shadow-indigo-200">
+                            <div class="bg-emerald-600 p-8 rounded-2xl text-center text-white shadow-xl shadow-emerald-200">
                                 <span class="text-4xl mb-2 block">🔒</span>
-                                <p class="text-sm font-black uppercase tracking-widest mb-4">Login required</p>
-                                <p class="text-indigo-200 text-xs mb-6 leading-relaxed">Please sign in to share your experience with this product.</p>
-                                <a href="{{ route('login') }}" class="inline-block w-full py-4 bg-white text-indigo-600 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-gray-50 transition-all">Login Now</a>
+                                <p class="text-sm font-semibold mb-4">Login required</p>
+                                <p class="text-emerald-200 text-xs mb-6 leading-relaxed">Please sign in to share your experience with this product.</p>
+                                <a href="{{ route('login') }}" class="inline-block w-full py-4 bg-white text-emerald-600 rounded-2xl font-bold text-xs hover:bg-gray-50 transition-all">Login Now</a>
                             </div>
                         @endauth
                     </div>
@@ -582,7 +610,7 @@
                                         <div class="flex gap-2">
                                             <img src="{{ asset($review->photo) }}" 
                                                 class="w-24 h-24 object-cover rounded-xl shadow-sm border border-gray-100 cursor-pointer hover:opacity-90 transition-opacity"
-                                                onclick="Swal.fire({imageUrl: '{{ asset($review->photo) }}', showConfirmButton: false, customClass: {popup: 'rounded-3xl'}})">
+                                                onclick="Swal.fire({imageUrl: '{{ asset($review->photo) }}', showConfirmButton: false, customClass: {popup: 'rounded-2xl'}})">
                                         </div>
                                     @endif
 
@@ -598,8 +626,8 @@
                                 </div>
                             </div>
                         @empty
-                            <div class="bg-gray-50 py-24 rounded-[3rem] border-2 border-dashed border-gray-200 text-center">
-                                <p class="text-gray-400 font-black uppercase tracking-widest text-[10px]">Belum ada ulasan.</p>
+                            <div class="bg-gray-50 py-24 rounded-2xl border-2 border-dashed border-gray-200 text-center">
+                                <p class="text-gray-400 font-semibold text-xs">Belum ada ulasan.</p>
                                 <p class="text-gray-300 text-xs mt-1">Jadilah yang pertama mengulas produk ini!</p>
                             </div>
                         @endforelse
@@ -611,59 +639,15 @@
                 <div class="mt-24 pt-12 border-t border-gray-100" data-aos="fade-up">
                     <div class="flex items-center justify-between mb-8 px-2">
                         <div>
-                            <h3 class="text-2xl font-black text-gray-900 tracking-tighter uppercase">Rekomendasi <span class="text-emerald-500">Serupa</span></h3>
-                            <p class="text-[10px] font-bold text-gray-400 uppercase tracking-[0.2em] mt-1">Mungkin bolo juga suka produk ini</p>
+                            <h3 class="text-2xl font-bold text-gray-900 tracking-tighter uppercase">Rekomendasi <span class="text-emerald-500">Serupa</span></h3>
+                            <p class="text-xs font-bold text-gray-400 mt-1">Mungkin bolo juga suka produk ini</p>
                         </div>
-                        <a href="{{ route('shop.public') }}" class="text-[10px] font-black uppercase tracking-widest text-[#00AA5B] hover:underline">Lihat Semua →</a>
+                        <a href="{{ route('shop.public') }}" class="text-xs font-semibold text-emerald-600 hover:underline">Lihat Semua →</a>
                     </div>
 
                     <div class="grid grid-cols-2 md:grid-cols-4 xl:grid-cols-6 gap-6">
                         @foreach($relatedItems as $related)
-                        <div class="group bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-lg transition-all duration-300 flex flex-col h-full relative">
-                            {{-- IMAGE CONTAINER --}}
-                            <div class="relative aspect-square overflow-hidden bg-gray-50">
-                                @if($related->gambar)
-                                    <img src="{{ asset($related->gambar) }}"
-                                        class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                                        alt="{{ $related->nama_barang }}" loading="lazy">
-                                @else
-                                    <div class="w-full h-full flex items-center justify-center bg-gray-100 text-gray-300">
-                                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                        </svg>
-                                    </div>
-                                @endif
-
-                                @if($related->stok <= 0)
-                                    <div class="absolute inset-0 bg-black/40 flex items-center justify-center backdrop-blur-[2px]">
-                                        <span class="bg-white text-gray-900 px-3 py-1 text-[9px] font-black uppercase tracking-widest rounded-lg shadow-xl">Habis</span>
-                                    </div>
-                                @endif
-                            </div>
-
-                            {{-- CONTENT --}}
-                            <div class="p-3 flex flex-col flex-grow">
-                                <span class="text-[8px] uppercase font-bold tracking-widest text-emerald-500 mb-1 leading-none">{{ $related->kategori ?? 'Umum' }}</span>
-                                
-                                <h4 class="font-bold text-[10px] sm:text-[11px] text-gray-800 line-clamp-2 h-8 mb-2 group-hover:text-emerald-500 transition-colors leading-relaxed">
-                                    <a href="{{ route('shop.show', $related->id) }}" class="stretched-link">{{ $related->nama_barang }}</a>
-                                </h4>
-
-                                <div class="mt-auto">
-                                    <div class="flex items-center justify-between">
-                                        <div>
-                                            <span class="text-[10px] font-black text-gray-900">Rp</span>
-                                            <span class="text-xs font-black text-gray-900">{{ number_format($related->harga, 0, ',', '.') }}</span>
-                                        </div>
-                                        <div class="flex items-center gap-1">
-                                            <svg class="w-3 h-3 text-yellow-400 fill-current" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
-                                            <span class="text-[9px] font-bold text-gray-800">{{ number_format($related->reviews()->avg('rating') ?? 5, 1) }}</span>
-                                        </div>
-                                    </div>
-                                    <p class="text-[8px] font-bold text-gray-400 mt-1 uppercase tracking-tighter">{{ $related->total_terjual ?? 0 }} terjual</p>
-                                </div>
-                            </div>
-                        </div>
+                            <x-product-card :item="$related" />
                         @endforeach
                     </div>
                 </div>
@@ -672,3 +656,4 @@
 
     @include('components.cart-modal')
 </x-app-layout>
+

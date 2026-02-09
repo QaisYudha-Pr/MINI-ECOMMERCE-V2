@@ -1,20 +1,20 @@
 <x-admin-layout>
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 overflow-hidden">
+    <div class="max-w-7xl mx-auto">
         {{-- HEADER --}}
         <div class="flex flex-col md:flex-row justify-between items-end gap-6 mb-12">
             <div data-aos="fade-right" data-aos-duration="1000">
-                <span class="inline-block px-3 py-1 rounded-full bg-indigo-100 text-indigo-700 text-xs font-bold uppercase tracking-wider mb-3">
+                <span class="inline-block px-3 py-1 rounded-full bg-emerald-100 text-emerald-700 text-xs font-bold mb-3">
                     Admin Panel
                 </span>
-                <h1 class="text-4xl md:text-5xl font-black text-gray-900 tracking-tight">
-                    Manage <span class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600">Users</span>
+                <h1 class="text-4xl md:text-5xl font-bold text-gray-900 tracking-tight">
+                    Manage <span class="text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 to-purple-600">Users</span>
                 </h1>
                 <p class="text-gray-500 text-lg mt-2 font-medium">Atur hak akses dan akun pengguna MiniE-Store.</p>
             </div>
 
             <div data-aos="fade-left" data-aos-duration="1000">
                 <a href="{{ route('users.create') }}"
-                    class="group relative inline-flex items-center justify-center px-8 py-4 font-bold text-white transition-all duration-200 bg-indigo-600 rounded-2xl shadow-xl shadow-indigo-200 active:scale-95">
+                    class="group relative inline-flex items-center justify-center px-8 py-4 font-bold text-white transition-all duration-200 bg-emerald-600 rounded-2xl shadow-xl shadow-emerald-200 active:scale-95">
                     <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
                     </svg>
@@ -24,15 +24,15 @@
         </div>
 
         {{-- TABLE AREA --}}
-        <div data-aos="zoom-in-up" data-aos-duration="1000" class="bg-white rounded-[2.5rem] shadow-2xl shadow-gray-200/50 overflow-hidden border border-gray-100">
+        <div data-aos="zoom-in-up" data-aos-duration="1000" class="bg-white rounded-2xl shadow-lg shadow-gray-200/50 overflow-hidden border border-gray-100">
             <div class="overflow-x-auto">
                 <table class="w-full border-collapse">
                     <thead>
                         <tr class="bg-gray-50/80 border-b border-gray-100">
-                            <th class="px-8 py-6 text-left text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">IDENTITAS USER</th>
-                            <th class="px-8 py-6 text-left text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">AKSES & ROLE</th>
-                            <th class="hidden lg:table-cell px-8 py-6 text-left text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">BERGABUNG PADA</th>
-                            <th class="px-8 py-6 text-right text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">PENGATURAN</th>
+                            <th class="px-8 py-6 text-left text-xs font-medium text-gray-400">IDENTITAS USER</th>
+                            <th class="px-8 py-6 text-left text-xs font-medium text-gray-400">AKSES & ROLE</th>
+                            <th class="hidden lg:table-cell px-8 py-6 text-left text-xs font-medium text-gray-400">BERGABUNG PADA</th>
+                            <th class="px-8 py-6 text-right text-xs font-medium text-gray-400">PENGATURAN</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-50">
@@ -49,12 +49,12 @@
                                     </div>
                                     <div>
                                         <div class="flex items-center gap-2 mb-1">
-                                            <h4 class="font-bold text-gray-900 group-hover:text-indigo-600 transition-colors leading-none uppercase tracking-tighter">{{ $user->name }}</h4>
+                                            <h4 class="font-bold text-gray-900 group-hover:text-emerald-600 transition-colors leading-none">{{ $user->name }}</h4>
                                             @if($user->seller_status === 'approved')
                                                 <svg class="w-3.5 h-3.5 text-blue-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.64.304 1.24.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
                                             @endif
                                         </div>
-                                        <p class="text-[9px] font-black text-gray-400 uppercase tracking-widest">{{ $user->email }}</p>
+                                        <p class="text-[11px] font-medium text-gray-400">{{ $user->email }}</p>
                                     </div>
                                 </div>
                             </td>
@@ -62,18 +62,18 @@
                                 <div class="flex flex-wrap gap-2">
                                     @php $roles = $user->getRoleNames(); @endphp
                                     @if($roles->isEmpty())
-                                        <span class="px-3 py-1 bg-gray-50 text-gray-400 rounded-lg text-[9px] font-black uppercase tracking-widest border border-gray-100">User Client</span>
+                                        <span class="px-3 py-1 bg-gray-50 text-gray-400 rounded-lg text-[11px] font-semibold border border-gray-100">User Client</span>
                                     @else
                                         @foreach($roles as $role)
-                                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest shadow-sm
-                                            {{ $role == 'admin' ? 'bg-indigo-50 text-indigo-600 border border-indigo-100' : 
+                                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-[11px] font-semibold shadow-sm
+                                            {{ $role == 'admin' ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' : 
                                                ($role == 'seller' ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' : 
                                                ($role == 'courier' ? 'bg-orange-50 text-orange-600 border border-orange-100' : 'bg-slate-50 text-slate-600 border border-slate-100')) }}">
-                                            <span class="w-1 h-1 rounded-full {{ $role == 'admin' ? 'bg-indigo-400' : ($role == 'seller' ? 'bg-emerald-400' : 'bg-orange-400') }}"></span>
+                                            <span class="w-1 h-1 rounded-full {{ $role == 'admin' ? 'bg-emerald-400' : ($role == 'seller' ? 'bg-emerald-400' : 'bg-orange-400') }}"></span>
                                             {{ $role }}
                                         </span>
                                         @if($role == 'courier' && $user->courierAgency)
-                                            <span class="px-3 py-1 bg-white text-gray-400 rounded-lg text-[8px] font-black uppercase tracking-widest border border-gray-100 shadow-sm italic">
+                                            <span class="px-3 py-1 bg-white text-gray-400 rounded-lg text-[11px] font-semibold border border-gray-100 shadow-sm">
                                                 {{ $user->courierAgency->name }}
                                             </span>
                                         @endif
@@ -82,11 +82,11 @@
                                 </div>
                             </td>
                             <td class="hidden lg:table-cell px-8 py-6">
-                                <span class="text-[10px] font-bold text-gray-500 uppercase tracking-[0.1em]">{{ $user->created_at->translatedFormat('d M Y') }}</span>
+                                <span class="text-xs font-bold text-gray-500 uppercase tracking-[0.1em]">{{ $user->created_at->translatedFormat('d M Y') }}</span>
                             </td>
                             <td class="px-8 py-6">
                                 <div class="flex justify-end gap-2 translate-x-4 opacity-0 group-hover:translate-x-0 group-hover:opacity-100 transition-all duration-300">
-                                    <a href="{{ route('users.edit', $user->id) }}" class="p-2.5 bg-indigo-50 text-indigo-600 hover:bg-indigo-600 hover:text-white rounded-xl transition-all shadow-sm">
+                                    <a href="{{ route('users.edit', $user->id) }}" class="p-2.5 bg-emerald-50 text-emerald-600 hover:bg-emerald-600 hover:text-white rounded-xl transition-all shadow-sm">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                                         </svg>
@@ -117,3 +117,4 @@
         </div>
     </div>
 </x-admin-layout>
+

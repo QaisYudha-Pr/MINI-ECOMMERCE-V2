@@ -33,10 +33,16 @@ class ItemShopController extends Controller
                 $seller->loadCount('itemShops');
                 $seller->total_sold = $seller->itemShops()->sum('total_terjual');
                 
-                // Get Seller Rating from all their products
-                $itemIds = $seller->itemShops()->pluck('id');
-                $seller->avg_rating = \App\Models\Review::whereIn('item_shop_id', $itemIds)->avg('rating') ?: 0;
-                $seller->total_reviews = \App\Models\Review::whereIn('item_shop_id', $itemIds)->count();
+                // Get Seller Rating - Use the cached value from user table or calculate from reviews
+                $seller->avg_rating = $seller->seller_rating ?? 0;
+                $seller->total_reviews = $seller->seller_rating_count ?? 0;
+                
+                // If no seller reviews yet, fallback to products average for a better look
+                if ($seller->total_reviews == 0) {
+                    $itemIds = $seller->itemShops()->pluck('id');
+                    $seller->avg_rating = \App\Models\Review::whereIn('item_shop_id', $itemIds)->avg('rating') ?: 0;
+                    $seller->total_reviews = \App\Models\Review::whereIn('item_shop_id', $itemIds)->count();
+                }
             }
         }
 
@@ -66,7 +72,8 @@ class ItemShopController extends Controller
             $query->latest();
         }
 
-        $items = $query->withCount('reviews')
+        $items = $query->with('user:id,name,nama_toko,latitude,longitude,seller_rating,seller_rating_count,is_top_seller')
+            ->withCount('reviews')
             ->withAvg('reviews as ratings_avg', 'rating')
             ->paginate(20)
             ->withQueryString();
@@ -97,7 +104,9 @@ class ItemShopController extends Controller
         
         // Related products: priority same category, then same seller
         // We use shuffle and take to keep it interesting but relevant
-        $relatedItems = ItemShop::where('id', '!=', $itemShop->id)
+        $relatedItems = ItemShop::with(['user:id,name,nama_toko,latitude,longitude,seller_rating,seller_rating_count,is_top_seller'])
+            ->withAvg('reviews', 'rating')
+            ->where('id', '!=', $itemShop->id)
             ->where(function($q) use ($itemShop) {
                 $q->where('kategori', $itemShop->kategori)
                   ->orWhere('user_id', $itemShop->user_id);

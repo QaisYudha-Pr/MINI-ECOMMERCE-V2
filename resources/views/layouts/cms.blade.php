@@ -19,10 +19,10 @@
                     <x-application-logo class="h-9 w-auto" />
                 </a>
                 <div class="hidden md:flex items-center gap-10">
-                    <a href="{{ route('home') }}" class="text-[10px] font-black uppercase tracking-widest text-gray-500 hover:text-[#00AA5B] transition-colors">Produk</a>
-                    <a href="{{ route('about') }}" class="text-[10px] font-black uppercase tracking-widest text-[#00AA5B] border-b-2 border-[#00AA5B] pb-1">Tentang Kami</a>
-                    <a href="#" class="text-[10px] font-black uppercase tracking-widest text-gray-500 hover:text-[#00AA5B]">Bantuan</a>
-                    <a href="{{ route('login') }}" class="px-6 py-2.5 bg-gray-900 text-white text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-black transition-all">Sign In</a>
+                    <a href="{{ route('home') }}" class="text-[11px] font-bold uppercase tracking-widest text-gray-500 hover:text-emerald-600 transition-colors">Produk</a>
+                    <a href="{{ route('about') }}" class="text-[11px] font-bold uppercase tracking-widest text-emerald-600 border-b-2 border-emerald-600 pb-1">Tentang Kami</a>
+                    <a href="#" class="text-[11px] font-bold uppercase tracking-widest text-gray-500 hover:text-emerald-600">Bantuan</a>
+                    <a href="{{ route('login') }}" class="px-6 py-2.5 bg-gray-900 text-white text-[11px] font-bold uppercase tracking-widest rounded-xl hover:bg-black transition-all">Sign In</a>
                 </div>
             </div>
         </div>
@@ -44,3 +44,4 @@
     </script>
 </body>
 </html>
+

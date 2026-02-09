@@ -13,7 +13,8 @@ class HomeController extends Controller
         $settings = \App\Models\SiteSetting::all()->pluck('value', 'key');
         
         // 8 Latest Items
-        $items = ItemShop::where('stok', '>', 0)
+        $items = ItemShop::with('user:id,name,nama_toko,latitude,longitude,seller_rating,seller_rating_count,is_top_seller')
+            ->where('stok', '>', 0)
             ->withCount('reviews')
             ->withAvg('reviews as ratings_avg', 'rating')
             ->orderBy('id', 'desc')

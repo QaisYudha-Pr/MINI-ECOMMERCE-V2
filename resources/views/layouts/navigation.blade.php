@@ -65,22 +65,22 @@
     <div class="bg-gray-50 border-b border-gray-100 hidden md:block">
         <div class="max-w-7xl mx-auto px-4 flex justify-between items-center h-8 text-[11px] font-medium text-gray-500">
             <div class="flex items-center gap-4">
-                <a href="#" class="hover:text-[#00AA5B] flex items-center gap-1">
+                <a href="#" class="hover:text-emerald-600 flex items-center gap-1">
                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
                     Gratis Ongkir + Banyak Promo
                 </a>
             </div>
             <div class="flex items-center gap-6">
-                <a href="{{ route('shop.public') }}" class="hover:text-[#00AA5B]">Belanja Sekarang</a>
+                <a href="{{ route('shop.public') }}" class="hover:text-emerald-600">Belanja Sekarang</a>
                 @guest
-                    <a href="{{ route('seller.create') }}" class="hover:text-[#00AA5B]">Mulai Berjualan</a>
+                    <a href="{{ route('seller.create') }}" class="hover:text-emerald-600">Mulai Berjualan</a>
                 @else
                     @unlessrole('seller|admin')
-                        <a href="{{ route('seller.create') }}" class="hover:text-[#00AA5B]">Mulai Berjualan</a>
+                        <a href="{{ route('seller.create') }}" class="hover:text-emerald-600">Mulai Berjualan</a>
                     @endunlessrole
                 @endguest
-                <a href="{{ route('about') }}" class="hover:text-[#00AA5B]">Tentang MiniQ</a>
-                <a href="https://wa.me/6281234567890" target="_blank" class="hover:text-[#00AA5B]">Bantuan</a>
+                <a href="{{ route('about') }}" class="hover:text-emerald-600">Tentang MiniQ</a>
+                <a href="https://wa.me/6281234567890" target="_blank" class="hover:text-emerald-600">Bantuan</a>
             </div>
         </div>
     </div>
@@ -97,7 +97,7 @@
 
             {{-- KATEGORI --}}
             <div class="hidden lg:block relative" @click.away="kategoriOpen = false">
-                <button @click="kategoriOpen = !kategoriOpen" class="text-xs font-semibold text-gray-600 hover:text-[#00AA5B] px-2 py-1">
+                <button @click="kategoriOpen = !kategoriOpen" class="text-xs font-semibold text-gray-600 hover:text-emerald-600 px-2 py-1">
                     Kategori
                 </button>
                 <div x-show="kategoriOpen" x-cloak class="absolute top-full left-0 mt-2 w-56 bg-white border border-gray-100 shadow-xl rounded-2xl py-2 z-[60]">
@@ -106,7 +106,7 @@
                     @endphp
                     @foreach($navCategories as $cat)
                         <a href="{{ route('shop.public', ['category' => $cat]) }}"
-                            class="w-full text-left block px-4 py-2 text-xs font-semibold text-gray-600 hover:bg-gray-50 hover:text-[#00AA5B]">
+                            class="w-full text-left block px-4 py-2 text-xs font-semibold text-gray-600 hover:bg-gray-50 hover:text-emerald-600">
                             {{ $cat }}
                         </a>
                     @endforeach
@@ -131,7 +131,7 @@
                 }">
                 <form action="{{ route('shop.public') }}" method="GET" class="relative group">
                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <svg class="w-4 h-4 text-gray-400 group-focus-within:text-[#00AA5B]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg class="w-4 h-4 text-gray-400 group-focus-within:text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                         </svg>
                     </div>
@@ -142,7 +142,7 @@
                         @focus="searchFocused = true"
                         @click.away="searchFocused = false"
                         placeholder="Cari di MiniQ Store"
-                        class="w-full bg-white border border-gray-200 rounded-lg pl-10 pr-4 py-2.5 text-xs focus:ring-1 focus:ring-[#00AA5B] focus:border-[#00AA5B] transition-all outline-none">
+                        class="w-full bg-white border border-gray-200 rounded-lg pl-10 pr-4 py-2.5 text-xs focus:ring-1 focus:ring-emerald-600 focus:border-emerald-600 transition-all outline-none">
                 </form>
 
                 {{-- Search Suggestions Dropdown --}}
@@ -150,16 +150,16 @@
                     x-transition:enter="transition ease-out duration-200"
                     x-transition:enter-start="opacity-0 translate-y-2"
                     x-transition:enter-end="opacity-100 translate-y-0"
-                    class="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-100 shadow-2xl rounded-xl overflow-hidden z-[70]">
+                    class="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-100 shadow-lg rounded-xl overflow-hidden z-[70]">
                     
                     {{-- Popular/Default State --}}
                     <template x-if="$store.global.search.length === 0">
                         <div class="p-4">
-                            <h4 class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3">Pencarian Populer</h4>
+                            <h4 class="text-xs font-semibold text-gray-400 mb-3">Pencarian Populer</h4>
                             <div class="flex flex-wrap gap-2">
                                 <template x-for="tag in ['Laptop Gaming', 'Sepatu Pria', 'TWS', 'Meja Kerja']">
                                     <button @click="$store.global.setSearch(tag); handleSearch(tag)" 
-                                        class="px-3 py-1.5 bg-gray-50 border border-gray-100 rounded-lg text-[10px] font-bold text-gray-600 hover:text-[#00AA5B] hover:border-[#00AA5B] transition-all">
+                                        class="px-3 py-1.5 bg-gray-50 border border-gray-100 rounded-lg text-xs font-bold text-gray-600 hover:text-emerald-600 hover:border-emerald-600 transition-all">
                                         <span x-text="tag"></span>
                                     </button>
                                 </template>
@@ -170,7 +170,7 @@
                     {{-- Live Results matching the image style --}}
                     <template x-if="$store.global.search.length > 0">
                         <div class="py-2">
-                            <div x-show="loading" class="px-4 py-2 text-[10px] text-gray-400 italic">Mencari bolo...</div>
+                            <div x-show="loading" class="px-4 py-2 text-xs text-gray-400">Mencari bolo...</div>
                             
                             <template x-for="item in results" :key="item.id">
                                 <a :href="item.url" class="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors group">
@@ -178,7 +178,7 @@
                                         <img :src="item.seller_avatar" class="w-10 h-10 rounded-full border border-gray-100 object-cover">
                                         <template x-if="item.is_verified">
                                             <div class="absolute -bottom-1 -right-1 bg-white rounded-full p-0.5 shadow-sm">
-                                                <svg class="w-3 h-3 text-[#00AA5B]" fill="currentColor" viewBox="0 0 24 24">
+                                                <svg class="w-3 h-3 text-emerald-600" fill="currentColor" viewBox="0 0 24 24">
                                                     <path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
                                                 </svg>
                                             </div>
@@ -188,19 +188,19 @@
                                         <div class="flex items-center gap-1">
                                             <span class="text-xs font-bold text-gray-800 line-clamp-1" x-text="item.name"></span>
                                             <template x-if="item.is_verified">
-                                                <span class="text-[9px] font-black text-[#00AA5B] uppercase tracking-tighter">Official</span>
+                                                <span class="text-[11px] font-semibold text-emerald-600">Official</span>
                                             </template>
                                         </div>
-                                        <div class="text-[10px] text-gray-500 font-medium" x-text="item.location"></div>
+                                        <div class="text-xs text-gray-500 font-medium" x-text="item.location"></div>
                                     </div>
-                                    <svg class="w-4 h-4 text-gray-300 group-hover:text-[#00AA5B] transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <svg class="w-4 h-4 text-gray-300 group-hover:text-emerald-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7" />
                                     </svg>
                                 </a>
                             </template>
 
                             <div x-show="results.length === 0 && !loading" class="px-4 py-8 text-center">
-                                <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Barang nggak ketemu bolo</p>
+                                <p class="text-xs font-bold text-gray-400">Barang nggak ketemu bolo</p>
                             </div>
                         </div>
                     </template>
@@ -214,9 +214,22 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
                     </svg>
                     <template x-if="$store.cart.items.length > 0">
-                        <span class="absolute top-1 right-1 bg-red-500 text-white text-[8px] font-bold w-4 h-4 rounded-full flex items-center justify-center" x-text="$store.cart.items.length"></span>
+                        <span class="absolute top-1 right-1 bg-red-500 text-white text-[11px] font-bold w-4 h-4 rounded-full flex items-center justify-center" x-text="$store.cart.items.length"></span>
                     </template>
                 </button>
+
+                @auth
+                {{-- CHAT ICON --}}
+                <a href="{{ route('chat.index') }}" class="relative p-2 text-gray-600 hover:bg-gray-50 rounded-lg transition-colors group" title="Pesan">
+                    <svg class="w-5 h-5 group-hover:text-emerald-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                    </svg>
+                    @php $unreadMessages = \App\Models\Conversation::forUser(auth()->id())->get()->sum(fn($c) => $c->getUnreadCount(auth()->id())); @endphp
+                    @if($unreadMessages > 0)
+                    <span class="absolute top-1 right-1 bg-emerald-600 text-white text-[11px] font-bold w-4 h-4 rounded-full flex items-center justify-center border-2 border-white">{{ $unreadMessages > 9 ? '9+' : $unreadMessages }}</span>
+                    @endif
+                </a>
+                @endauth
 
                 @auth
                 {{-- NOTIFICATION BELL --}}
@@ -239,11 +252,11 @@
                 }">
                     <button @click="open = !open; if(open) readAll()" 
                         class="relative p-2 text-gray-600 hover:bg-gray-50 rounded-lg transition-colors group">
-                        <svg class="w-5 h-5 group-hover:text-[#00AA5B] transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg class="w-5 h-5 group-hover:text-emerald-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
                         </svg>
                         <template x-if="unreadCount > 0">
-                            <span class="absolute top-1 right-1 bg-[#00AA5B] text-white text-[8px] font-bold w-4 h-4 rounded-full flex items-center justify-center animate-bounce border-2 border-white" x-text="unreadCount"></span>
+                            <span class="absolute top-1 right-1 bg-emerald-600 text-white text-[11px] font-bold w-4 h-4 rounded-full flex items-center justify-center animate-bounce border-2 border-white" x-text="unreadCount"></span>
                         </template>
                     </button>
 
@@ -251,33 +264,60 @@
                         x-transition:enter="transition ease-out duration-200"
                         x-transition:enter-start="opacity-0 translate-y-2"
                         x-transition:enter-end="opacity-100 translate-y-0"
-                        class="absolute right-0 mt-3 w-80 bg-white border border-gray-100 shadow-2xl rounded-2xl overflow-hidden z-[100]">
-                        <div class="p-4 border-b border-gray-50 flex justify-between items-center bg-gray-50/50">
-                            <h3 class="text-[10px] font-black uppercase tracking-widest text-gray-900">Notifikasi</h3>
-                            <template x-if="unreadCount > 0">
-                                <span class="bg-[#00AA5B]/10 text-[#00AA5B] text-[8px] font-black px-2 py-0.5 rounded-full uppercase" x-text="unreadCount + ' Baru'"></span>
-                            </template>
+                        class="absolute right-0 mt-3 w-96 bg-white border border-gray-100 shadow-lg rounded-2xl overflow-hidden z-[100]"
+                        x-data="{ notifTab: 'all' }">
+                        <div class="p-4 border-b border-gray-50 bg-gray-50/50">
+                            <div class="flex justify-between items-center mb-3">
+                                <h3 class="text-xs font-semibold text-gray-900">Notifikasi</h3>
+                                <template x-if="unreadCount > 0">
+                                    <span class="bg-emerald-600/10 text-emerald-600 text-[11px] font-bold px-2 py-0.5 rounded-full uppercase" x-text="unreadCount + ' Baru'"></span>
+                                </template>
+                            </div>
+                            {{-- Category Filter Tabs --}}
+                            <div class="flex gap-1 overflow-x-auto no-scrollbar">
+                                <button @click="notifTab = 'all'" :class="notifTab === 'all' ? 'bg-gray-900 text-white' : 'bg-white text-gray-500 hover:bg-gray-100'" class="px-3 py-1 rounded-full text-[11px] font-semibold transition-all whitespace-nowrap">Semua</button>
+                                <button @click="notifTab = 'transaction'" :class="notifTab === 'transaction' ? 'bg-emerald-600 text-white' : 'bg-white text-gray-500 hover:bg-gray-100'" class="px-3 py-1 rounded-full text-[11px] font-semibold transition-all whitespace-nowrap">Transaksi</button>
+                                <button @click="notifTab = 'promo'" :class="notifTab === 'promo' ? 'bg-orange-500 text-white' : 'bg-white text-gray-500 hover:bg-gray-100'" class="px-3 py-1 rounded-full text-[11px] font-semibold transition-all whitespace-nowrap">Promo</button>
+                                <button @click="notifTab = 'follower'" :class="notifTab === 'follower' ? 'bg-blue-500 text-white' : 'bg-white text-gray-500 hover:bg-gray-100'" class="px-3 py-1 rounded-full text-[11px] font-semibold transition-all whitespace-nowrap">Follower</button>
+                                <button @click="notifTab = 'system'" :class="notifTab === 'system' ? 'bg-slate-600 text-white' : 'bg-white text-gray-500 hover:bg-gray-100'" class="px-3 py-1 rounded-full text-[11px] font-semibold transition-all whitespace-nowrap">Sistem</button>
+                            </div>
                         </div>
                         <div class="max-h-96 overflow-y-auto no-scrollbar">
                             @php
-                                $notifs = auth()->user()->notifications()->latest()->take(10)->get();
+                                $notifs = auth()->user()->notifications()->latest()->take(20)->get();
                             @endphp
                             @forelse($notifs as $notif)
-                                <div class="p-4 border-b border-gray-50 hover:bg-gray-50 transition-colors {{ !$notif->is_read ? 'bg-green-50/30' : '' }}">
-                                    <div class="flex gap-4">
-                                        <div class="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 {{ $notif->type === 'follow' ? 'bg-[#00AA5B]/10 text-[#00AA5B]' : 'bg-indigo-50 text-indigo-600' }}">
-                                            @if($notif->type === 'follow')
-                                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/></svg>
+                                <div x-show="notifTab === 'all' || notifTab === '{{ $notif->category ?? 'system' }}'" class="p-4 border-b border-gray-50 hover:bg-gray-50 transition-colors group/notif relative {{ !$notif->is_read ? 'bg-emerald-50/30' : '' }}">
+                                    {{-- Delete X Button --}}
+                                    <button onclick="deleteNotification({{ $notif->id }}, this, event)" class="absolute top-3 right-3 opacity-0 group-hover/notif:opacity-100 transition-opacity p-1 text-gray-300 hover:text-rose-500">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg>
+                                    </button>
+                                    <div class="flex gap-4 pr-6">
+                                        <div class="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 
+                                            {{ ($notif->category ?? '') === 'transaction' ? 'bg-emerald-50 text-emerald-600' : '' }}
+                                            {{ ($notif->category ?? '') === 'promo' ? 'bg-orange-50 text-orange-600' : '' }}
+                                            {{ ($notif->category ?? '') === 'follower' ? 'bg-blue-50 text-blue-600' : '' }}
+                                            {{ ($notif->category ?? '') === 'chat' ? 'bg-violet-50 text-violet-600' : '' }}
+                                            {{ !in_array($notif->category ?? '', ['transaction','promo','follower','chat']) ? 'bg-slate-50 text-slate-600' : '' }}
+                                        \">
+                                            @if(($notif->category ?? '') === 'transaction')
+                                                <svg class=\"w-5 h-5\" fill=\"none\" stroke=\"currentColor\" viewBox=\"0 0 24 24\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z\"/></svg>
+                                            @elseif(($notif->category ?? '') === 'promo')
+                                                <svg class=\"w-5 h-5\" fill=\"none\" stroke=\"currentColor\" viewBox=\"0 0 24 24\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z\"/></svg>
+                                            @elseif(($notif->category ?? '') === 'follower')
+                                                <svg class=\"w-5 h-5\" fill=\"none\" stroke=\"currentColor\" viewBox=\"0 0 24 24\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z\"/></svg>
+                                            @elseif(($notif->category ?? '') === 'chat')
+                                                <svg class=\"w-5 h-5\" fill=\"none\" stroke=\"currentColor\" viewBox=\"0 0 24 24\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z\"/></svg>
                                             @else
-                                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                                <svg class=\"w-5 h-5\" fill=\"none\" stroke=\"currentColor\" viewBox=\"0 0 24 24\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z\"/></svg>
                                             @endif
                                         </div>
                                         <div class="flex-grow">
-                                            <p class="text-[11px] font-black text-gray-900 leading-tight mb-1 uppercase tracking-tight">{{ $notif->title }}</p>
-                                            <p class="text-[10px] text-gray-500 font-bold leading-relaxed">{{ $notif->message }}</p>
+                                            <p class="text-[11px] font-bold text-gray-900 leading-tight mb-1">{{ $notif->title }}</p>
+                                            <p class="text-xs text-gray-500 font-bold leading-relaxed">{{ $notif->message }}</p>
                                             <div class="flex items-center gap-2 mt-2">
                                                 <div class="h-1 w-1 bg-gray-300 rounded-full"></div>
-                                                <p class="text-[9px] text-gray-400 font-black uppercase tracking-tighter">{{ $notif->created_at->diffForHumans() }}</p>
+                                                <p class="text-[11px] text-gray-400 font-semibold">{{ $notif->created_at->diffForHumans() }}</p>
                                             </div>
                                         </div>
                                     </div>
@@ -287,11 +327,11 @@
                                     <div class="w-12 h-12 bg-gray-50 rounded-2xl flex items-center justify-center mx-auto mb-4 text-gray-300">
                                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" /></svg>
                                     </div>
-                                    <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest leading-relaxed">Belum ada kabar<br>untuk kamu bolo</p>
+                                    <p class="text-xs font-semibold text-gray-400 leading-relaxed">Belum ada kabar<br>untuk kamu bolo</p>
                                 </div>
                             @endforelse
                             @if($notifs->count() > 0)
-                                <a href="#" class="block py-3 text-center bg-gray-50 text-[9px] font-black text-[#00AA5B] hover:bg-[#00AA5B] hover:text-white transition-all uppercase tracking-[0.2em] border-t border-gray-100">
+                                <a href="{{ route('chat.index') }}" class="block py-3 text-center bg-gray-50 text-[11px] font-bold text-emerald-600 hover:bg-emerald-600 hover:text-white transition-all border-t border-gray-100">
                                     Lihat Semua Notifikasi
                                 </a>
                             @endif
@@ -311,7 +351,7 @@
                                     @if (Auth::user()->avatar)
                                         <img src="{{ asset(Auth::user()->avatar) }}" class="w-full h-full object-cover">
                                     @else
-                                        <img src="https://ui-avatars.com/api/?name={{ urlencode(Auth::user()->name) }}&color=7F9CF5&background=EBF4FF" class="w-full h-full object-cover">
+                                        <img src="https://ui-avatars.com/api/?name={{ urlencode(Auth::user()->name) }}&color=059669&background=ECFDF5" class="w-full h-full object-cover">
                                     @endif
                                 </div>
                                 <span class="text-xs font-semibold text-gray-600 truncate max-w-[100px]">{{ Auth::user()->name }}</span>
@@ -320,26 +360,26 @@
 
                         <x-slot name="content">
                             <div class="px-4 py-3 bg-gray-50 border-b border-gray-100 mb-1 rounded-t-xl">
-                                <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Akun Saya</p>
+                                <p class="text-xs font-semibold text-gray-400 mb-1">Akun Saya</p>
                                 <p class="text-xs font-bold text-gray-900 truncate">{{ Auth::user()->name }}</p>
                             </div>
 
                             {{-- SHOPPING GROUP --}}
                             <div class="px-2 pb-1">
-                                <div class="px-3 py-1 text-[9px] font-black text-[#00AA5B] uppercase tracking-widest">Belanja</div>
-                                <x-dropdown-link :href="route('transactions.index')" class="text-xs font-bold py-2 hover:bg-green-50 rounded-lg">
+                                <div class="px-3 py-1 text-[11px] font-semibold text-emerald-600">Belanja</div>
+                                <x-dropdown-link :href="route('transactions.index')" class="text-xs font-bold py-2 hover:bg-emerald-50 rounded-lg">
                                     <div class="flex items-center gap-2">
                                         <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" /></svg>
                                         Riwayat Pesanan
                                     </div>
                                 </x-dropdown-link>
-                                <x-dropdown-link :href="route('wishlist.index')" class="text-xs font-bold py-2 hover:bg-green-50 rounded-lg">
+                                <x-dropdown-link :href="route('wishlist.index')" class="text-xs font-bold py-2 hover:bg-emerald-50 rounded-lg">
                                     <div class="flex items-center gap-2">
                                         <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" /></svg>
                                         Daftar Suka
                                     </div>
                                 </x-dropdown-link>
-                                <x-dropdown-link :href="route('reviews.index')" class="text-xs font-bold py-2 hover:bg-green-50 rounded-lg">
+                                <x-dropdown-link :href="route('reviews.index')" class="text-xs font-bold py-2 hover:bg-emerald-50 rounded-lg">
                                     <div class="flex items-center gap-2">
                                         <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.382-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" /></svg>
                                         Ulasan Saya
@@ -350,15 +390,15 @@
                             {{-- SELLER / ADMIN GROUP --}}
                             @if(auth()->user()->hasRole('seller') || auth()->user()->hasRole('admin'))
                             <div class="px-2 py-1 border-t border-gray-50">
-                                <div class="px-3 py-1 text-[9px] font-black text-indigo-600 uppercase tracking-widest">Manajemen</div>
-                                <x-dropdown-link :href="route('dashboard')" class="text-xs font-bold py-2 hover:bg-indigo-50 rounded-lg">
+                                <div class="px-3 py-1 text-[11px] font-semibold text-emerald-600">Manajemen</div>
+                                <x-dropdown-link :href="route('dashboard')" class="text-xs font-bold py-2 hover:bg-emerald-50 rounded-lg">
                                     <div class="flex items-center gap-2">
                                         <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.5 6h9.75M10.5 6a1.5 1.5 0 1 1-3 0m3 0a1.5 1.5 0 1 0-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-9.75 0h9.75" /></svg>
                                         Panel Kontrol
                                     </div>
                                 </x-dropdown-link>
                                 @role('admin')
-                                <x-dropdown-link :href="route('admin.cms.index')" class="text-xs font-bold py-2 hover:bg-indigo-50 rounded-lg">
+                                <x-dropdown-link :href="route('admin.cms.index')" class="text-xs font-bold py-2 hover:bg-emerald-50 rounded-lg">
                                     <div class="flex items-center gap-2">
                                         <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
                                         Konfigurasi Situs
@@ -369,7 +409,7 @@
                             @endif
 
                             <div class="px-2 py-1 border-t border-gray-50">
-                                <div class="px-3 py-1 text-[9px] font-black text-gray-400 uppercase tracking-widest">Pengaturan</div>
+                                <div class="px-3 py-1 text-[11px] font-semibold text-gray-400">Pengaturan</div>
                                 <x-dropdown-link :href="route('profile.edit')" class="text-xs font-bold py-2 hover:bg-gray-50 rounded-lg">
                                     <div class="flex items-center gap-2">
                                         <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
@@ -396,8 +436,8 @@
 
                 @guest
                 <div class="hidden md:flex items-center gap-3">
-                    <a href="{{ route('login') }}" class="text-xs font-bold text-[#00AA5B] border border-[#00AA5B] px-4 py-1.5 rounded-lg hover:bg-gray-50 transition-all">Masuk</a>
-                    <a href="{{ route('register') }}" class="text-xs font-bold text-white bg-[#00AA5B] border border-[#00AA5B] px-4 py-1.5 rounded-lg hover:bg-[#00944f] transition-all">Daftar</a>
+                    <a href="{{ route('login') }}" class="text-xs font-bold text-emerald-600 border border-emerald-600 px-4 py-1.5 rounded-lg hover:bg-gray-50 transition-all">Masuk</a>
+                    <a href="{{ route('register') }}" class="text-xs font-bold text-white bg-emerald-600 border border-emerald-600 px-4 py-1.5 rounded-lg hover:bg-[#00944f] transition-all">Daftar</a>
                 </div>
                 @endguest
 
@@ -434,7 +474,7 @@
     <div x-show="open" x-transition:enter="transition ease-out duration-200"
         x-transition:enter-start="opacity-0 -translate-y-4" x-transition:enter-end="opacity-100 translate-y-0"
         @click.away="open = false"
-        class="sm:hidden bg-white border-t border-gray-100 shadow-2xl rounded-b-[2.5rem] overflow-hidden" x-cloak>
+        class="sm:hidden bg-white border-t border-gray-100 shadow-lg rounded-b-2xl overflow-hidden" x-cloak>
 
         <div class="pt-4 pb-3 space-y-2 px-4">
             <x-responsive-nav-link :href="route('home')" :active="request()->routeIs('home')" class="rounded-2xl">
@@ -442,7 +482,7 @@
             </x-responsive-nav-link>
             
             <div class="pt-2 pb-1 px-4">
-                <span class="text-[10px] font-black text-[#00AA5B] uppercase tracking-widest">Aktivitas Belanja</span>
+                <span class="text-xs font-semibold text-emerald-600">Aktivitas Belanja</span>
             </div>
             <x-responsive-nav-link :href="route('shop.public')" :active="request()->routeIs('shop.public')" class="rounded-2xl">
                 {{ __('Jelajah Produk') }}
@@ -460,7 +500,7 @@
             @auth
                 @if(auth()->user()->hasRole('seller') || auth()->user()->hasRole('admin'))
                     <div class="pt-2 pb-1 px-4 border-t border-gray-50 mt-2">
-                        <span class="text-[10px] font-black text-indigo-600 uppercase tracking-widest">Pusat Seller</span>
+                        <span class="text-xs font-semibold text-emerald-600">Pusat Seller</span>
                     </div>
                     <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')" class="rounded-2xl">
                         {{ __('Dashboard Seller') }}
@@ -469,12 +509,12 @@
             @endauth
 
             @guest
-                <x-responsive-nav-link :href="route('seller.create')" class="rounded-2xl text-[#00AA5B] font-bold border-2 border-dashed border-green-100 mt-4">
+                <x-responsive-nav-link :href="route('seller.create')" class="rounded-2xl text-emerald-600 font-bold border-2 border-dashed border-emerald-100 mt-4">
                     {{ __('Mulai Berjualan') }}
                 </x-responsive-nav-link>
             @else
                 @unlessrole('seller|admin')
-                    <x-responsive-nav-link :href="route('seller.create')" class="rounded-2xl text-[#00AA5B] font-bold border-2 border-dashed border-green-100 mt-4">
+                    <x-responsive-nav-link :href="route('seller.create')" class="rounded-2xl text-emerald-600 font-bold border-2 border-dashed border-emerald-100 mt-4">
                         {{ __('Mulai Berjualan') }}
                     </x-responsive-nav-link>
                 @endunlessrole
@@ -483,31 +523,31 @@
 
         <div class="pt-4 pb-8 border-t border-gray-100 px-6">
             @auth
-                <div class="flex items-center gap-4 bg-indigo-50/50 p-5 rounded-[2rem] mb-6 border border-indigo-100/50">
+                <div class="flex items-center gap-4 bg-emerald-50/50 p-5 rounded-2xl mb-6 border border-emerald-100/50">
                     <div
-                        class="w-14 h-14 rounded-2xl overflow-hidden shadow-lg border-2 border-white ring-1 ring-indigo-200">
+                        class="w-14 h-14 rounded-2xl overflow-hidden shadow-lg border-2 border-white ring-1 ring-emerald-200">
                         @if (Auth::user()->avatar)
                             <img src="{{ asset(Auth::user()->avatar) }}" class="w-full h-full object-cover">
                         @else
-                                <img src="https://ui-avatars.com/api/?name={{ urlencode(Auth::user()->name) }}&color=7F9CF5&background=EBF4FF" class="w-full h-full object-cover">
+                                <img src="https://ui-avatars.com/api/?name={{ urlencode(Auth::user()->name) }}&color=059669&background=ECFDF5" class="w-full h-full object-cover">
                         @endif
                     </div>
                     <div>
-                        <div class="font-black text-gray-900 text-lg leading-none mb-1">{{ Auth::user()->name }}</div>
-                        <div class="text-[10px] font-bold text-indigo-500 uppercase tracking-widest">
+                        <div class="font-bold text-gray-900 text-lg leading-none mb-1">{{ Auth::user()->name }}</div>
+                        <div class="text-xs font-bold text-emerald-600">
                             {{ Auth::user()->email }}</div>
                     </div>
                 </div>
 
                 <div class="space-y-3">
                     <a href="{{ route('profile.edit') }}"
-                        class="w-full rounded-2xl font-black uppercase tracking-widest text-[11px] py-4 bg-white border border-gray-100 text-gray-700 shadow-sm flex justify-center items-center">
+                        class="w-full rounded-2xl font-semibold text-[11px] py-4 bg-white border border-gray-100 text-gray-700 shadow-sm flex justify-center items-center">
                         {{ __('Account Profile') }}
                     </a>
                     <form method="POST" action="{{ route('logout') }}">
                         @csrf
                         <button type="submit"
-                            class="w-full rounded-2xl font-black uppercase tracking-widest text-[11px] py-4 bg-red-50 text-red-600 border border-red-100 flex justify-center items-center">
+                            class="w-full rounded-2xl font-semibold text-[11px] py-4 bg-red-50 text-red-600 border border-red-100 flex justify-center items-center">
                             {{ __('Log Out Account') }}
                         </button>
                     </form>
@@ -517,9 +557,9 @@
             @guest
                 <div class="grid grid-cols-2 gap-4">
                     <a href="{{ route('login') }}"
-                        class="flex justify-center items-center py-4 rounded-2xl font-black uppercase tracking-widest text-[11px] bg-gray-50 text-gray-700 border border-gray-100">Login</a>
+                        class="flex justify-center items-center py-4 rounded-2xl font-semibold text-[11px] bg-gray-50 text-gray-700 border border-gray-100">Login</a>
                     <a href="{{ route('register') }}"
-                        class="flex justify-center items-center py-4 rounded-2xl font-black uppercase tracking-widest text-[11px] bg-indigo-600 text-white shadow-lg shadow-indigo-100">Register</a>
+                        class="flex justify-center items-center py-4 rounded-2xl font-semibold text-[11px] bg-emerald-600 text-white shadow-lg shadow-emerald-100">Register</a>
                 </div>
             @endguest
         </div>
@@ -535,14 +575,14 @@
          x-transition:leave-end="opacity-0 scale-95"
          x-cloak>
         
-        <div class="bg-white w-full max-w-[500px] rounded-[2rem] overflow-hidden shadow-2xl relative" @click.away="addressModal = false">
+        <div class="bg-white w-full max-w-[500px] rounded-2xl overflow-hidden shadow-lg relative" @click.away="addressModal = false">
             {{-- Close Button --}}
             <button @click="addressModal = false" class="absolute right-6 top-6 text-slate-400 hover:text-slate-600 transition-colors">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
             </button>
 
             <div class="p-8 pb-4">
-                <h3 class="text-xl font-black text-slate-900 tracking-tight leading-none mb-2">Mau kirim belanjaan kemana?</h3>
+                <h3 class="text-xl font-bold text-slate-900 tracking-tight leading-none mb-2">Mau kirim belanjaan kemana?</h3>
                 <p class="text-[13px] text-slate-400 font-medium leading-relaxed">Pilih area untuk estimasi ongkir, dan **lengkapi alamat (No. Rumah/Jalan)** di profil untuk kurir.</p>
             </div>
 
@@ -551,33 +591,33 @@
                     {{-- Selected Address Card --}}
                     <div class="border-2 border-emerald-500 bg-emerald-50/10 rounded-2xl p-5 relative border-l-[6px]">
                         <div class="flex items-center gap-2 mb-2">
-                            <span class="text-xs font-black text-slate-900">Rumah</span>
-                            <span class="px-2 py-0.5 bg-slate-100 text-[9px] font-black text-slate-400 uppercase rounded">Utama</span>
+                            <span class="text-xs font-bold text-slate-900">Rumah</span>
+                            <span class="px-2 py-0.5 bg-slate-100 text-[11px] font-bold text-slate-400 uppercase rounded">Utama</span>
                         </div>
-                        <div class="font-black text-slate-900 text-[15px] mb-1">{{ Auth::user()->name }}</div>
+                        <div class="font-bold text-slate-900 text-[15px] mb-1">{{ Auth::user()->name }}</div>
                         <div class="text-[13px] text-slate-600 mb-2">{{ Auth::user()->phone ?? '-' }}</div>
                         <p class="text-[12px] text-slate-500 leading-relaxed mb-4">{{ Auth::user()->alamat ?? 'Belum mengatur alamat' }}</p>
                         
                         <div class="flex items-center justify-between">
                             <div class="flex items-center gap-1.5 text-emerald-600">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-                                <span class="text-[11px] font-black uppercase tracking-wider">Sudah Pinpoint</span>
+                                <span class="text-[11px] font-semibold">Sudah Pinpoint</span>
                             </div>
                             <svg class="w-5 h-5 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>
                         </div>
                     </div>
 
-                    <a href="{{ route('profile.edit') }}" class="w-full mt-4 flex justify-center py-3 border border-slate-200 rounded-2xl text-[11px] font-black text-slate-600 uppercase tracking-widest hover:bg-slate-50 transition-all">Pilih Alamat Lainnya</a>
+                    <a href="{{ route('profile.edit') }}" class="w-full mt-4 flex justify-center py-3 border border-slate-200 rounded-2xl text-[11px] font-bold text-slate-600 hover:bg-slate-50 transition-all">Pilih Alamat Lainnya</a>
                 @else
-                    <div class="py-10 text-center bg-slate-50 rounded-[2rem] border border-dashed border-slate-200">
-                        <p class="text-sm font-black text-slate-400 uppercase tracking-widest">Silakan login untuk mengatur alamat</p>
-                        <a href="{{ route('login') }}" class="mt-4 inline-block px-6 py-2 bg-indigo-600 text-white rounded-xl text-[10px] font-black uppercase tracking-[0.2em]">Login Sekarang</a>
+                    <div class="py-10 text-center bg-slate-50 rounded-2xl border border-dashed border-slate-200">
+                        <p class="text-sm font-bold text-slate-400">Silakan login untuk mengatur alamat</p>
+                        <a href="{{ route('login') }}" class="mt-4 inline-block px-6 py-2 bg-emerald-600 text-white rounded-xl text-xs font-semibold">Login Sekarang</a>
                     </div>
                 @endauth
             </div>
 
             <div class="px-8 pt-6 pb-10 border-t border-slate-50 mt-4">
-                <h4 class="font-black text-slate-900 text-sm mb-4">Mau pakai cara lain?</h4>
+                <h4 class="font-bold text-slate-900 text-sm mb-4">Mau pakai cara lain?</h4>
                 <div class="flex gap-2">
                     <div class="relative flex-1">
                         <svg class="w-4 h-4 absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
@@ -586,7 +626,7 @@
                             x-model="searchQuery" 
                             @input.debounce.500ms="searchArea()"
                             placeholder="Pilih kota atau kecamatan" 
-                            class="w-full pl-11 pr-4 py-3.5 bg-slate-50 border-none rounded-2xl text-xs font-bold focus:ring-2 focus:ring-indigo-500">
+                            class="w-full pl-11 pr-4 py-3.5 bg-slate-50 border-none rounded-2xl text-xs font-bold focus:ring-2 focus:ring-emerald-500">
                         
                         {{-- Search Results --}}
                         <div x-show="searchResults.length > 0" 
@@ -602,16 +642,17 @@
 
                         {{-- Loading --}}
                         <div x-show="isLoading" class="absolute right-4 top-1/2 -translate-y-1/2">
-                            <svg class="animate-spin h-4 w-4 text-indigo-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                            <svg class="animate-spin h-4 w-4 text-emerald-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
                         </div>
                     </div>
                     <button 
                         @click="updateAddress()"
                         :disabled="!selectedArea"
-                        :class="selectedArea ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-100 block' : 'bg-slate-100 text-slate-400 cursor-not-allowed'"
-                        class="px-6 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all">Gunakan</button>
+                        :class="selectedArea ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-100 block' : 'bg-slate-100 text-slate-400 cursor-not-allowed'"
+                        class="px-6 rounded-2xl text-xs font-semibold transition-all">Gunakan</button>
                 </div>
             </div>
         </div>
     </div>
 </nav>
+

@@ -17,6 +17,9 @@
     <link rel="icon" type="image/png/svg" href="{{ asset('LogoQ.svg') }}" />
     @stack('styles')
 
+    {{-- Dynamic Theming --}}
+    @include('layouts.partials.dynamic-theme')
+
     <style>
         [x-cloak] {
             display: none !important;
@@ -62,16 +65,16 @@
     x-transition:leave-end="opacity-0"
     class="fixed inset-0 z-[9999] flex items-center justify-center bg-white/30 backdrop-blur-md" x-cloak>
     
-    <div class="flex flex-col items-center p-8 rounded-[2.5rem] bg-white/50 border border-white/20 shadow-2xl">
-        {{-- Spinner Kecil Indigo --}}
-        <div class="w-10 h-10 border-4 border-indigo-100 border-t-indigo-600 rounded-full animate-spin mb-4"></div>
+    <div class="flex flex-col items-center p-8 rounded-2xl bg-white/50 border border-white/20 shadow-lg">
+        {{-- Spinner Kecil emerald --}}
+        <div class="w-10 h-10 border-4 border-emerald-100 border-t-emerald-600 rounded-full animate-spin mb-4"></div>
 
             {{-- Teks Tunggu --}}
             <div class="flex items-center gap-1">
-                <span class="text-indigo-900 font-black text-[10px] uppercase tracking-[0.3em]">Tunggu Sebentar</span>
-                <span class="text-indigo-600 font-black dot-anim">.</span>
-                <span class="text-indigo-600 font-black dot-anim" style="animation-delay: 0.2s">.</span>
-                <span class="text-indigo-600 font-black dot-anim" style="animation-delay: 0.4s">.</span>
+                <span class="text-gray-600 text-sm font-medium">Tunggu sebentar</span>
+                <span class="text-emerald-600 font-medium dot-anim">.</span>
+                <span class="text-emerald-600 font-medium dot-anim" style="animation-delay: 0.2s">.</span>
+                <span class="text-emerald-600 font-medium dot-anim" style="animation-delay: 0.4s">.</span>
             </div>
         </div>
     </div>
@@ -89,13 +92,13 @@
                 <div x-transition:enter="transition ease-out duration-300"
                     x-transition:enter-start="translate-x-full opacity-0" x-transition:enter-end="translate-x-0 opacity-100"
                     x-transition:leave="transition ease-in duration-300" x-transition:leave-end="translate-x-full opacity-0"
-                    class="bg-white border-l-4 border-indigo-600 shadow-2xl rounded-2xl p-4 min-w-[250px] flex items-center gap-3">
-                    <div class="bg-indigo-100 p-2 rounded-xl">
-                        <svg class="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    class="bg-white border-l-4 border-emerald-600 shadow-lg rounded-xl p-4 min-w-[250px] flex items-center gap-3">
+                    <div class="bg-emerald-50 p-2 rounded-lg">
+                        <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                         </svg>
                     </div>
-                    <span class="text-xs font-black text-gray-800 uppercase tracking-widest" x-text="n.message"></span>
+                    <span class="text-sm font-medium text-gray-700" x-text="n.message"></span>
                 </div>
             </template>
         </div>
@@ -118,7 +121,7 @@
                 <nav class="flex mb-8 items-center justify-between" aria-label="Breadcrumb">
                     <ol class="inline-flex items-center space-x-1 md:space-x-2">
                         <li class="inline-flex items-center">
-                            <a href="{{ route('home') }}" class="inline-flex items-center text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 hover:text-indigo-600 transition-colors">
+                            <a href="{{ route('home') }}" class="inline-flex items-center text-[11px] font-bold uppercase tracking-[0.2em] text-slate-400 hover:text-emerald-600 transition-colors">
                                 <svg class="w-3.5 h-3.5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
                                 Home
                             </a>
@@ -132,7 +135,7 @@
                             <li>
                                 <div class="flex items-center">
                                     <span class="text-slate-300 mx-1">/</span>
-                                    <a href="{{ url($currentUrl) }}" class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 hover:text-indigo-600 transition-colors">
+                                    <a href="{{ url($currentUrl) }}" class="text-[11px] font-bold uppercase tracking-[0.2em] text-slate-400 hover:text-emerald-600 transition-colors">
                                         {{ str_replace('-', ' ', $segment) }}
                                     </a>
                                 </div>
@@ -156,8 +159,77 @@
                 once: true
             });
         });
+
+        // Notification management functions
+        function deleteNotification(id, element, e) {
+            if (e) { e.preventDefault(); e.stopPropagation(); }
+            
+            let item = element.closest('[class*="group/notif"]') || element.closest('.relative') || element.parentElement;
+            if (!item) return;
+
+            item.style.transition = 'all 0.3s ease';
+            item.style.opacity = '0.5';
+            item.style.pointerEvents = 'none';
+
+            fetch(`/notifications/${id}/delete`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                }
+            })
+            .then(response => {
+                if(response.ok) {
+                    item.style.transform = 'translateX(20px)';
+                    item.style.opacity = '0';
+                    setTimeout(() => item.remove(), 300);
+                } else {
+                    item.style.opacity = '1';
+                    item.style.pointerEvents = 'auto';
+                }
+            })
+            .catch(() => {
+                item.style.opacity = '1';
+                item.style.pointerEvents = 'auto';
+            });
+        }
+
+        function deleteAllNotifications() {
+            Swal.fire({
+                title: 'Hapus semua notifikasi?',
+                text: 'Aksi ini tidak bisa dibatalkan bolo!',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#ef4444',
+                cancelButtonColor: '#64748b',
+                confirmButtonText: 'Ya, Hapus Semua!',
+                cancelButtonText: 'Batal'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    fetch('/notifications/delete-all', {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'Accept': 'application/json'
+                        }
+                    }).then(response => {
+                        if(response.ok) {
+                            const container = document.getElementById('notifications-list');
+                            if (container) {
+                                container.innerHTML = '<p class="text-[11px] font-bold text-slate-300 text-center py-10 uppercase tracking-[0.2em]">Semua aman terkendali!</p>';
+                            }
+                            Swal.fire({ icon: 'success', title: 'Bersih!', text: 'Semua notifikasi berhasil dihapus.', timer: 1500, showConfirmButton: false });
+                        }
+                    });
+                }
+            });
+        }
     </script>
     @stack('scripts')
 </body>
 
 </html>
+

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
 use App\Services\BiteshipService;
 use App\Services\ShippingService;
 use Illuminate\Http\Request;
@@ -53,5 +54,33 @@ class ShippingController extends Controller
         );
 
         return response()->json($rates);
+    }
+
+    /**
+     * Return latest seller coordinates for checkout reconciliation.
+     */
+    public function getSellerCoordinates(Request $request)
+    {
+        $sellerIds = collect($request->input('seller_ids', []))
+            ->filter(fn($id) => is_numeric($id))
+            ->unique()
+            ->take(30)
+            ->all();
+
+        if (empty($sellerIds)) {
+            return response()->json([]);
+        }
+
+        $sellers = User::whereIn('id', $sellerIds)
+            ->get(['id', 'name', 'nama_toko', 'alamat', 'latitude', 'longitude'])
+            ->map(fn($user) => [
+                'id' => $user->id,
+                'name' => $user->nama_toko ?? $user->name ?? 'Official Store',
+                'alamat' => $user->alamat,
+                'lat' => $user->latitude,
+                'lng' => $user->longitude,
+            ]);
+
+        return response()->json($sellers);
     }
 }

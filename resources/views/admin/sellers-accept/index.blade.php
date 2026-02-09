@@ -1,21 +1,20 @@
 <x-admin-layout>
-    <div class="py-12 px-4 sm:px-6 lg:px-8">
-        <div class="max-w-7xl mx-auto">
-            <div class="flex justify-between items-center mb-8">
+    <div class="max-w-7xl mx-auto">
+        <div class="flex justify-between items-center mb-8">
                 <div>
-                    <h2 class="text-2xl font-black text-gray-900 uppercase tracking-tight">Validasi Seller Baru</h2>
-                    <p class="text-sm text-gray-500 font-medium mt-1 uppercase tracking-widest">Terdapat {{ $pendingSellers->count() }} Permohonan Menunggu</p>
+                    <h2 class="text-2xl font-bold text-gray-900">Validasi Seller Baru</h2>
+                    <p class="text-sm text-gray-500 font-medium mt-1">Terdapat {{ $pendingSellers->count() }} Permohonan Menunggu</p>
                 </div>
             </div>
 
-            <div class="bg-white rounded-[2.5rem] shadow-xl border border-gray-100 overflow-hidden">
+            <div class="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
                 <table class="w-full text-left border-collapse">
                     <thead class="bg-gray-50/50">
                         <tr>
-                            <th class="px-8 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-gray-400">User & Toko</th>
-                            <th class="px-8 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-gray-400">Dokumen KTP</th>
-                            <th class="px-8 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-gray-400">Tanggal Daftar</th>
-                            <th class="px-8 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-gray-400">Aksi</th>
+                            <th class="px-8 py-6 text-xs font-semibold text-gray-400">User & Toko</th>
+                            <th class="px-8 py-6 text-xs font-semibold text-gray-400">Dokumen KTP</th>
+                            <th class="px-8 py-6 text-xs font-semibold text-gray-400">Tanggal Daftar</th>
+                            <th class="px-8 py-6 text-xs font-semibold text-gray-400">Aksi</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-50">
@@ -28,17 +27,17 @@
                                         </div>
                                         <div>
                                             <p class="text-sm font-bold text-gray-900">{{ $seller->name }}</p>
-                                            <p class="text-xs font-black text-[#00AA5B] mt-0.5 uppercase tracking-tighter italic">"{{ $seller->nama_toko }}"</p>
+                                            <p class="text-xs font-semibold text-emerald-600 mt-0.5">"{{ $seller->nama_toko }}"</p>
                                             <div class="flex flex-col gap-0.5 mt-1">
-                                                <p class="text-[10px] text-gray-400">{{ $seller->email }}</p>
-                                                <p class="text-[10px] font-bold text-slate-500">{{ $seller->phone ?? '-' }}</p>
+                                                <p class="text-xs text-gray-400">{{ $seller->email }}</p>
+                                                <p class="text-xs font-bold text-slate-500">{{ $seller->phone ?? '-' }}</p>
                                             </div>
                                         </div>
                                     </div>
                                 </td>
                                 <td class="px-8 py-6">
                                     @if($seller->seller_document)
-                                        <a href="{{ asset($seller->seller_document) }}" target="_blank" class="inline-flex items-center gap-2 px-4 py-2 bg-indigo-50 text-indigo-600 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-indigo-100 transition-colors">
+                                        <a href="{{ asset($seller->seller_document) }}" target="_blank" class="inline-flex items-center gap-2 px-4 py-2 bg-emerald-50 text-emerald-600 rounded-xl text-xs font-semibold hover:bg-emerald-100 transition-colors">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
@@ -46,18 +45,18 @@
                                             Lihat Dokumen
                                         </a>
                                     @else
-                                        <span class="text-[10px] font-bold text-red-400 uppercase tracking-widest">Tidak Ada Foto</span>
+                                        <span class="text-xs font-bold text-red-400">Tidak Ada Foto</span>
                                     @endif
                                 </td>
                                 <td class="px-8 py-6">
                                     <p class="text-xs font-bold text-gray-600">{{ $seller->created_at->format('d M Y') }}</p>
-                                    <p class="text-[10px] text-gray-400 mt-1 uppercase tracking-widest">{{ $seller->created_at->format('H:i') }} WIB</p>
+                                    <p class="text-xs text-gray-400 mt-1">{{ $seller->created_at->format('H:i') }} WIB</p>
                                 </td>
                                 <td class="px-8 py-6">
                                     <div class="flex items-center gap-3">
                                         <form action="{{ route('admin.sellers.approve', $seller->id) }}" method="POST">
                                             @csrf
-                                            <button type="submit" class="p-2.5 bg-green-50 text-[#00AA5B] rounded-xl hover:bg-[#00AA5B] hover:text-white transition-all shadow-sm">
+                                            <button type="submit" class="p-2.5 bg-emerald-50 text-emerald-600 rounded-xl hover:bg-emerald-600 hover:text-white transition-all shadow-sm">
                                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                                                 </svg>
@@ -81,7 +80,7 @@
                                         <svg class="w-16 h-16 mx-auto mb-4 opacity-20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                                         </svg>
-                                        <p class="text-sm font-bold uppercase tracking-widest">Belum ada permohonan baru</p>
+                                        <p class="text-sm font-bold">Belum ada permohonan baru</p>
                                     </div>
                                 </td>
                             </tr>
@@ -92,3 +91,4 @@
         </div>
     </div>
 </x-admin-layout>
+

@@ -13,7 +13,8 @@ class Transaction extends Model
         'user_id', 'seller_id', 'courier_id', 'courier_service_id', 'invoice_number', 'parent_invoice', 
         'total_price', 'status', 'payment_method', 'alamat', 'catatan_alamat', 'items_details', 
         'snap_token', 'shipping_fee', 'admin_fee',
-        'courier_name', 'courier_service', 'destination_area_id', 'resi', 'completed_at', 'delivery_proof'
+        'courier_name', 'courier_service', 'destination_area_id', 'resi', 'completed_at', 'delivery_proof',
+        'lat', 'lng'
     ];
 
     protected $casts = [

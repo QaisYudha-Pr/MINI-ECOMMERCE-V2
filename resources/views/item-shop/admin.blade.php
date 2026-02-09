@@ -1,4 +1,4 @@
-﻿<x-admin-layout>
+<x-admin-layout>
     {{-- Tambahkan library SweetAlert & AOS di head jika belum ada --}}
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
@@ -36,11 +36,11 @@
         <div class="flex flex-col md:flex-row justify-between items-end gap-6 mb-12">
             <div data-aos="fade-right">
                 <span
-                    class="inline-block px-4 py-1.5 rounded-full bg-indigo-50 text-indigo-600 text-[10px] font-black uppercase tracking-[0.2em] mb-4">
+                    class="inline-block px-4 py-1.5 rounded-full bg-emerald-50 text-emerald-600 text-xs font-semibold mb-4">
                     Master Inventory
                 </span>
-                <h1 class="text-4xl md:text-6xl font-black text-gray-900 tracking-tighter">
-                    Manage <span class="text-indigo-600">Items.</span>
+                <h1 class="text-4xl md:text-6xl font-bold text-gray-900 tracking-tighter">
+                    Manage <span class="text-emerald-600">Items.</span>
                 </h1>
                 <p class="text-gray-400 text-lg mt-2 font-medium">Monitoring inventory status and product performance.
                 </p>
@@ -49,7 +49,7 @@
             @can('create', App\Models\ItemShop::class)
                 <div data-aos="fade-left">
                     <a href="{{ route('item-shop.create') }}"
-                        class="group relative inline-flex items-center justify-center px-10 py-5 font-black text-white transition-all duration-300 bg-gray-900 rounded-[2rem] hover:bg-indigo-600 hover:-translate-y-1 shadow-2xl shadow-gray-200">
+                        class="group relative inline-flex items-center justify-center px-10 py-5 font-bold text-white transition-all duration-300 bg-gray-900 rounded-2xl hover:bg-emerald-600 hover:-translate-y-1 shadow-lg shadow-gray-200">
                         <svg class="w-5 h-5 mr-3 group-hover:rotate-90 transition-transform duration-500" fill="none"
                             stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 4v16m8-8H4" />
@@ -63,16 +63,16 @@
         {{-- STATS CARDS (Dynamic for Admin & User) --}}
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
             {{-- Total Product --}}
-            <div data-aos="fade-up" data-aos-delay="100" class="glass-card p-8 rounded-[3rem] shadow-sm group">
+            <div data-aos="fade-up" data-aos-delay="100" class="glass-card p-8 rounded-2xl shadow-sm group">
                 <div class="flex items-center justify-between">
                     <div>
-                        <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest leading-none mb-2">
+                        <p class="text-xs font-medium text-gray-400 leading-none mb-2">
                             My Inventory</p>
-                        <h3 class="text-4xl font-black text-gray-900 group-hover:text-indigo-600 transition-colors">
+                        <h3 class="text-4xl font-bold text-gray-900 group-hover:text-emerald-600 transition-colors">
                             {{ $items->total() }} <span class="text-sm font-medium text-gray-400 uppercase">Items</span>
                         </h3>
                     </div>
-                    <div class="bg-indigo-50 p-4 rounded-3xl text-indigo-600 group-hover:scale-110 transition-transform">
+                    <div class="bg-emerald-50 p-4 rounded-2xl text-emerald-600 group-hover:scale-110 transition-transform">
                         <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
@@ -83,15 +83,15 @@
 
             {{-- Info Halaman --}}
             <div data-aos="fade-up" data-aos-delay="200"
-                class="glass-card p-8 rounded-[3rem] shadow-sm group border-b-4 border-indigo-500">
+                class="glass-card p-8 rounded-2xl shadow-sm group border-b-4 border-emerald-500">
                 <div class="flex items-center justify-between">
                     <div>
-                        <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest leading-none mb-2">
+                        <p class="text-xs font-medium text-gray-400 leading-none mb-2">
                             Active View</p>
-                        <h3 class="text-4xl font-black text-gray-900 group-hover:text-indigo-600 transition-colors">Page
+                        <h3 class="text-4xl font-bold text-gray-900 group-hover:text-emerald-600 transition-colors">Page
                             {{ $items->currentPage() }}</h3>
                     </div>
-                    <div class="bg-gray-50 p-4 rounded-3xl text-gray-400">
+                    <div class="bg-gray-50 p-4 rounded-2xl text-gray-400">
                         <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -101,21 +101,21 @@
             </div>
 
             {{-- Status Check --}}
-            <div data-aos="fade-up" data-aos-delay="300" class="glass-card p-8 rounded-[3rem] shadow-sm group">
+            <div data-aos="fade-up" data-aos-delay="300" class="glass-card p-8 rounded-2xl shadow-sm group">
                 <div class="flex items-center justify-between">
                     <div>
-                        <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest leading-none mb-2">
+                        <p class="text-xs font-medium text-gray-400 leading-none mb-2">
                             Inventory Health</p>
                         @if ($lowStockCount > 0)
-                            <h3 class="text-2xl font-black text-red-600 uppercase animate-pulse">
+                            <h3 class="text-2xl font-bold text-red-600 uppercase animate-pulse">
                                 Requires Attention
                             </h3>
-                            <p class="text-xs font-bold text-red-400 mt-1">{{ $lowStockCount }} Items Low Stock (≤ 5)</p>
+                            <p class="text-xs font-bold text-red-400 mt-1">{{ $lowStockCount }} Items Low Stock (= 5)</p>
                         @else
-                            <h3 class="text-2xl font-black text-gray-900 uppercase italic">
+                            <h3 class="text-2xl font-bold text-gray-900 uppercase">
                                 Excellent
                             </h3>
-                            <p class="text-xs font-bold text-green-500 mt-1">Stock Levels Healthy</p>
+                            <p class="text-xs font-bold text-emerald-500 mt-1">Stock Levels Healthy</p>
                         @endif
                     </div>
                 </div>
@@ -125,26 +125,26 @@
         {{-- SEARCH BAR AREA (UNTUK SEMUA USER) --}}
         <div class="mb-8" data-aos="fade-up" data-aos-delay="400">
             <div class="flex items-center justify-between mb-4 px-2">
-                <h3 class="font-black text-xl text-gray-900 uppercase tracking-tight">Search <span class="text-indigo-600">Product</span></h3>
+                <h3 class="font-bold text-xl text-gray-900">Search <span class="text-emerald-600">Product</span></h3>
             </div>
             <form action="{{ route('item-shop.index') }}" method="GET" class="relative group">
                 <div class="absolute inset-y-0 left-0 pl-6 flex items-center pointer-events-none">
-                    <svg class="w-5 h-5 text-gray-400 group-focus-within:text-indigo-600 transition-colors"
+                    <svg class="w-5 h-5 text-gray-400 group-focus-within:text-emerald-600 transition-colors"
                         fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3"
                             d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                     </svg>
                 </div>
                 <input type="text" id="searchInput" name="search" placeholder="Cari nama produk, kategori..."
-                    class="block w-full pl-16 pr-24 py-6 bg-white border-none rounded-[2rem] shadow-xl shadow-gray-100 focus:ring-4 focus:ring-indigo-500/10 transition-all font-bold text-gray-700">
+                    class="block w-full pl-16 pr-24 py-6 bg-white border-none rounded-2xl shadow-xl shadow-gray-100 focus:ring-4 focus:ring-emerald-500/10 transition-all font-bold text-gray-700">
 
                 <div class="absolute inset-y-0 right-0 flex items-center pr-4">
                     @if (request('search'))
                         <a href="{{ route('item-shop.index') }}"
-                            class="mr-4 text-[10px] font-black text-gray-400 hover:text-red-500 uppercase tracking-widest">Clear</a>
+                            class="mr-4 text-xs font-medium text-gray-400 hover:text-red-500">Clear</a>
                     @endif
                     <button type="submit"
-                        class="px-8 py-3 bg-gray-900 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-indigo-600 transition-all shadow-lg">
+                        class="px-8 py-3 bg-gray-900 text-white rounded-2xl font-bold text-xs hover:bg-emerald-600 transition-all shadow-lg">
                         Search
                     </button>
                 </div>
@@ -153,25 +153,25 @@
 
         {{-- TABLE AREA --}}
         <div data-aos="zoom-in"
-            class="bg-white rounded-[3rem] shadow-2xl shadow-gray-200/50 overflow-hidden border border-gray-50">
+            class="bg-white rounded-2xl shadow-lg shadow-gray-200/50 overflow-hidden border border-gray-50">
             <div class="overflow-x-auto">
                 <table class="w-full">
                     <thead>
                         <tr class="bg-gray-50/50">
                             <th
-                                class="px-4 md:px-8 py-7 text-left text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">
+                                class="px-4 md:px-8 py-7 text-left text-xs font-medium text-gray-400">
                                 Rank</th>
                             <th
-                                class="px-4 md:px-8 py-7 text-left text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">
+                                class="px-4 md:px-8 py-7 text-left text-xs font-medium text-gray-400">
                                 Product & Category</th>
                             <th
-                                class="px-4 md:px-8 py-7 text-left text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">
+                                class="px-4 md:px-8 py-7 text-left text-xs font-medium text-gray-400">
                                 Status & Stock</th>
                             <th
-                                class="px-4 md:px-8 py-7 text-left text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">
+                                class="px-4 md:px-8 py-7 text-left text-xs font-medium text-gray-400">
                                 Price</th>
                             <th
-                                class="px-4 md:px-8 py-7 text-center text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">
+                                class="px-4 md:px-8 py-7 text-center text-xs font-medium text-gray-400">
                                 Settings</th>
                         </tr>
                     </thead>
@@ -179,7 +179,7 @@
                         @forelse ($items as $index => $item)
                             <tr class="tr-gradient transition-all duration-300 group">
                                 <td class="px-4 md:px-8 py-6">
-                                    <span class="text-xs font-black text-gray-300 group-hover:text-indigo-600">
+                                    <span class="text-xs font-bold text-gray-300 group-hover:text-emerald-600">
                                         #{{ sprintf('%02d', ($items->currentPage() - 1) * $items->perPage() + $index + 1) }}
                                     </span>
                                 </td>
@@ -188,7 +188,7 @@
                                         <div class="relative shrink-0">
                                             @if ($item->gambar)
                                                 <img src="{{ asset($item->gambar) }}"
-                                                    class="w-16 h-16 rounded-[1.25rem] object-cover ring-4 ring-gray-50 group-hover:ring-indigo-100 transition-all shadow-lg">
+                                                    class="w-16 h-16 rounded-[1.25rem] object-cover ring-4 ring-gray-50 group-hover:ring-emerald-100 transition-all shadow-lg">
                                             @else
                                                 <div
                                                     class="w-16 h-16 bg-gray-100 rounded-[1.25rem] flex items-center justify-center text-gray-300">
@@ -204,13 +204,13 @@
                                         <div class="min-w-0">
                                             {{-- Contoh highlight hasil pencarian --}}
                                             <h4
-                                                class="font-black text-gray-900 group-hover:text-indigo-600 transition-colors uppercase tracking-tight truncate">
+                                                class="font-bold text-gray-900 group-hover:text-emerald-600 transition-colors truncate">
                                                 {!! request('search')
                                                     ? str_replace(request('search'), '<span class="bg-yellow-200">' . request('search') . '</span>', $item->nama_barang)
                                                     : $item->nama_barang !!}
                                             </h4>
                                             <span
-                                                class="text-[9px] font-black bg-indigo-50 text-indigo-500 px-2 py-0.5 rounded-md uppercase tracking-widest mt-1 inline-block">
+                                                class="text-[11px] font-bold bg-emerald-50 text-emerald-500 px-2 py-0.5 rounded-md mt-1 inline-block">
                                                 {{ $item->kategori ?? 'UNSORTED' }}
                                             </span>
                                         </div>
@@ -220,18 +220,18 @@
                                     <div class="flex flex-col">
                                         <div class="flex items-center gap-2">
                                             <span
-                                                class="w-2 h-2 rounded-full {{ $item->stok > 10 ? 'bg-green-500' : 'bg-red-500 animate-pulse' }}"></span>
-                                            <span class="text-sm font-black text-gray-700">{{ $item->stok }} <span
-                                                    class="text-[10px] text-gray-400 uppercase font-bold">In
+                                                class="w-2 h-2 rounded-full {{ $item->stok > 10 ? 'bg-emerald-500' : 'bg-red-500 animate-pulse' }}"></span>
+                                            <span class="text-sm font-bold text-gray-700">{{ $item->stok }} <span
+                                                    class="text-xs text-gray-400 uppercase font-bold">In
                                                     Stock</span></span>
                                         </div>
-                                        <p class="text-[10px] font-bold text-gray-400 mt-1 italic">Sold by
+                                        <p class="text-xs font-bold text-gray-400 mt-1 italic">Sold by
                                             {{ $item->user?->name ?? 'System' }}</p>
                                     </div>
                                 </td>
                                 <td class="px-4 md:px-8 py-6">
                                     <div
-                                        class="inline-flex px-4 py-2 rounded-2xl bg-gray-900 text-white font-black text-xs shadow-xl shadow-gray-200">
+                                        class="inline-flex px-4 py-2 rounded-2xl bg-gray-900 text-white font-bold text-xs shadow-xl shadow-gray-200">
                                         IDR {{ number_format($item->harga, 0, ',', '.') }}
                                     </div>
                                 </td>
@@ -239,7 +239,7 @@
                                     <div class="flex justify-center gap-3">
                                         @can('view', $item)
                                             <a href="{{ route('item-shop.show', $item->id) }}"
-                                                class="p-3 bg-gray-50 text-gray-400 hover:bg-indigo-600 hover:text-white rounded-2xl transition-all"><svg
+                                                class="p-3 bg-gray-50 text-gray-400 hover:bg-emerald-600 hover:text-white rounded-2xl transition-all"><svg
                                                     class="w-5 h-5" fill="none" stroke="currentColor"
                                                     viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -280,14 +280,14 @@
                                 <td colspan="5" class="py-32 text-center">
                                     <div class="flex flex-col items-center">
                                         <div
-                                            class="w-32 h-32 bg-indigo-50 rounded-full flex items-center justify-center mb-6">
-                                            <svg class="w-16 h-16 text-indigo-200" fill="none"
+                                            class="w-32 h-32 bg-emerald-50 rounded-full flex items-center justify-center mb-6">
+                                            <svg class="w-16 h-16 text-emerald-200" fill="none"
                                                 stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                     d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
                                             </svg>
                                         </div>
-                                        <h3 class="text-2xl font-black text-gray-900">EMPTY INVENTORY</h3>
+                                        <h3 class="text-2xl font-bold text-gray-900">EMPTY INVENTORY</h3>
                                         <p class="text-gray-400 mt-2 font-medium">Time to add some luxury products.</p>
                                     </div>
                                 </td>
@@ -326,9 +326,9 @@
                 confirmButtonText: 'YES, DELETE IT!',
                 cancelButtonText: 'CANCEL',
                 customClass: {
-                    popup: 'rounded-[3rem]',
-                    confirmButton: 'rounded-2xl px-6 py-3 font-black text-xs uppercase tracking-widest',
-                    cancelButton: 'rounded-2xl px-6 py-3 font-black text-xs uppercase tracking-widest'
+                    popup: 'rounded-2xl',
+                    confirmButton: 'rounded-2xl px-6 py-3 font-bold text-xs',
+                    cancelButton: 'rounded-2xl px-6 py-3 font-bold text-xs'
                 }
             }).then((result) => {
                 if (result.isConfirmed) {
@@ -358,35 +358,36 @@
                             // Render baris tabel baru
                             tableBody.innerHTML += `
                     <tr class="tr-gradient transition-all duration-300 group border-b border-gray-50">
-                        <td class="px-8 py-6 text-xs font-black text-gray-300">#${index + 1}</td>
+                        <td class="px-8 py-6 text-xs font-bold text-gray-300">#${index + 1}</td>
                         <td class="px-8 py-6">
                             <div class="flex items-center gap-6">
                                 <img src="/${item.gambar}" class="w-16 h-16 rounded-[1.25rem] object-cover shadow-lg">
                                 <div>
-                                    <h4 class="font-black text-gray-900 uppercase">${item.nama_barang}</h4>
-                                    <span class="text-[9px] font-black bg-indigo-50 text-indigo-500 px-2 py-0.5 rounded-md uppercase tracking-widest">${item.kategori}</span>
+                                    <h4 class="font-bold text-gray-900 uppercase">${item.nama_barang}</h4>
+                                    <span class="text-[11px] font-bold bg-emerald-50 text-emerald-500 px-2 py-0.5 rounded-md">${item.kategori}</span>
                                 </div>
                             </div>
                         </td>
                         <td class="px-8 py-6">
-                            <span class="text-sm font-black text-gray-700">${item.stok} In Stock</span>
+                            <span class="text-sm font-bold text-gray-700">${item.stok} In Stock</span>
                         </td>
                         <td class="px-8 py-6">
-                            <div class="inline-flex px-4 py-2 rounded-2xl bg-gray-900 text-white font-black text-xs">
+                            <div class="inline-flex px-4 py-2 rounded-2xl bg-gray-900 text-white font-bold text-xs">
                                 IDR ${new Intl.NumberFormat('id-ID').format(item.harga)}
                             </div>
                         </td>
                         <td class="px-8 py-6 text-center">
-                             <span class="text-gray-400 text-[10px] font-black italic uppercase">Refresh to Edit</span>
+                             <span class="text-gray-400 text-xs font-semibold uppercase">Refresh to Edit</span>
                         </td>
                     </tr>
                 `;
                         });
                     } else {
                         tableBody.innerHTML =
-                            '<tr><td colspan="5" class="py-20 text-center font-black text-gray-400">DATA TIDAK DITEMUKAN BOLO</td></tr>';
+                            '<tr><td colspan="5" class="py-20 text-center font-medium text-gray-400">DATA TIDAK DITEMUKAN BOLO</td></tr>';
                     }
                 });
         });
     </script>
 </x-admin-layout>
+

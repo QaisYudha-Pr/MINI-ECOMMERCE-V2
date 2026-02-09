@@ -21,11 +21,11 @@ export default {
                 background: '#f8fafc', // Slate 50
                 surface: '#ffffff',
                 
-                // Elegant Accent
+                // Bolo Emerald Accent
                 accent: {
-                    DEFAULT: '#4f46e5', // Indigo 600
-                    hover: '#4338ca',   // Indigo 700
-                    light: '#e0e7ff',   // Indigo 100
+                    DEFAULT: '#059669', // Emerald 600
+                    hover: '#047857',   // Emerald 700
+                    light: '#ecfdf5',   // Emerald 50
                 },
             },
         },

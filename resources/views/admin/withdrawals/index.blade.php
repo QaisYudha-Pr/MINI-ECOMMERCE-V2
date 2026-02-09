@@ -1,30 +1,37 @@
 <x-admin-layout>
+    @php
+        $isAdmin = Auth::user()->hasRole('admin');
+        $isSeller = Auth::user()->hasRole('seller');
+        $isCourier = Auth::user()->hasRole('courier');
+    @endphp
     <div class="space-y-6">
         {{-- Header Section (Bolo Style) --}}
-        <div class="relative bg-slate-900 overflow-hidden shadow-2xl sm:rounded-[3rem] p-10 group transition-all duration-500">
+        <div class="relative bg-white border border-slate-100 overflow-hidden shadow-sm sm:rounded-2xl p-10 group transition-all duration-500">
              <div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-8">
                 <div>
-                    <span class="inline-block px-4 py-1.5 rounded-full bg-indigo-500/20 backdrop-blur-md text-indigo-400 text-[10px] font-black uppercase tracking-[0.2em] mb-4 border border-indigo-500/20">
+                    <span class="inline-block px-4 py-1.5 rounded-full bg-emerald-50 text-emerald-600 text-[11px] font-bold mb-4 border border-emerald-100">
                         Keuangan Bolo
                     </span>
-                    <h1 class="text-4xl lg:text-5xl font-black text-white tracking-tighter leading-none mb-4">
-                        @if(Auth::user()->hasRole('admin'))
-                            Manajemen <span class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-indigo-200">Payout</span> 💸
+                    <h1 class="text-4xl lg:text-5xl font-bold text-slate-900 tracking-tighter leading-none mb-4">
+                        @if($isAdmin)
+                            Manajemen <span class="text-emerald-500">Payout</span> 💸
                         @else
-                            Penarikan <span class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-indigo-200">Saldo</span> 💸
+                            Penarikan <span class="text-emerald-500">Saldo</span> 💸
                         @endif
                     </h1>
-                    <p class="text-slate-400 text-sm font-medium leading-relaxed max-w-md">
-                        @if(Auth::user()->hasRole('admin'))
+                    <p class="text-slate-500 text-sm font-medium leading-relaxed max-w-md">
+                        @if($isAdmin)
                             Verifikasi dan proses permintaan pencairan dana seller tepat waktu bolo!
-                        @else
+                        @elseif($isSeller)
                             Kelola hasil jualanmu dengan bijak bolo. Jangan lupa sedekah biar makin berkah!
+                        @else
+                            Cairkan fee perjalanan dan tips setelah tugas antar selesai bolo!
                         @endif
                     </p>
                 </div>
-                @if(Auth::user()->hasRole('seller'))
+                @if($isSeller || $isCourier)
                 <button onclick="document.getElementById('modal-withdraw').classList.remove('hidden')" 
-                    class="px-10 py-5 bg-indigo-600 text-white rounded-[2rem] font-black text-[11px] uppercase tracking-[0.2em] hover:bg-white hover:text-slate-900 transition-all shadow-2xl shadow-indigo-500/20 active:scale-95 flex items-center gap-3">
+                    class="px-10 py-5 bg-emerald-600 text-white rounded-2xl font-bold text-[11px] hover:bg-slate-900 transition-all shadow-lg shadow-emerald-200 active:scale-95 flex items-center gap-3">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                     Tarik Saldo Baru
                 </button>
@@ -32,52 +39,54 @@
             </div>
             
             {{-- Abstract Graphics --}}
-            <div class="absolute right-[-10%] top-[-10%] w-96 h-96 bg-indigo-600/20 rounded-full blur-[120px] group-hover:bg-indigo-600/30 transition-all duration-1000"></div>
-            <div class="absolute left-[20%] bottom-[-20%] w-72 h-72 bg-indigo-400/10 rounded-full blur-[100px]"></div>
+            <div class="absolute right-[-10%] top-[-10%] w-96 h-96 bg-emerald-500/5 rounded-full blur-[120px] group-hover:bg-emerald-500/10 transition-all duration-1000"></div>
+            <div class="absolute left-[20%] bottom-[-20%] w-72 h-72 bg-emerald-500/5 rounded-full blur-[100px]"></div>
         </div>
 
         {{-- Stats for Seller (Bolo Style) --}}
-        @if(Auth::user()->hasRole('seller'))
+        @if($isSeller || $isCourier)
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
             {{-- Available Balance Card (The Star) --}}
-            <div class="relative bg-slate-900 p-8 rounded-[2.5rem] border border-white/5 shadow-2xl overflow-hidden group hover:-translate-y-1 transition-all">
+            <div class="relative bg-white border border-slate-100 p-8 rounded-2xl shadow-sm overflow-hidden group hover:-translate-y-1 transition-all">
                 <div class="relative z-10">
-                    <div class="text-indigo-400 text-[10px] font-black uppercase tracking-[0.2em] mb-2 flex items-center gap-2">
-                        <div class="w-2 h-2 rounded-full bg-indigo-400 animate-pulse"></div>
+                    <div class="text-emerald-600 text-xs font-bold mb-2 flex items-center gap-2">
+                        <div class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
                         Saldo Tersedia
                     </div>
-                    <div class="text-3xl font-black text-white leading-none">RP {{ number_format(Auth::user()->balance, 0, ',', '.') }}</div>
-                    <p class="mt-4 text-[9px] font-bold text-slate-500 uppercase tracking-widest leading-relaxed">Dana siap ditarik ke rekeningmu kapan saja bolo.</p>
+                    <div class="text-3xl font-bold text-slate-900 leading-none">RP {{ number_format(Auth::user()->balance, 0, ',', '.') }}</div>
+                    <p class="mt-4 text-[11px] font-bold text-slate-400 leading-relaxed">
+                        {{ $isCourier ? 'Pendapatan ongkir & tips siap cair kapan saja bolo.' : 'Dana siap ditarik ke rekeningmu kapan saja bolo.' }}
+                    </p>
                 </div>
-                <div class="absolute -right-4 -bottom-4 w-24 h-24 bg-indigo-600/10 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-700"></div>
+                <div class="absolute -right-4 -bottom-4 w-24 h-24 bg-emerald-50 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-700"></div>
             </div>
 
-            <div class="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-xl shadow-slate-200/40 flex flex-col justify-center group hover:shadow-2xl transition-all">
-                <div class="text-slate-400 text-[10px] font-black uppercase tracking-[0.2em] mb-2">Total Telah Cair</div>
-                <div class="text-3xl font-black text-slate-900 leading-none">RP {{ number_format($withdrawals->where('status', 'completed')->sum('amount'), 0, ',', '.') }}</div>
+            <div class="bg-white p-8 rounded-2xl border border-slate-100 shadow-xl shadow-slate-200/40 flex flex-col justify-center group hover:shadow-lg transition-all">
+                <div class="text-slate-400 text-xs font-semibold mb-2">Total Telah Cair</div>
+                <div class="text-3xl font-bold text-slate-900 leading-none">RP {{ number_format($withdrawals->where('status', 'completed')->sum('amount'), 0, ',', '.') }}</div>
             </div>
 
-            <div class="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-xl shadow-slate-200/40 flex flex-col justify-center group hover:shadow-2xl transition-all">
-                <div class="text-amber-500 text-[10px] font-black uppercase tracking-[0.2em] mb-2">Sedang Diproses</div>
-                <div class="text-3xl font-black text-slate-900 leading-none">RP {{ number_format($withdrawals->where('status', 'pending')->sum('amount'), 0, ',', '.') }}</div>
+            <div class="bg-white p-8 rounded-2xl border border-slate-100 shadow-xl shadow-slate-200/40 flex flex-col justify-center group hover:shadow-lg transition-all">
+                <div class="text-amber-500 text-xs font-semibold mb-2">Sedang Diproses</div>
+                <div class="text-3xl font-bold text-slate-900 leading-none">RP {{ number_format($withdrawals->where('status', 'pending')->sum('amount'), 0, ',', '.') }}</div>
             </div>
         </div>
         @endif
 
         {{-- Requests Table (Bolo Style) --}}
-        <div class="bg-white rounded-[3rem] border border-slate-100 shadow-2xl shadow-slate-200/50 overflow-hidden">
+        <div class="bg-white rounded-2xl border border-slate-100 shadow-lg shadow-slate-200/50 overflow-hidden">
             <div class="p-10 border-b border-slate-50 flex items-center justify-between">
                 <div>
-                    <h4 class="text-xl font-black text-slate-900 uppercase tracking-tighter">
-                        @if(Auth::user()->hasRole('admin'))
+                    <h4 class="text-xl font-bold text-slate-900">
+                        @if($isAdmin)
                             Daftar Request Payout
                         @else
                             Riwayat Penarikan
                         @endif
                     </h4>
-                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">
-                        @if(Auth::user()->hasRole('admin'))
-                            Kelola semua permintaan pencairan dana dari seller bolo.
+                    <p class="text-xs font-medium text-slate-400 mt-1">
+                        @if($isAdmin)
+                            Kelola semua permintaan pencairan dana dari seller & courier bolo.
                         @else
                             Pantau status pencairan danamu bolo.
                         @endif
@@ -88,12 +97,12 @@
                 <table class="w-full text-left border-collapse">
                     <thead>
                         <tr class="bg-slate-50/50">
-                            <th class="px-10 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Waktu & Kode</th>
-                            <th class="px-10 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Nominal</th>
-                            <th class="px-10 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Tujuan Bank</th>
-                            <th class="px-10 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Status</th>
-                            @if(Auth::user()->hasRole('admin'))
-                            <th class="px-10 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Aksi</th>
+                            <th class="px-10 py-5 text-xs font-medium text-slate-400">Waktu & Kode</th>
+                            <th class="px-10 py-5 text-xs font-medium text-slate-400 text-right">Nominal</th>
+                            <th class="px-10 py-5 text-xs font-medium text-slate-400">Tujuan Bank</th>
+                            <th class="px-10 py-5 text-xs font-medium text-slate-400 text-center">Status</th>
+                            @if($isAdmin)
+                            <th class="px-10 py-5 text-xs font-medium text-slate-400 text-center">Aksi</th>
                             @endif
                         </tr>
                     </thead>
@@ -101,20 +110,20 @@
                         @forelse($withdrawals as $w)
                         <tr class="hover:bg-slate-50/80 transition-all group">
                             <td class="px-10 py-8">
-                                <div class="text-sm font-black text-slate-900">{{ $w->created_at->format('d M, Y') }}</div>
-                                <div class="text-[9px] font-black text-indigo-500 uppercase tracking-widest mt-1">#WD-{{ str_pad($w->id, 5, '0', STR_PAD_LEFT) }}</div>
-                                @if(Auth::user()->hasRole('admin'))
-                                <div class="mt-2 inline-flex items-center px-2 py-1 bg-slate-100 rounded-lg text-[10px] text-slate-600 font-black uppercase tracking-tighter">{{ $w->user->name }}</div>
+                                <div class="text-sm font-bold text-slate-900">{{ $w->created_at->format('d M, Y') }}</div>
+                                <div class="text-[11px] font-bold text-emerald-500 mt-1">#WD-{{ str_pad($w->id, 5, '0', STR_PAD_LEFT) }}</div>
+                                @if($isAdmin)
+                                <div class="mt-2 inline-flex items-center px-2 py-1 bg-slate-100 rounded-lg text-xs text-slate-600 font-semibold">{{ $w->user->name }}</div>
                                 @endif
                             </td>
                             <td class="px-10 py-8 text-right">
-                                <div class="text-md font-black text-slate-900">RP {{ number_format($w->amount, 0, ',', '.') }}</div>
+                                <div class="text-md font-bold text-slate-900">RP {{ number_format($w->amount, 0, ',', '.') }}</div>
                             </td>
                             <td class="px-10 py-8">
                                 <div class="flex flex-col">
-                                    <span class="text-sm font-black text-slate-800 uppercase tracking-tight">{{ $w->bank_name }}</span>
+                                    <span class="text-sm font-bold text-slate-800">{{ $w->bank_name }}</span>
                                     <span class="text-[11px] font-bold text-slate-500 font-mono tracking-tighter">{{ $w->account_number }}</span>
-                                    <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest mt-1">{{ $w->account_name }}</span>
+                                    <span class="text-[11px] font-medium text-slate-400 mt-1">{{ $w->account_name }}</span>
                                 </div>
                             </td>
                             <td class="px-10 py-8 text-center">
@@ -123,20 +132,20 @@
                                         'pending' => 'bg-amber-100 text-amber-700 ring-amber-200/50',
                                         'approved' => 'bg-blue-100 text-blue-700 ring-blue-200/50',
                                         'rejected' => 'bg-rose-100 text-rose-700 ring-rose-200/50',
-                                        'completed' => 'bg-emerald-100 text-emerald-700 ring-emerald-200/50',
+                                        'completed' => 'bg-green-100 text-green-700 ring-green-200/50',
                                     ];
                                 @endphp
-                                <span class="px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest ring-4 {{ $colors[$w->status] ?? 'bg-slate-100' }}">
+                                <span class="px-4 py-2 rounded-xl text-xs font-semibold ring-4 {{ $colors[$w->status] ?? 'bg-slate-100' }}">
                                     {{ $w->status }}
                                 </span>
                                 @if($w->admin_note)
-                                <p class="mt-3 text-[9px] font-bold text-slate-400 leading-tight bg-slate-50 p-2 rounded-lg italic">"{{ $w->admin_note }}"</p>
+                                <p class="mt-3 text-[11px] font-bold text-slate-400 leading-tight bg-slate-50 p-2 rounded-lg">"{{ $w->admin_note }}"</p>
                                 @endif
                             </td>
-                            @if(Auth::user()->hasRole('admin'))
+                            @if($isAdmin)
                             <td class="px-10 py-8 text-center">
                                 <button onclick="openAdminModal('{{ $w->id }}', '{{ $w->status }}', '{{ $w->admin_note }}')" 
-                                    class="px-5 py-2.5 bg-slate-900 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-indigo-600 transition-all shadow-lg active:scale-95">
+                                    class="px-5 py-2.5 bg-emerald-600 text-white rounded-xl text-xs font-semibold hover:bg-slate-900 transition-all shadow-lg active:scale-95">
                                     Review
                                 </button>
                             </td>
@@ -146,11 +155,11 @@
                         <tr>
                             <td colspan="5" class="px-10 py-20 text-center">
                                 <div class="flex flex-col items-center">
-                                    <div class="w-20 h-20 bg-slate-50 rounded-[2rem] flex items-center justify-center text-slate-200 mb-4">
+                                    <div class="w-20 h-20 bg-slate-50 rounded-2xl flex items-center justify-center text-slate-200 mb-4">
                                         <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                                     </div>
-                                    <p class="text-slate-400 font-black text-[10px] uppercase tracking-[0.2em]">
-                                        @if(Auth::user()->hasRole('admin'))
+                                    <p class="text-slate-400 font-bold text-xs">
+                                        @if($isAdmin)
                                             Belum ada permintaan penarikan yang masuk bolo.
                                         @else
                                             Belum ada riwayat penarikan bolo.
@@ -166,55 +175,55 @@
         </div>
     </div>
 
-    {{-- Modal Withdraw (Seller) --}}
+    {{-- Modal Withdraw (Seller & Courier) --}}
     <div id="modal-withdraw" class="fixed inset-0 z-50 overflow-y-auto hidden" aria-labelledby="modal-title" role="dialog" aria-modal="true">
         <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
             <div class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm transition-opacity" aria-hidden="true" onclick="this.parentElement.parentElement.classList.add('hidden')"></div>
             <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-            <div class="inline-block align-bottom bg-white rounded-[3rem] text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+            <div class="inline-block align-bottom bg-white rounded-2xl text-left overflow-hidden shadow-lg transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
                 <form action="{{ route('admin.withdrawals.store') }}" method="POST">
                     @csrf
                     <div class="p-10">
                         <div class="flex items-center gap-4 mb-8">
-                            <div class="w-12 h-12 bg-indigo-600 rounded-2xl flex items-center justify-center text-white shadow-xl shadow-indigo-200">
+                            <div class="w-12 h-12 bg-emerald-600 rounded-2xl flex items-center justify-center text-white shadow-xl shadow-emerald-200">
                                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                             </div>
-                            <h3 class="text-2xl font-black text-slate-900 tracking-tighter uppercase">Tarik Dana <span class="text-indigo-600">Bolo</span> 🚀</h3>
+                            <h3 class="text-2xl font-bold text-slate-900 tracking-tighter uppercase">Tarik Dana <span class="text-emerald-600">Bolo</span> 🚀</h3>
                         </div>
                         
                         <div class="space-y-6">
                             <div>
-                                <label class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] block mb-3">Nominal Tarik</label>
+                                <label class="text-xs font-medium text-slate-400 block mb-3">Nominal Tarik</label>
                                 <div class="relative">
-                                    <span class="absolute left-4 top-1/2 -translate-y-1/2 font-black text-slate-400">RP</span>
+                                    <span class="absolute left-4 top-1/2 -translate-y-1/2 font-medium text-slate-400">RP</span>
                                     <input type="number" name="amount" min="10000" max="{{ Auth::user()->balance }}" required 
-                                        class="w-full bg-slate-50 border-2 border-slate-50 rounded-[1.5rem] py-5 pl-12 pr-6 text-lg font-black text-slate-900 focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all" placeholder="0">
+                                        class="w-full bg-slate-50 border-2 border-slate-50 rounded-[1.5rem] py-5 pl-12 pr-6 text-lg font-bold text-slate-900 focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all" placeholder="0">
                                 </div>
                                 <div class="mt-3 flex items-center justify-between px-2">
-                                    <p class="text-[10px] text-slate-400 font-black uppercase tracking-widest">Saldo Tersedia</p>
-                                    <p class="text-[10px] text-indigo-600 font-black uppercase tracking-widest">RP {{ number_format(Auth::user()->balance, 0, ',', '.') }}</p>
+                                    <p class="text-xs text-slate-400 font-semibold">Saldo Tersedia</p>
+                                    <p class="text-xs text-emerald-600 font-semibold">RP {{ number_format(Auth::user()->balance, 0, ',', '.') }}</p>
                                 </div>
                             </div>
 
                             <div class="grid grid-cols-2 gap-4">
                                 <div class="col-span-2">
-                                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] block mb-2">Nama Bank / E-Wallet</label>
-                                    <input type="text" name="bank_name" required class="w-full bg-slate-50 border-2 border-slate-50 rounded-2xl p-4 text-sm font-black text-slate-900 focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all uppercase" placeholder="Contoh: BCA / DANA / MANDIRI">
+                                    <label class="text-xs font-medium text-slate-400 block mb-2">Nama Bank / E-Wallet</label>
+                                    <input type="text" name="bank_name" required class="w-full bg-slate-50 border-2 border-slate-50 rounded-2xl p-4 text-sm font-bold text-slate-900 focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all uppercase" placeholder="Contoh: BCA / DANA / MANDIRI">
                                 </div>
                                 <div class="col-span-1">
-                                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] block mb-2">No. Rekening</label>
-                                    <input type="text" name="account_number" required class="w-full bg-slate-50 border-2 border-slate-50 rounded-2xl p-4 text-sm font-black text-slate-900 focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all font-mono" placeholder="xxx-xxx-xxx">
+                                    <label class="text-xs font-medium text-slate-400 block mb-2">No. Rekening</label>
+                                    <input type="text" name="account_number" required class="w-full bg-slate-50 border-2 border-slate-50 rounded-2xl p-4 text-sm font-bold text-slate-900 focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all font-mono" placeholder="xxx-xxx-xxx">
                                 </div>
                                 <div class="col-span-1">
-                                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] block mb-2">Atas Nama</label>
-                                    <input type="text" name="account_name" required class="w-full bg-slate-50 border-2 border-slate-50 rounded-2xl p-4 text-sm font-black text-slate-900 focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all uppercase" placeholder="Nama asli bolo">
+                                    <label class="text-xs font-medium text-slate-400 block mb-2">Atas Nama</label>
+                                    <input type="text" name="account_name" required class="w-full bg-slate-50 border-2 border-slate-50 rounded-2xl p-4 text-sm font-bold text-slate-900 focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all uppercase" placeholder="Nama asli bolo">
                                 </div>
                             </div>
                         </div>
                     </div>
                     <div class="bg-slate-50/50 p-10 flex gap-4">
-                        <button type="button" onclick="document.getElementById('modal-withdraw').classList.add('hidden')" class="flex-1 py-5 bg-white border-2 border-slate-100 text-slate-400 rounded-[1.5rem] font-black text-[10px] uppercase tracking-[0.2em] hover:bg-slate-100 hover:text-slate-600 transition-all">Batal</button>
-                        <button type="submit" class="flex-1 py-5 bg-indigo-600 text-white rounded-[1.5rem] font-black text-[10px] uppercase tracking-[0.2em] shadow-2xl shadow-indigo-200 hover:bg-slate-900 transition-all">Kirim Permintaan</button>
+                        <button type="button" onclick="document.getElementById('modal-withdraw').classList.add('hidden')" class="flex-1 py-5 bg-white border-2 border-slate-100 text-slate-400 rounded-[1.5rem] font-bold text-xs hover:bg-slate-100 hover:text-slate-600 transition-all">Batal</button>
+                        <button type="submit" class="flex-1 py-5 bg-emerald-600 text-white rounded-[1.5rem] font-bold text-xs shadow-lg shadow-emerald-200 hover:bg-slate-900 transition-all">Kirim Permintaan</button>
                     </div>
                 </form>
             </div>
@@ -222,21 +231,21 @@
     </div>
 
     {{-- Modal Admin (Review) --}}
-    @if(Auth::user()->hasRole('admin'))
+    @if($isAdmin)
     <div id="modal-admin" class="fixed inset-0 z-50 overflow-y-auto hidden" aria-labelledby="modal-title" role="dialog" aria-modal="true">
         <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
             <div class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm transition-opacity" aria-hidden="true" onclick="this.parentElement.parentElement.classList.add('hidden')"></div>
             <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-            <div class="inline-block align-bottom bg-white rounded-[2rem] text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+            <div class="inline-block align-bottom bg-white rounded-2xl text-left overflow-hidden shadow-lg transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
                 <form id="admin-form" method="POST" enctype="multipart/form-data">
                     @csrf
                     @method('PUT')
                     <div class="p-8">
-                        <h3 class="text-xl font-black text-slate-900 mb-6">Review Withdraw Bolo ✅</h3>
+                        <h3 class="text-xl font-bold text-slate-900 mb-6">Review Withdraw Bolo ✅</h3>
                         
                         <div class="space-y-4">
                             <div>
-                                <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-2">Update Status</label>
+                                <label class="text-xs font-medium text-slate-400 block mb-2">Update Status</label>
                                 <select name="status" id="admin-status" class="w-full bg-slate-50 border-0 rounded-2xl p-4 text-sm font-bold">
                                     <option value="pending">Pending</option>
                                     <option value="approved">Approved (Diproses)</option>
@@ -246,12 +255,12 @@
                             </div>
 
                             <div>
-                                <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-2">Catatan Admin</label>
+                                <label class="text-xs font-medium text-slate-400 block mb-2">Catatan Admin</label>
                                 <textarea name="admin_note" id="admin-note" rows="3" class="w-full bg-slate-50 border-0 rounded-2xl p-4 text-sm font-bold" placeholder="Kasih tau alasannya bolo..."></textarea>
                             </div>
 
                             <div x-data="{ hasProof: false, preview: '' }">
-                                <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-2">Bukti Transfer (Jika Selesai)</label>
+                                <label class="text-xs font-medium text-slate-400 block mb-2">Bukti Transfer (Jika Selesai)</label>
                                 <div class="relative">
                                     <input type="file" name="reference_proof" id="reference_proof_input" 
                                         class="hidden" accept="image/*" 
@@ -259,7 +268,7 @@
                                     
                                     <template x-if="!hasProof">
                                         <button type="button" onclick="document.getElementById('reference_proof_input').click()" 
-                                            class="w-full py-6 bg-slate-50 border-2 border-dashed border-slate-200 rounded-2xl text-[10px] font-black uppercase tracking-widest text-slate-400 hover:bg-indigo-50 hover:text-indigo-600 transition-all flex items-center justify-center gap-3">
+                                            class="w-full py-6 bg-slate-50 border-2 border-dashed border-slate-200 rounded-2xl text-xs font-semibold text-slate-400 hover:bg-emerald-50 hover:text-emerald-600 transition-all flex items-center justify-center gap-3">
                                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
                                             <span>Pilih Bukti Transfer</span>
                                         </button>
@@ -269,7 +278,7 @@
                                         <div class="relative w-full h-40 rounded-2xl overflow-hidden group">
                                             <img :src="preview" class="w-full h-full object-cover">
                                             <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
-                                                <button type="button" onclick="document.getElementById('reference_proof_input').click()" class="p-2 bg-white text-indigo-600 rounded-xl">
+                                                <button type="button" onclick="document.getElementById('reference_proof_input').click()" class="p-2 bg-white text-emerald-600 rounded-xl">
                                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
                                                 </button>
                                                 <button type="button" @click="hasProof = false; preview = ''; document.getElementById('reference_proof_input').value = ''" class="p-2 bg-red-500 text-white rounded-xl">
@@ -283,8 +292,8 @@
                         </div>
                     </div>
                     <div class="bg-slate-50 p-8 flex gap-3">
-                        <button type="button" onclick="document.getElementById('modal-admin').classList.add('hidden')" class="flex-1 py-4 bg-white border border-slate-200 text-slate-600 rounded-2xl font-black text-[10px] uppercase tracking-widest">Tutup</button>
-                        <button type="submit" class="flex-1 py-4 bg-slate-900 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-lg shadow-slate-200">Update Status</button>
+                        <button type="button" onclick="document.getElementById('modal-admin').classList.add('hidden')" class="flex-1 py-4 bg-white border border-slate-200 text-slate-600 rounded-2xl font-bold text-xs">Tutup</button>
+                        <button type="submit" class="flex-1 py-4 bg-emerald-600 text-white rounded-2xl font-bold text-xs shadow-lg shadow-emerald-200">Update Status</button>
                     </div>
                 </form>
             </div>
@@ -309,9 +318,9 @@
 
     {{-- MODAL CROP WITHDRAWAL --}}
     <div id="withdrawCropModal" class="fixed inset-0 z-[100] hidden items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-        <div class="bg-white rounded-[2.5rem] w-full max-w-lg overflow-hidden shadow-2xl relative animate-fade-in-up uppercase">
+        <div class="bg-white rounded-2xl w-full max-w-lg overflow-hidden shadow-lg relative animate-fade-in-up uppercase">
             <div class="p-6 border-b border-gray-50 flex justify-between items-center bg-gray-50/50">
-                <h3 class="text-lg font-black text-gray-900 tracking-tight">POTONG <span class="text-indigo-600">BUKTI TRANSFER</span></h3>
+                <h3 class="text-lg font-bold text-gray-900 tracking-tight">POTONG <span class="text-emerald-600">BUKTI TRANSFER</span></h3>
                 <button type="button" onclick="closeWithdrawCrop()" class="text-gray-400 hover:text-red-500 transition-colors">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path></svg>
                 </button>
@@ -322,8 +331,8 @@
                 </div>
             </div>
             <div class="p-6 bg-gray-50/50 border-t border-gray-50 flex gap-4">
-                <button type="button" onclick="closeWithdrawCrop()" class="flex-1 py-4 bg-white text-gray-500 rounded-2xl font-black uppercase text-[10px] tracking-widest border border-gray-100">Batal</button>
-                <button type="button" onclick="applyWithdrawCrop()" class="flex-1 py-4 bg-indigo-600 text-white rounded-2xl font-black uppercase text-[10px] tracking-widest shadow-lg shadow-indigo-100">Simpan Bukti</button>
+                <button type="button" onclick="closeWithdrawCrop()" class="flex-1 py-4 bg-white text-gray-500 rounded-2xl font-semibold uppercase text-xs tracking-widest border border-gray-100">Batal</button>
+                <button type="button" onclick="applyWithdrawCrop()" class="flex-1 py-4 bg-emerald-600 text-white rounded-2xl font-semibold uppercase text-xs tracking-widest shadow-lg shadow-emerald-100">Simpan Bukti</button>
             </div>
         </div>
     </div>
@@ -414,3 +423,4 @@
     </script>
     @endpush
 </x-admin-layout>
+

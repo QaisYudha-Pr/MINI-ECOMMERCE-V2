@@ -9,6 +9,6 @@ class CourierLayout extends Component
 {
     public function render(): View
     {
-        return view('layouts.courier');
+        return view('components.courier-layout');
     }
 }

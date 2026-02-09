@@ -10,6 +10,8 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use App\Models\ItemShop;
 use App\Models\SiteSetting;
+use App\Models\Cart;
+use App\Models\Voucher;
 use Midtrans\Config;
 use Midtrans\Snap;
 
@@ -223,5 +225,183 @@ class CartController extends Controller
         $transaction->completeTransaction();
 
         return back()->with('success', 'MANTAP BOLO! Pesanan berhasil diterima.');
+    }
+
+    // ========== CART MANAGEMENT METHODS ==========
+
+    public function cartIndex()
+    {
+        $user = Auth::user();
+        
+        $cartItems = Cart::where('user_id', $user->id)
+            ->with(['item.user'])
+            ->get();
+        
+        // Group by seller
+        $groupedBySeller = $cartItems->groupBy(fn($cart) => $cart->item->user_id);
+        
+        $subtotal = $cartItems->sum(fn($cart) => $cart->subtotal);
+        
+        return view('shop.cart.cart', compact('cartItems', 'groupedBySeller', 'subtotal'));
+    }
+
+    public function addToCart(Request $request)
+    {
+        $request->validate([
+            'item_id' => 'required|exists:item_shops,id',
+            'quantity' => 'nullable|integer|min:1|max:100',
+            'notes' => 'nullable|string|max:500',
+        ]);
+        
+        $user = Auth::user();
+        $item = ItemShop::findOrFail($request->item_id);
+        
+        // Can't add own item
+        if ($item->user_id === $user->id) {
+            if ($request->ajax()) {
+                return response()->json(['error' => 'Tidak bisa beli barang sendiri bolo!'], 400);
+            }
+            return back()->with('error', 'Tidak bisa beli barang sendiri bolo!');
+        }
+        
+        // Check stock
+        $quantity = $request->quantity ?? 1;
+        if ($item->stok < $quantity) {
+            if ($request->ajax()) {
+                return response()->json(['error' => 'Stok tidak cukup!'], 400);
+            }
+            return back()->with('error', 'Stok tidak cukup!');
+        }
+        
+        Cart::addItem($user->id, $item->id, $quantity, $request->notes);
+        
+        if ($request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Berhasil ditambahkan ke keranjang!',
+                'cart_count' => Cart::getCartCount($user->id),
+            ]);
+        }
+        
+        return back()->with('success', 'Berhasil ditambahkan ke keranjang!');
+    }
+
+    public function updateCart(Request $request, Cart $cart)
+    {
+        $user = Auth::user();
+        
+        if ($cart->user_id !== $user->id) {
+            abort(403);
+        }
+        
+        $request->validate([
+            'quantity' => 'required|integer|min:1|max:100',
+        ]);
+        
+        // Check stock
+        if ($cart->item->stok < $request->quantity) {
+            if ($request->ajax()) {
+                return response()->json(['error' => 'Stok tidak cukup!'], 400);
+            }
+            return back()->with('error', 'Stok tidak cukup!');
+        }
+        
+        $cart->update(['quantity' => $request->quantity]);
+        
+        if ($request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'subtotal' => $cart->subtotal,
+                'cart_total' => Cart::getCartTotal($user->id),
+            ]);
+        }
+        
+        return back()->with('success', 'Keranjang diupdate!');
+    }
+
+    public function removeFromCart(Cart $cart)
+    {
+        $user = Auth::user();
+        
+        if ($cart->user_id !== $user->id) {
+            abort(403);
+        }
+        
+        $cart->delete();
+        
+        if (request()->ajax()) {
+            $cartCount = Cart::getCartCount($user->id);
+            return response()->json([
+                'success' => true,
+                'cart_count' => $cartCount,
+                'cart_total' => Cart::getCartTotal($user->id),
+                'is_empty' => $cartCount === 0,
+            ]);
+        }
+        
+        return back()->with('success', 'Item dihapus dari keranjang!');
+    }
+
+    public function clearCart()
+    {
+        Cart::where('user_id', Auth::id())->delete();
+        
+        if (request()->ajax()) {
+            return response()->json(['success' => true]);
+        }
+        
+        return back()->with('success', 'Keranjang dikosongkan!');
+    }
+
+    // Apply voucher
+    public function applyVoucher(Request $request)
+    {
+        $request->validate([
+            'code' => 'required|string',
+        ]);
+        
+        $user = Auth::user();
+        $voucher = Voucher::where('code', strtoupper($request->code))->first();
+        
+        if (!$voucher) {
+            return response()->json(['error' => 'Kode voucher tidak ditemukan!'], 404);
+        }
+        
+        if (!$voucher->isValid()) {
+            return response()->json(['error' => 'Voucher sudah tidak berlaku!'], 400);
+        }
+        
+        if (!$voucher->canBeUsedBy($user->id)) {
+            return response()->json(['error' => 'Anda sudah menggunakan voucher ini!'], 400);
+        }
+        
+        $cartTotal = Cart::getCartTotal($user->id);
+        
+        if ($cartTotal < $voucher->min_purchase) {
+            return response()->json([
+                'error' => 'Minimum pembelian Rp ' . number_format($voucher->min_purchase, 0, ',', '.'),
+            ], 400);
+        }
+        
+        $discount = $voucher->calculateDiscount($cartTotal);
+        
+        return response()->json([
+            'success' => true,
+            'voucher' => [
+                'id' => $voucher->id,
+                'code' => $voucher->code,
+                'name' => $voucher->name,
+                'type' => $voucher->type,
+                'discount' => $discount,
+            ],
+        ]);
+    }
+
+    // Get cart count (for AJAX navbar badge)
+    public function cartCount()
+    {
+        return response()->json([
+            'count' => Auth::check() ? Cart::getCartCount(Auth::id()) : 0,
+        ]);
     }
 }

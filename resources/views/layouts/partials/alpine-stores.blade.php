@@ -8,14 +8,29 @@
             setCategory(val) { this.category = val }
         });
 
-        // Cart Store
+        // Cart Store (Lazy-loaded: only reads localStorage when needed)
         Alpine.store('cart', {
-            items: JSON.parse(localStorage.getItem('minie_cart') || '[]'),
+            _loaded: false,
+            _items: [],
             show: false,
+
+            get items() {
+                if (!this._loaded) {
+                    this._items = JSON.parse(localStorage.getItem('minie_cart') || '[]');
+                    this._loaded = true;
+                }
+                return this._items;
+            },
+
+            set items(val) {
+                this._items = val;
+                this._loaded = true;
+            },
 
             init() {
                 window.addEventListener('storage', () => {
-                    this.items = JSON.parse(localStorage.getItem('minie_cart') || '[]');
+                    this._items = JSON.parse(localStorage.getItem('minie_cart') || '[]');
+                    this._loaded = true;
                 });
             },
 
@@ -126,7 +141,7 @@
             text: "{{ session('success') }}",
             showConfirmButton: false,
             timer: 2000,
-            customClass: { popup: 'rounded-[2rem]' }
+            customClass: { popup: 'rounded-2xl' }
         });
     @endif
 
@@ -144,11 +159,65 @@
                 </div>
             `,
             confirmButtonText: 'SAYA PERBAIKI',
-            confirmButtonColor: '#00AA5B',
+            confirmButtonColor: 'emerald-600',
             customClass: {
-                popup: 'rounded-[2rem]',
-                confirmButton: 'rounded-xl px-6 py-3 text-xs font-black uppercase tracking-widest'
+                popup: 'rounded-2xl',
+                confirmButton: 'rounded-xl px-6 py-3 text-xs font-semibold'
             }
         });
     @endif
+
+    // ===== GLOBAL TOGGLE FAVORITE (used by product-card component) =====
+    const __isLoggedIn = {{ auth()->check() ? 'true' : 'false' }};
+    window.toggleFavorite = async function(itemId, btn) {
+        if (!__isLoggedIn) {
+            Swal.fire({
+                icon: 'info',
+                title: 'Login dulu bolo!',
+                text: 'Kamu harus login untuk menyimpan produk favorit.',
+                confirmButtonText: 'LOGIN',
+                confirmButtonColor: getComputedStyle(document.documentElement).getPropertyValue('--brand-600').trim() || '#059669',
+                showCancelButton: true,
+                cancelButtonText: 'Nanti',
+                customClass: { popup: 'rounded-2xl', confirmButton: 'rounded-xl px-6 py-3 text-xs font-semibold' }
+            }).then(r => { if (r.isConfirmed) window.location.href = '{{ route("login") }}'; });
+            return;
+        }
+        try {
+            const response = await fetch(`/favorite/${itemId}`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || '{{ csrf_token() }}',
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                }
+            });
+            const data = await response.json();
+
+            if (response.ok) {
+                const icon = btn.querySelector('i');
+                if (data.status) {
+                    btn.classList.remove('text-gray-400');
+                    btn.classList.add('text-rose-500');
+                    if (icon) { icon.classList.remove('fa-regular'); icon.classList.add('fa-solid'); }
+                } else {
+                    btn.classList.remove('text-rose-500');
+                    btn.classList.add('text-gray-400');
+                    if (icon) { icon.classList.remove('fa-solid'); icon.classList.add('fa-regular'); }
+                }
+
+                Swal.fire({
+                    toast: true,
+                    position: 'top-end',
+                    icon: 'success',
+                    title: data.message || (data.status ? 'Ditambahkan ke wishlist!' : 'Dihapus dari wishlist!'),
+                    showConfirmButton: false,
+                    timer: 1500
+                });
+            }
+        } catch (error) {
+            Swal.fire({ icon: 'error', title: 'Waduh...', text: 'Gagal mengubah favorit bolo.' });
+        }
+    };
 </script>
+

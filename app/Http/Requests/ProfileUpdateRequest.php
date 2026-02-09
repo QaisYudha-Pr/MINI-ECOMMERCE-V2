@@ -30,6 +30,7 @@ class ProfileUpdateRequest extends FormRequest
             'alamat' => ['nullable', 'string', 'max:1000'],
             'latitude' => ['nullable', 'numeric'],
             'longitude' => ['nullable', 'numeric'],
+            'theme_color' => ['nullable', 'string', 'in:emerald,rose,amber,slate,indigo'],
         ];
     }
 }

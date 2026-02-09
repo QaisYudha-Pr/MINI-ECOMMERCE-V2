@@ -9,7 +9,7 @@
                 </p>
                 <div class="flex items-center gap-4">
                     @if(isset($siteSettings['footer_social_ig']))
-                    <a href="https://instagram.com/{{ $siteSettings['footer_social_ig'] }}" target="_blank" class="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center text-slate-400 hover:bg-indigo-600 hover:text-white transition-all shadow-sm">
+                    <a href="https://instagram.com/{{ $siteSettings['footer_social_ig'] }}" target="_blank" class="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center text-slate-400 hover:bg-emerald-600 hover:text-white transition-all shadow-sm">
                         <i class="fa-brands fa-instagram text-lg"></i>
                     </a>
                     @endif
@@ -28,36 +28,36 @@
 
             {{-- Links Section --}}
             <div class="col-span-1 space-y-6">
-                <h4 class="text-xs font-black uppercase tracking-[0.2em] text-gray-900">Belanja</h4>
+                <h4 class="text-xs font-bold uppercase tracking-[0.2em] text-gray-900">Belanja</h4>
                 <ul class="space-y-4 text-sm font-bold text-gray-500">
-                    <li><a href="/shop" class="hover:text-[#00AA5B] transition-colors">Semua Produk</a></li>
-                    <li><a href="#" class="hover:text-[#00AA5B] transition-colors">Promo Spesial</a></li>
-                    <li><a href="#" class="hover:text-[#00AA5B] transition-colors">Produk Terlaris</a></li>
+                    <li><a href="/shop" class="hover:text-emerald-600 transition-colors">Semua Produk</a></li>
+                    <li><a href="#" class="hover:text-emerald-600 transition-colors">Promo Spesial</a></li>
+                    <li><a href="#" class="hover:text-emerald-600 transition-colors">Produk Terlaris</a></li>
                 </ul>
             </div>
 
             <div class="col-span-1 space-y-6">
-                <h4 class="text-xs font-black uppercase tracking-[0.2em] text-gray-900">Bantuan</h4>
+                <h4 class="text-xs font-bold uppercase tracking-[0.2em] text-gray-900">Bantuan</h4>
                 <ul class="space-y-4 text-sm font-bold text-gray-500">
-                    <li><a href="#" class="hover:text-[#00AA5B] transition-colors">Cara Belanja</a></li>
-                    <li><a href="#" class="hover:text-[#00AA5B] transition-colors">Pendaftaran Seller</a></li>
-                    <li><a href="#" class="hover:text-[#00AA5B] transition-colors">Ketentuan Layanan</a></li>
+                    <li><a href="#" class="hover:text-emerald-600 transition-colors">Cara Belanja</a></li>
+                    <li><a href="#" class="hover:text-emerald-600 transition-colors">Pendaftaran Seller</a></li>
+                    <li><a href="#" class="hover:text-emerald-600 transition-colors">Ketentuan Layanan</a></li>
                 </ul>
             </div>
 
             <div class="col-span-1 space-y-6">
-                <h4 class="text-xs font-black uppercase tracking-[0.2em] text-gray-900">Tentang Kami</h4>
+                <h4 class="text-xs font-bold uppercase tracking-[0.2em] text-gray-900">Tentang Kami</h4>
                 <ul class="space-y-4 text-sm font-bold text-gray-500">
-                    <li><a href="{{ route('about') }}" class="hover:text-[#00AA5B] transition-colors">Tentang MiniQ</a></li>
-                    <li><a href="#" class="hover:text-[#00AA5B] transition-colors">Hubungi Kami</a></li>
-                    <li><a href="#" class="hover:text-[#00AA5B] transition-colors">Kebijakan Privasi</a></li>
+                    <li><a href="{{ route('about') }}" class="hover:text-emerald-600 transition-colors">Tentang MiniQ</a></li>
+                    <li><a href="#" class="hover:text-emerald-600 transition-colors">Hubungi Kami</a></li>
+                    <li><a href="#" class="hover:text-emerald-600 transition-colors">Kebijakan Privasi</a></li>
                 </ul>
             </div>
         </div>
 
         {{-- Bottom Footer --}}
         <div class="pt-8 border-t border-gray-50 flex flex-col md:flex-row justify-between items-center gap-4">
-            <p class="text-[10px] font-black uppercase tracking-[0.3em] text-gray-400">
+            <p class="text-[11px] font-bold uppercase tracking-[0.3em] text-gray-400">
                 {!! $siteSettings['footer_copyright'] ?? ('&copy; ' . date('Y') . ' ' . ($siteSettings['site_name'] ?? 'MiniQ-Store') . '. Mojokerto Digital Ecosystem.') !!}
             </p>
             @if(isset($siteSettings['footer_address']))
@@ -67,10 +67,11 @@
             @endif
             <div class="flex items-center gap-6">
                 <img src="https://upload.wikimedia.org/wikipedia/commons/7/72/Logo_Kabupaten_Mojokerto.png" class="h-6 grayscale opacity-30" alt="Mojokerto Logo">
-                <div class="text-[8px] font-black text-gray-300 uppercase tracking-widest leading-tight">
+                <div class="text-[8px] font-bold text-gray-300 uppercase tracking-widest leading-tight">
                     Powered by<br><span class="text-gray-400">Mojokerto Dev</span>
                 </div>
             </div>
         </div>
     </div>
 </footer>
+

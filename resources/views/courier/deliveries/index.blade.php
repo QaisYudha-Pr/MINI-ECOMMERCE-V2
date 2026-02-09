@@ -3,37 +3,37 @@
         <div class="max-w-7xl mx-auto px-6">
             {{-- Header Stats --}}
             <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-                <div class="bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm flex items-center justify-between">
+                <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between">
                     <div>
-                        <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Total Tugas</p>
-                        <h3 class="text-2xl font-black text-slate-900">{{ $deliveries->total() }}</h3>
+                        <p class="text-xs font-medium text-slate-400 mb-1">Total Tugas</p>
+                        <h3 class="text-2xl font-bold text-slate-900">{{ $totalTugas }}</h3>
                     </div>
-                    <div class="w-12 h-12 bg-indigo-50 rounded-2xl flex items-center justify-center text-indigo-600">
+                    <div class="w-12 h-12 bg-emerald-50 rounded-2xl flex items-center justify-center text-emerald-600">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" /></svg>
                     </div>
                 </div>
-                <div class="bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm flex items-center justify-between">
+                <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between">
                     <div>
-                        <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Perlu Dikirim</p>
-                        <h3 class="text-2xl font-black text-amber-500">{{ $deliveries->where('status', 'shipped')->count() }}</h3>
+                        <p class="text-xs font-medium text-slate-400 mb-1">Perlu Dikirim</p>
+                        <h3 class="text-2xl font-bold text-amber-500">{{ $perluDikirim }}</h3>
                     </div>
                     <div class="w-12 h-12 bg-amber-50 rounded-2xl flex items-center justify-center text-amber-600">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
                     </div>
                 </div>
-                <div class="bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm flex items-center justify-between">
+                <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between">
                     <div>
-                        <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Selesai</p>
-                        <h3 class="text-2xl font-black text-emerald-500">{{ $deliveries->where('status', 'completed')->count() }}</h3>
+                        <p class="text-xs font-medium text-slate-400 mb-1">Selesai</p>
+                        <h3 class="text-2xl font-bold text-emerald-500">{{ $selesai }}</h3>
                     </div>
                     <div class="w-12 h-12 bg-emerald-50 rounded-2xl flex items-center justify-center text-emerald-600">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
                     </div>
                 </div>
-                <div class="bg-indigo-600 p-6 rounded-[2rem] shadow-xl shadow-indigo-100 flex items-center justify-between text-white">
+                <div class="bg-emerald-600 p-6 rounded-2xl shadow-xl shadow-emerald-100 flex items-center justify-between text-white">
                     <div>
-                        <p class="text-[10px] font-black text-white/70 uppercase tracking-widest mb-1">Status Kurir</p>
-                        <h3 class="text-xl font-black uppercase tracking-tight">Aktif Bolo</h3>
+                        <p class="text-xs font-bold text-white/70 mb-1">Status Kurir</p>
+                        <h3 class="text-xl font-semibold">Aktif Bolo</h3>
                     </div>
                     <div class="w-12 h-12 bg-white/20 backdrop-blur-md rounded-2xl flex items-center justify-center text-white">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
@@ -42,58 +42,68 @@
             </div>
 
             <div class="flex items-center justify-between mb-8">
-                <h2 class="text-2xl font-black text-slate-900 uppercase tracking-widest">
-                    Tugas <span class="text-indigo-600">Pengiriman</span>
+                <h2 class="text-2xl font-bold text-slate-900">
+                    Tugas <span class="text-emerald-600">Pengiriman</span>
                 </h2>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 @forelse ($deliveries as $delivery)
-                    <div class="bg-white rounded-[2.5rem] p-8 border border-slate-100 shadow-xl shadow-slate-200/50 hover:shadow-indigo-100/50 transition-all duration-500 group">
+                    <div class="bg-white rounded-2xl p-8 border border-slate-100 shadow-xl shadow-slate-200/50 hover:shadow-emerald-100/50 transition-all duration-500 group">
                         <div class="flex justify-between items-start mb-6">
                             <div>
-                                <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Invoice</span>
-                                <h3 class="text-lg font-black text-slate-900 group-hover:text-indigo-600 transition-colors">#{{ $delivery->invoice_number }}</h3>
-                                <div class="mt-2 text-[10px] font-black uppercase tracking-widest px-3 py-1 bg-slate-100 text-slate-600 rounded-full inline-block">
+                                <span class="text-xs font-medium text-slate-400">Invoice</span>
+                                <h3 class="text-lg font-bold text-slate-900 group-hover:text-emerald-600 transition-colors">#{{ $delivery->invoice_number }}</h3>
+                                <div class="mt-2 text-xs font-semibold px-3 py-1 bg-slate-100 text-slate-600 rounded-full inline-block">
                                     {{ $delivery->status }}
                                 </div>
                             </div>
                             <div class="text-right">
-                                <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest block">Potensi Tip</span>
-                                <p class="text-lg font-black text-indigo-600">Rp {{ number_format($delivery->total_price * 0.01, 0, ',', '.') }}</p>
+                                <span class="text-xs font-medium text-slate-400 block">Potensi Tip</span>
+                                <p class="text-lg font-semibold text-emerald-600">Rp {{ number_format($delivery->total_price * 0.01, 0, ',', '.') }}</p>
                             </div>
                         </div>
 
                         <div class="space-y-5 mb-8">
                             <div class="flex items-start gap-4">
-                                <div class="w-10 h-10 bg-slate-50 rounded-2xl flex items-center justify-center text-slate-400 group-hover:bg-indigo-50 group-hover:text-indigo-600 transition-colors">
+                                <div class="w-10 h-10 bg-slate-50 rounded-2xl flex items-center justify-center text-slate-400 group-hover:bg-emerald-50 group-hover:text-emerald-600 transition-colors">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
                                 </div>
                                 <div>
-                                    <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Penerima</span>
-                                    <p class="text-sm font-black text-slate-900">{{ $delivery->user->name }}</p>
+                                    <span class="text-xs font-medium text-slate-400">Penerima</span>
+                                    <p class="text-sm font-bold text-slate-900">{{ $delivery->user->name }}</p>
                                 </div>
                             </div>
                             <div class="flex items-start gap-4">
-                                <div class="w-10 h-10 bg-slate-50 rounded-2xl flex items-center justify-center text-slate-400 group-hover:bg-indigo-50 group-hover:text-indigo-600 transition-colors">
+                                <div class="w-10 h-10 bg-slate-50 rounded-2xl flex items-center justify-center text-slate-400 group-hover:bg-emerald-50 group-hover:text-emerald-600 transition-colors">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
                                 </div>
                                 <div>
-                                    <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Alamat Tujuan</span>
+                                    <span class="text-xs font-medium text-slate-400">Alamat Tujuan</span>
                                     <p class="text-[11px] font-bold text-slate-900 leading-relaxed">{{ $delivery->alamat }}</p>
                                     
                                     @if($delivery->catatan_alamat)
                                         <div class="mt-3 p-3 bg-amber-50 rounded-xl border border-amber-100/50">
-                                            <span class="text-[8px] font-black text-amber-600 uppercase tracking-widest block mb-1">PATOKAN KURIR:</span>
-                                            <p class="text-xs font-black text-amber-900 leading-tight">"{{ $delivery->catatan_alamat }}"</p>
+                                            <span class="text-[11px] font-bold text-amber-600 block mb-1">PATOKAN KURIR:</span>
+                                            <p class="text-xs font-bold text-amber-900 leading-tight">"{{ $delivery->catatan_alamat }}"</p>
                                         </div>
                                     @endif
 
-                                    @if($delivery->user->latitude && $delivery->user->longitude)
-                                        <a href="https://www.google.com/maps/search/?api=1&query={{ $delivery->user->latitude }},{{ $delivery->user->longitude }}" 
-                                           target="_blank" class="mt-2 inline-flex items-center gap-2 text-indigo-600 text-[10px] font-black uppercase hover:text-indigo-700 transition-colors">
-                                            <span>Buka Maps Bolo</span>
-                                        </a>
+                                    @php
+                                        $dLat = $delivery->lat ?: ($delivery->user->latitude ?? null);
+                                        $dLng = $delivery->lng ?: ($delivery->user->longitude ?? null);
+                                    @endphp
+                                    @if($dLat && $dLng)
+                                        <div class="flex items-center gap-3 mt-3">
+                                            <a href="{{ route('courier.deliveries.show', $delivery->id) }}" 
+                                               class="inline-flex items-center gap-2 px-3 py-1.5 bg-emerald-50 text-emerald-600 text-[10px] font-bold uppercase rounded-lg border border-emerald-100 hover:bg-emerald-600 hover:text-white transition-all">
+                                                <i class="fa-solid fa-map-location-dot"></i> Lihat Rute
+                                            </a>
+                                            <a href="https://www.google.com/maps/search/?api=1&query={{ $dLat }},{{ $dLng }}" 
+                                               target="_blank" class="text-slate-400 hover:text-emerald-600 transition-colors">
+                                                <i class="fa-solid fa-arrow-up-right-from-square text-xs"></i>
+                                            </a>
+                                        </div>
                                     @endif
                                 </div>
                             </div>
@@ -108,7 +118,7 @@
                                         
                                         <template x-if="!hasProof">
                                             <button type="button" onclick="document.getElementById('proof-{{ $delivery->id }}').click()" 
-                                                class="w-full py-4 bg-slate-50 border-2 border-dashed border-slate-200 rounded-2xl text-[10px] font-black uppercase tracking-widest text-slate-500 hover:bg-indigo-50 hover:text-indigo-600 transition-all flex items-center justify-center gap-3">
+                                                class="w-full py-4 bg-slate-50 border-2 border-dashed border-slate-200 rounded-2xl text-xs font-semibold text-slate-500 hover:bg-emerald-50 hover:text-emerald-600 transition-all flex items-center justify-center gap-3">
                                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
                                                 <span>Ambil Foto Bukti</span>
                                             </button>
@@ -128,7 +138,7 @@
                                         {{-- Hidden input for cropped base64 if needed, but let's use DataTransfer for files --}}
                                     </div>
                                     <button type="button" @click="confirmDelivery({{ $delivery->id }})"
-                                        class="w-full py-5 bg-indigo-600 text-white rounded-2xl text-xs font-black uppercase tracking-[0.2em] hover:bg-indigo-700 transition-all shadow-xl shadow-indigo-100">
+                                        class="w-full py-5 bg-emerald-600 text-white rounded-2xl text-xs font-semibold hover:bg-emerald-700 transition-all shadow-xl shadow-emerald-100">
                                         Konfirmasi Sampai
                                     </button>
                                 </form>
@@ -136,11 +146,11 @@
                         @else
                             <div class="space-y-4">
                                 @if($delivery->delivery_proof)
-                                    <div class="relative w-full h-40 rounded-[2rem] overflow-hidden">
+                                    <div class="relative w-full h-40 rounded-2xl overflow-hidden">
                                         <img src="{{ asset($delivery->delivery_proof) }}" class="w-full h-full object-cover">
                                     </div>
                                 @endif
-                                <div class="w-full py-5 bg-slate-50 text-indigo-600 rounded-[2rem] text-[10px] font-black uppercase tracking-[0.2em] text-center border-2 border-dashed border-indigo-100">
+                                <div class="w-full py-5 bg-slate-50 text-emerald-600 rounded-2xl text-xs font-semibold text-center border-2 border-dashed border-emerald-100">
                                     @if($delivery->status == 'delivered')
                                         Menunggu Konfirmasi User
                                     @else
@@ -151,8 +161,8 @@
                         @endif
                     </div>
                 @empty
-                    <div class="col-span-full py-24 bg-white rounded-[3rem] border-4 border-dashed border-slate-100 text-center">
-                        <p class="text-slate-400 font-black uppercase tracking-[0.2em] text-sm">Belum ada tugas rebahan dulu bolo</p>
+                    <div class="col-span-full py-24 bg-white rounded-2xl border-4 border-dashed border-slate-100 text-center">
+                        <p class="text-slate-400 font-semibold text-sm">Belum ada tugas rebahan dulu bolo</p>
                     </div>
                 @endforelse
             </div>
@@ -165,9 +175,9 @@
 
     {{-- MODAL CROP COURIER --}}
     <div id="courierCropModal" class="fixed inset-0 z-[200] hidden items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-        <div class="bg-white rounded-[2.5rem] w-full max-w-lg overflow-hidden shadow-2xl relative animate-fade-in-up">
+        <div class="bg-white rounded-2xl w-full max-w-lg overflow-hidden shadow-lg relative animate-fade-in-up">
             <div class="p-6 border-b border-gray-50 flex justify-between items-center bg-gray-50/50">
-                <h3 class="text-lg font-black text-gray-900 tracking-tight uppercase">POTONG <span class="text-indigo-600">BUKTI FOTO</span></h3>
+                <h3 class="text-lg font-bold text-gray-900 tracking-tight uppercase">POTONG <span class="text-emerald-600">BUKTI FOTO</span></h3>
                 <button type="button" onclick="closeCourierCrop()" class="text-gray-400 hover:text-red-500 transition-colors">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path></svg>
                 </button>
@@ -178,8 +188,8 @@
                 </div>
             </div>
             <div class="p-6 bg-gray-50/50 border-t border-gray-50 flex gap-4">
-                <button type="button" onclick="closeCourierCrop()" class="flex-1 py-4 bg-white text-gray-500 rounded-2xl font-black uppercase text-[10px] tracking-widest border border-gray-100">BATAL</button>
-                <button type="button" onclick="applyCourierCrop()" class="flex-1 py-4 bg-indigo-600 text-white rounded-2xl font-black uppercase text-[10px] tracking-widest shadow-lg shadow-indigo-100">POTONG BOLO</button>
+                <button type="button" onclick="closeCourierCrop()" class="flex-1 py-4 bg-white text-gray-500 rounded-2xl font-semibold uppercase text-xs tracking-widest border border-gray-100">BATAL</button>
+                <button type="button" onclick="applyCourierCrop()" class="flex-1 py-4 bg-emerald-600 text-white rounded-2xl font-semibold uppercase text-xs tracking-widest shadow-lg shadow-emerald-100">POTONG BOLO</button>
             </div>
         </div>
     </div>
@@ -273,7 +283,7 @@
                 icon: 'question',
                 showCancelButton: true,
                 confirmButtonText: 'GAS SAMPAI!',
-                customClass: { popup: 'rounded-[2rem]' }
+                customClass: { popup: 'rounded-2xl' }
             }).then((result) => {
                 if (result.isConfirmed) {
                     document.getElementById('complete-form-' + id).submit();
@@ -283,3 +293,4 @@
     </script>
     @endpush
 </x-courier-layout>
+

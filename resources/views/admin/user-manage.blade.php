@@ -3,18 +3,18 @@
         {{-- HEADER --}}
         <div class="flex flex-col md:flex-row justify-between items-end gap-6 mb-12">
             <div data-aos="fade-right" data-aos-duration="1000">
-                <span class="inline-block px-3 py-1 rounded-full bg-indigo-100 text-indigo-700 text-xs font-bold uppercase tracking-wider mb-3">
+                <span class="inline-block px-3 py-1 rounded-full bg-emerald-100 text-emerald-700 text-xs font-bold mb-3">
                     Admin Panel
                 </span>
-                <h1 class="text-4xl md:text-5xl font-black text-gray-900 tracking-tight">
-                    Manage <span class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600">Users</span>
+                <h1 class="text-4xl md:text-5xl font-bold text-gray-900 tracking-tight">
+                    Manage <span class="text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 to-purple-600">Users</span>
                 </h1>
                 <p class="text-gray-500 text-lg mt-2 font-medium">Atur hak akses dan akun pengguna MiniE-Store.</p>
             </div>
 
             <div data-aos="fade-left" data-aos-duration="1000">
                 <a href="{{ route('users.create') }}"
-                    class="group relative inline-flex items-center justify-center px-8 py-4 font-bold text-white transition-all duration-200 bg-indigo-600 rounded-2xl shadow-xl shadow-indigo-200 active:scale-95">
+                    class="group relative inline-flex items-center justify-center px-8 py-4 font-bold text-white transition-all duration-200 bg-emerald-600 rounded-2xl shadow-xl shadow-emerald-200 active:scale-95">
                     <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
                     </svg>
@@ -24,34 +24,34 @@
         </div>
 
         {{-- TABLE AREA --}}
-        <div data-aos="zoom-in-up" data-aos-duration="1000" class="bg-white rounded-[2.5rem] shadow-2xl shadow-gray-200/50 overflow-hidden border border-gray-100">
+        <div data-aos="zoom-in-up" data-aos-duration="1000" class="bg-white rounded-2xl shadow-lg shadow-gray-200/50 overflow-hidden border border-gray-100">
             <div class="overflow-x-auto">
                 <table class="w-full border-collapse">
                     <thead>
                         <tr class="bg-gray-50/80 border-b border-gray-100">
-                            <th class="px-8 py-6 text-left text-xs font-black text-gray-400 uppercase tracking-[0.2em]">User</th>
-                            <th class="px-8 py-6 text-left text-xs font-black text-gray-400 uppercase tracking-[0.2em]">Role</th>
-                            <th class="hidden lg:table-cell px-8 py-6 text-left text-xs font-black text-gray-400 uppercase tracking-[0.2em]">Email</th>
-                            <th class="px-8 py-6 text-center text-xs font-black text-gray-400 uppercase tracking-[0.2em]">Actions</th>
+                            <th class="px-8 py-6 text-left text-xs font-medium text-gray-400">User</th>
+                            <th class="px-8 py-6 text-left text-xs font-medium text-gray-400">Role</th>
+                            <th class="hidden lg:table-cell px-8 py-6 text-left text-xs font-medium text-gray-400">Email</th>
+                            <th class="px-8 py-6 text-center text-xs font-medium text-gray-400">Actions</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-50">
                         @foreach ($users as $user)
-                        <tr class="hover:bg-indigo-50/30 transition-all duration-300 group">
+                        <tr class="hover:bg-emerald-50/30 transition-all duration-300 group">
                             <td class="px-8 py-6">
                                 <div class="flex items-center gap-4">
-                                    <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-indigo-500 to-purple-500 flex items-center justify-center text-white font-black shadow-lg shadow-indigo-100">
+                                    <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-emerald-500 to-purple-500 flex items-center justify-center text-white font-bold shadow-lg shadow-emerald-100">
                                         {{ strtoupper(substr($user->name, 0, 1)) }}
                                     </div>
                                     <div>
-                                        <h4 class="font-bold text-gray-900 group-hover:text-indigo-600 transition-colors">{{ $user->name }}</h4>
+                                        <h4 class="font-bold text-gray-900 group-hover:text-emerald-600 transition-colors">{{ $user->name }}</h4>
                                         <p class="text-xs text-gray-400 lg:hidden">{{ $user->email }}</p>
                                     </div>
                                 </div>
                             </td>
                             <td class="px-8 py-6">
                                 @foreach($user->getRoleNames() as $role)
-                                <span class="px-4 py-1.5 rounded-xl text-xs font-black uppercase tracking-widest {{ $role == 'admin' ? 'bg-purple-100 text-purple-700' : 'bg-emerald-100 text-emerald-700' }}">
+                                <span class="px-4 py-1.5 rounded-xl text-xs font-semibold {{ $role == 'admin' ? 'bg-purple-100 text-purple-700' : 'bg-emerald-100 text-emerald-700' }}">
                                     {{ $role }}
                                 </span>
                                 @endforeach
@@ -93,3 +93,4 @@
         </div>
     </div>
 </x-admin-layout>
+

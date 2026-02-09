@@ -13,48 +13,53 @@ class TransactionController extends Controller
     public function index(Request $request)
     {
         $user = auth()->user();
+        $isAdmin = $user->hasRole('admin');
         
-        $query = Transaction::query()->with(['user', 'seller', 'courier', 'courierService']);
+        $query = Transaction::with(['user', 'seller']);
 
-        // Proteksi Logic: Admin atau Seller hanya boleh lihat orderan yang masuk ke tokonya sendiri.
-        // Gak perlu ngintip tetangga bolo, fokus urus pesanan dewe-dewe biar berkah!
-        $query->where('seller_id', $user->id);
-
-        // Filter Status (Sync logic with buyer side)
-        if ($request->filled('status')) {
-            $status = $request->status;
-            if ($status === 'pending') {
-                $query->whereIn('status', ['pending', 'paid', 'waiting_confirmation']);
-            } elseif ($status === 'success') {
-                $query->whereIn('status', ['success', 'shipped', 'delivered']);
-            } elseif ($status === 'completed') {
-                $query->where('status', 'completed');
-            } else {
-                $query->where('status', $status);
-            }
+        // Filter by Seller if not Admin
+        if (!$isAdmin) {
+            $query->where('seller_id', $user->id);
         }
 
-        // Search Logic
+        // Search Filter
         if ($request->filled('search')) {
             $search = $request->search;
             $query->where(function($q) use ($search) {
-                $q->where('invoice_number', 'like', "%{$search}%")
-                  ->orWhere('items_details', 'like', "%{$search}%");
+                $q->where('invoice_number', 'LIKE', "%{$search}%")
+                  ->orWhere('status', 'LIKE', "%{$search}%");
             });
         }
 
-        // Date Filter Logic
+        // Status Filter
+        if ($request->filled('status') && $request->status !== 'Semua') {
+            $query->where('status', $request->status);
+        }
+
+        // Date Filter
         if ($request->filled('date_filter')) {
             $days = (int)$request->date_filter;
             $query->where('created_at', '>=', now()->subDays($days));
         }
 
-        $transactions = $query->latest()->paginate(10);
-        
-        // Ambil semua kurir (untuk Admin/Seller menugaskan)
+        $transactions = $query->latest()->paginate(10)->withQueryString();
         $couriers = User::role('courier')->get();
 
         return view('admin.transactions.index', compact('transactions', 'couriers'));
+    }
+
+    public function show(Transaction $transaction)
+    {
+        $user = auth()->user();
+        
+        // Proteksi Logic
+        if ($transaction->seller_id !== $user->id && !$user->hasRole('admin')) {
+            abort(403, 'Akses ditolak bolo!');
+        }
+
+        $couriers = User::role('courier')->get();
+        
+        return view('admin.transactions.show', compact('transaction', 'couriers'));
     }
 
     public function updateCourier(Request $request, Transaction $transaction)
@@ -108,5 +113,23 @@ class TransactionController extends Controller
         ]);
 
         return back()->with('success', 'Resi berhasil diupdate, status berubah jadi Shipped!');
+    }
+
+    public function confirmCod(Transaction $transaction)
+    {
+        if ($transaction->status !== 'waiting_confirmation') {
+            return back()->with('error', 'Status pesanan tidak valid bolo!');
+        }
+
+        $transaction->update(['status' => 'paid']); // Set ke paid agar bisa diatur pengirimannya
+
+        Notification::create([
+            'user_id' => $transaction->user_id,
+            'title' => 'Pesanan COD Dikonfirmasi! ✅',
+            'message' => "Horee bolo! Pesanan COD #{$transaction->invoice_number} sudah dikonfirmasi penjual dan sedang diproses.",
+            'type' => 'success'
+        ]);
+
+        return back()->with('success', 'Pesanan COD berhasil dikonfirmasi bolo!');
     }
 }

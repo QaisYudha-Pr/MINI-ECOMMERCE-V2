@@ -50,7 +50,7 @@ class ShippingService
     }
 
     /**
-     * Calculate Local Courier Rates (SADEWA 1, 2, 3)
+     * Calculate Local Courier Rates (Sum of Multi-Origin Shipping)
      */
     public function getLocalRates($lat, $lng, array $items)
     {
@@ -68,33 +68,51 @@ class ShippingService
         $perKm = (float)($settings['shipping_per_km'] ?? 2000);
         $perKg = (float)($settings['shipping_per_kg'] ?? 1000);
 
-        // AMBIL LOKASI PENJUAL (Dari Item Pertama)
-        // Kita asumsikan pengiriman dihitung dari toko penjual
-        $firstItem = $items[0];
-        $seller = null;
-
-        // Jika item membawa user_id (seller), ambil koordinat aslinya
-        if (isset($firstItem['seller_id'])) {
-            $seller = \App\Models\User::find($firstItem['seller_id']);
-        }
-
-        // Kalau seller punya koordinat, pakai itu. Kalau nggak, pakai default Mojokerto.
-        $originLat = $seller && $seller->latitude ? (float)$seller->latitude : -7.4726; 
-        $originLng = $seller && $seller->longitude ? (float)$seller->longitude : 112.4381;
-
-        $distance = $this->calculateDistance($lat, $lng, $originLat, $originLng);
-        
-        $totalWeightKg = 0;
+        // --- MULTI-ORIGIN LOGIC: Group items by seller ---
+        $itemsBySeller = [];
         foreach ($items as $item) {
-            $rawWeight = (float)($item['weight'] ?? 1);
-            // Standarisasi: Jika > 20 asumsikan Gram (misal 1000g), jika <= 20 asumsikan KG
-            $weightInKg = $rawWeight > 20 ? $rawWeight / 1000 : $rawWeight;
-            $totalWeightKg += $weightInKg * (int)($item['quantity'] ?? 1);
+            // Check both seller_id and user_id for compatibility
+            $sellerId = $item['seller_id'] ?? $item['user_id'] ?? 0;
+            $itemsBySeller[$sellerId][] = $item;
         }
 
-        // Hitung Biaya Berdasarkan Jarak & Berat
-        $distanceFee = $distance > 2 ? ceil($distance - 2) * $perKm : 0;
-        $weightFee = ceil($totalWeightKg) * $perKg;
+        // Calculate total distance and total weight for ALL sellers
+        $totalDistanceSum = 0;
+        $totalWeightKgSum = 0;
+        
+        foreach ($itemsBySeller as $sellerId => $sellerItems) {
+            $seller = $sellerId ? \App\Models\User::find($sellerId) : null;
+            $originLat = $seller && $seller->latitude ? (float)$seller->latitude : -7.4726; 
+            $originLng = $seller && $seller->longitude ? (float)$seller->longitude : 112.4385;
+
+            $dist = $this->calculateDistance($lat, $lng, $originLat, $originLng);
+            $totalDistanceSum += $dist;
+
+            foreach ($sellerItems as $item) {
+                $rawWeight = (float)($item['weight'] ?? 1);
+                $weightInKg = $rawWeight > 20 ? $rawWeight / 1000 : $rawWeight;
+                $totalWeightKgSum += $weightInKg * (int)($item['quantity'] ?? 1);
+            }
+        }
+
+        // Hitung Biaya Berdasarkan Jarak & Berat (Kumulatif)
+        // Jarak dihitung per seller: Jika ada 2 seller, base fee mungkin bisa dihitung sekali atau per seller?
+        // User minta "menjumlahkan ongkirnya", biasanya base fee dihitung per seller karena kurir harus jalan ke tiap titik.
+        $sellerCount = count($itemsBySeller);
+        
+        $totalDistanceFee = 0;
+        foreach ($itemsBySeller as $sellerId => $sellerItems) {
+            $seller = $sellerId ? \App\Models\User::find($sellerId) : null;
+            $originLat = $seller && $seller->latitude ? (float)$seller->latitude : -7.4726; 
+            $originLng = $seller && $seller->longitude ? (float)$seller->longitude : 112.4385;
+            
+            $dist = $this->calculateDistance($lat, $lng, $originLat, $originLng);
+            // Free 2km pertama per seller (atau per trip?) - mari buat per seller biar adil buat kurir
+            $totalDistanceFee += $dist > 2 ? ceil($dist - 2) * $perKm : 0;
+        }
+
+        $totalWeightFee = ceil($totalWeightKgSum) * $perKg;
+        $totalBaseFee = $baseFee * $sellerCount; // Berapa kali kurir harus jemput
         
         // --- Cek Logika Gratis Ongkir ---
         $fsSettings = SiteSetting::whereIn('key', [
@@ -112,12 +130,20 @@ class ShippingService
         $cartTotal = collect($items)->sum(fn($i) => ($i['price'] ?? $i['harga'] ?? 0) * ($i['quantity'] ?? 1));
         
         $subsidyApplied = 0;
+        // Jarak rata-rata atau jarak terjauh untuk subsidi? Menggunakan jarak terjauh biasanya lebih aman.
+        $maxDistToSeller = 0;
+        foreach ($itemsBySeller as $sellerId => $sellerItems) {
+            $seller = $sellerId ? \App\Models\User::find($sellerId) : null;
+            $originLat = $seller && $seller->latitude ? (float)$seller->latitude : -7.4726; 
+            $originLng = $seller && $seller->longitude ? (float)$seller->longitude : 112.4381;
+            $dist = $this->calculateDistance($lat, $lng, $originLat, $originLng);
+            if($dist > $maxDistToSeller) $maxDistToSeller = $dist;
+        }
+
         if ($cartTotal >= $minOrder) {
-            if ($distance <= $freeDist) {
-                // Gratis TOTAL (Subsidi sebesar harga ongkir aslinya)
-                $subsidyApplied = 999999; // Set sangat tinggi agar finalPrice jadi 0
-            } elseif ($distance <= $maxDist) {
-                // Potongan sesuai setting (Default 10rb)
+            if ($maxDistToSeller <= $freeDist) {
+                $subsidyApplied = 999999;
+            } elseif ($maxDistToSeller <= $maxDist) {
                 $subsidyApplied = $maxSubsidy;
             }
         }
@@ -131,23 +157,22 @@ class ShippingService
             $isDisabled = false;
             $disableReason = '';
 
-            // 1. Cek Batasan Berat (Jika berat > max motor, otomatis harus pke mobil/pilihan lain)
-            if ($courier->max_weight && $totalWeightKg > $courier->max_weight) {
+            // 1. Cek Batasan Berat
+            if ($courier->max_weight && $totalWeightKgSum > $courier->max_weight) {
                 $isDisabled = true;
-                $disableReason = "Barang terlalu berat ({$totalWeightKg}kg) bolo!";
+                $disableReason = "Berat paket " . round($totalWeightKgSum, 1) . "kg melebihi batas {$courier->max_weight}kg.";
             }
 
-            // 2. Cek Batasan Jarak
-            if ($courier->max_distance && $distance > $courier->max_distance) {
+            // 2. Cek Batasan Jarak (Pakai Jarak Terjauh)
+            if ($courier->max_distance && $maxDistToSeller > $courier->max_distance) {
                 $isDisabled = true;
-                $disableReason = 'Jarak melebihi batas operasional';
+                $disableReason = "Salah satu seller berjarak " . round($maxDistToSeller, 1) . "km, melebihi batas {$courier->max_distance}km.";
             }
 
-            // Rumus: (Ongkir Dasar * Multiplier) + Extra Fee Kurir
-            $freight = $baseFee + $distanceFee + $weightFee;
+            // Rumus multi-origin
+            $freight = $totalBaseFee + $totalDistanceFee + $totalWeightFee;
             $rawPrice = ($freight * $courier->multiplier) + ($courier->base_extra_cost ?? 0);
             
-            // Terapkan Subsidi Ongkir
             $finalPrice = max(0, $rawPrice - $subsidyApplied);
 
             $rates[] = [
@@ -161,11 +186,12 @@ class ShippingService
                 'disabled' => $isDisabled,
                 'reason' => $disableReason,
                 'breakdown' => [
-                    'base_fee' => (int)$baseFee,
-                    'distance_km' => round($distance, 1),
-                    'distance_fee' => (int)$distanceFee,
-                    'weight_kg' => round($totalWeightKg, 1),
-                    'weight_fee' => (int)$weightFee,
+                    'base_fee' => (int)$totalBaseFee,
+                    'seller_count' => $sellerCount,
+                    'distance_km' => round($totalDistanceSum, 1),
+                    'distance_fee' => (int)$totalDistanceFee,
+                    'weight_kg' => round($totalWeightKgSum, 1),
+                    'weight_fee' => (int)$totalWeightFee,
                     'service_extra' => (int)($courier->base_extra_cost ?? 0),
                     'multiplier' => $courier->multiplier,
                     'raw_price' => (int)$rawPrice,

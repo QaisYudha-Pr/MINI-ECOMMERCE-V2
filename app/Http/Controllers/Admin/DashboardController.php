@@ -20,11 +20,6 @@ class DashboardController extends Controller
     {
         $user = Auth::user();
 
-        // Redirect Courier to their specific page
-        if ($user->hasRole('courier')) {
-            return redirect()->route('courier.deliveries.index');
-        }
-
         // Handle Export Request
         if ($request->has('export') && $request->get('export') === 'excel') {
             return Excel::download(new TransactionExport, 'transactions_report_' . date('Y-m-d') . '.xlsx');
@@ -33,9 +28,10 @@ class DashboardController extends Controller
         $user = Auth::user();
         $isAdmin = $user->hasRole('admin');
         $isSeller = $user->hasRole('seller');
+        $isCourier = $user->hasRole('courier');
 
-        // 1. Basic Stats (Admin/Seller)
-        $totalItems = ItemShop::when(!$isAdmin, fn($q) => $q->where('user_id', $user->id))->count();
+        // 1. Basic Stats (Admin/Seller) - Each user sees only their own items
+        $totalItems = ItemShop::where('user_id', $user->id)->count();
         $totalUsers = User::count();
         $totalReviews = Review::when(!$isAdmin, function($q) use ($user) {
             $q->whereHas('itemShop', fn($iq) => $iq->where('user_id', $user->id));
@@ -47,17 +43,25 @@ class DashboardController extends Controller
         $userReviewsCount = Review::where('user_id', $user->id)->count();
         $outOfStockItems = 0;
         $storeRating = 0;
+        $pendingDeliveries = 0;
+        $totalDeliveries = 0;
+        $salesTransactions = collect();
 
         if ($isAdmin) {
-            $recentTransactions = Transaction::with(['user', 'seller'])->latest()->take(10)->get();
+            // Admin Privacy Fix: Admin can only see history of items they OWN as a seller
+            $salesTransactions = Transaction::with(['user', 'seller'])
+                ->where('seller_id', $user->id)
+                ->latest()
+                ->take(5)
+                ->get();
             $pendingOrders = Transaction::where('status', 'paid')->count();
             $storeRating = Review::avg('rating') ?: 0;
             $sellerTotalItems = 0; 
         } elseif ($isSeller) {
-            $recentTransactions = Transaction::with('user')
+            $salesTransactions = Transaction::with('user')
                 ->where('seller_id', $user->id)
                 ->latest()
-                ->take(10)
+                ->take(5)
                 ->get();
             $pendingOrders = Transaction::where('status', 'paid')
                 ->get()
@@ -70,15 +74,30 @@ class DashboardController extends Controller
             $outOfStockItems = ItemShop::where('user_id', $user->id)->where('stok', '<=', 0)->count();
             $storeRating = Review::whereHas('itemShop', fn($q) => $q->where('user_id', $user->id))->avg('rating') ?: 0;
             $sellerTotalItems = ItemShop::where('user_id', $user->id)->count();
-        } else {
-            // General User (Bolo)
-            $sellerTotalItems = 0;
-            $recentTransactions = Transaction::where('user_id', $user->id)
+        } elseif ($isCourier) {
+            $salesTransactions = Transaction::with('user')
+                ->where('courier_id', $user->id)
                 ->latest()
                 ->take(5)
                 ->get();
+            $pendingDeliveries = Transaction::where('courier_id', $user->id)
+                ->where('status', 'shipped')
+                ->count();
+            $totalDeliveries = Transaction::where('courier_id', $user->id)
+                ->whereIn('status', ['delivered', 'completed'])
+                ->count();
+            $sellerTotalItems = 0;
+            $pendingOrders = 0;
+        } else {
+            // General User (Bolo)
+            $sellerTotalItems = 0;
             $pendingOrders = 0;
         }
+
+        // Always get Personal Purchases for the "Personal Order History" section
+        $recentTransactions = Transaction::where('user_id', $user->id)
+            ->latest()
+            ->paginate(5, ['*'], 'orders_page');
         
         $userTransactionsCount = Transaction::where('user_id', $user->id)
             ->whereIn('status', ['paid', 'success', 'shipped', 'completed', 'waiting_confirmation'])
@@ -101,9 +120,27 @@ class DashboardController extends Controller
         // 5. Detailed Metrics Logic (Revenue by Item/Category & Stats Cleanup)
         $itemStats = [];
         $totalEarnings = 0;
+        $platformProfit = 0;
         $totalOrdersCount = 0;
 
         foreach ($transactions as $transaction) {
+            // Platform Profit for Admin (Admin Fee + Commission)
+            if ($isAdmin) {
+                $commissionPercent = (float)(\App\Models\SiteSetting::where('key', 'seller_commission_pct')->value('value') ?? 5);
+                $itemsPrice = $transaction->total_price - $transaction->shipping_fee - $transaction->admin_fee;
+                $commissionAmount = ($itemsPrice * $commissionPercent) / 100;
+                $platformProfit += ($transaction->admin_fee + $commissionAmount);
+            }
+
+            // Courier logic: Earnings come from shipping_fee
+            if ($isCourier) {
+                if ($transaction->courier_id == $user->id) {
+                    $totalEarnings += $transaction->shipping_fee;
+                    $totalOrdersCount++;
+                }
+                continue;
+            }
+
             $items = $transaction->items_details;
             if (!is_array($items)) continue;
 
@@ -163,6 +200,13 @@ class DashboardController extends Controller
             foreach ($transactions as $transaction) {
                 if ($transaction->created_at->format('Y-m-d') !== $date) continue;
                 
+                if ($isCourier) {
+                    if ($transaction->courier_id == $user->id) {
+                        $dayTotal += $transaction->shipping_fee;
+                    }
+                    continue;
+                }
+
                 // Aggregate items based on category filter
                 $items = $transaction->items_details;
                 if (!is_array($items)) continue;
@@ -229,11 +273,10 @@ class DashboardController extends Controller
             ->take(5)
             ->get();
 
-        // 8. Notifications from Database
+        // 8. Notifications from Database - Show both read & unread (Latest 15)
         $notifications = \App\Models\Notification::where('user_id', $user->id)
-            ->where('is_read', false)
             ->latest()
-            ->take(10)
+            ->take(15)
             ->get();
 
         // 9. Growth Metrics (This week vs Last week)
@@ -277,6 +320,43 @@ class DashboardController extends Controller
             $orderGrowth = $thisWeekOrders > 0 ? 100 : 0;
         }
 
+        // 10. Seller Analytics (Product Performance)
+        $productPerformance = collect();
+        $topProducts = collect();
+        $sellerRatingData = null;
+        
+        if ($isSeller || $isAdmin) {
+            // Top selling products for this seller
+            $topProducts = ItemShop::where('user_id', $user->id)
+                ->orderByDesc('total_terjual')
+                ->take(5)
+                ->get()
+                ->map(function ($item) {
+                    return [
+                        'id' => $item->id,
+                        'name' => $item->name,
+                        'photo' => $item->photo,
+                        'sold' => $item->total_terjual,
+                        'stock' => $item->stok,
+                        'price' => $item->price,
+                        'revenue' => $item->price * $item->total_terjual,
+                    ];
+                });
+
+            // Product performance by category
+            $productPerformance = ItemShop::where('user_id', $user->id)
+                ->selectRaw('kategori, COUNT(*) as count, SUM(total_terjual) as total_sold, SUM(stok) as total_stock')
+                ->groupBy('kategori')
+                ->get();
+
+            // Seller rating data
+            $sellerRatingData = [
+                'rating' => $user->seller_rating ?? 0,
+                'count' => $user->seller_rating_count ?? 0,
+                'is_top_seller' => $user->is_top_seller ?? false,
+            ];
+        }
+
         return view('dashboard', compact(
             'totalItems',
             'totalUsers',
@@ -294,9 +374,11 @@ class DashboardController extends Controller
             'userFavoritesCount',
             'userReviewsCount',
             'recentTransactions',
+            'salesTransactions',
             'storeRating',
             'notifications',
             'platformBalance',
+            'platformProfit',
             'itemGrowth',
             'orderGrowth',
             'userGrowth',
@@ -306,18 +388,94 @@ class DashboardController extends Controller
             'userHasTransactions',
             'sellerTotalItems',
             'profileIncomplete',
+            'isCourier',
+            'pendingDeliveries',
+            'totalDeliveries',
+            'productPerformance',
+            'topProducts',
+            'sellerRatingData',
         ));
     }
 
     /**
-     * Mark all notifications as read
+     * Mark notification(s) as read
      */
-    public function markAsRead()
+    public function markAsRead($id = null)
+    {
+        if ($id) {
+            \App\Models\Notification::where('user_id', Auth::id())
+                ->where('id', $id)
+                ->update(['is_read' => true]);
+            $message = 'Notifikasi telah dibaca.';
+
+            if (request()->ajax() || request()->wantsJson()) {
+                return response()->json(['success' => true, 'message' => $message]);
+            }
+        } else {
+            \App\Models\Notification::where('user_id', Auth::id())
+                ->where('is_read', false)
+                ->update(['is_read' => true]);
+            $message = 'Semua notifikasi ditandai telah dibaca.';
+        }
+
+        return back()->with('success', $message);
+    }
+
+    /**
+     * Broadcast notification to all users
+     */
+    public function broadcast(Request $request)
+    {
+        if (!Auth::user()->hasRole('admin')) {
+            abort(403);
+        }
+
+        $request->validate([
+            'title' => 'required|string|max:100',
+            'message' => 'required|string|max:255',
+        ]);
+
+        $users = \App\Models\User::all();
+        foreach ($users as $user) {
+            \App\Models\Notification::create([
+                'user_id' => $user->id,
+                'title' => $request->title,
+                'message' => $request->message,
+                'type' => 'broadcast',
+                'is_read' => false,
+            ]);
+        }
+
+        return back()->with('success', 'Pengumuman berhasil disebarkan ke seluruh bolo!');
+    }
+
+    /**
+     * Delete notification
+     */
+    public function destroyNotification($id)
     {
         \App\Models\Notification::where('user_id', Auth::id())
-            ->where('is_read', false)
-            ->update(['is_read' => true]);
+            ->where('id', $id)
+            ->delete();
 
-        return back()->with('success', 'Semua notifikasi ditandai telah dibaca.');
+        if (request()->ajax()) {
+            return response()->json(['success' => true]);
+        }
+
+        return back()->with('success', 'Notifikasi berhasil dihapus.');
+    }
+
+    /**
+     * Delete all notifications for current user
+     */
+    public function destroyAllNotifications()
+    {
+        \App\Models\Notification::where('user_id', Auth::id())->delete();
+
+        if (request()->ajax()) {
+            return response()->json(['success' => true]);
+        }
+
+        return back()->with('success', 'Semua notifikasi berhasil dihapus bolo!');
     }
 }
