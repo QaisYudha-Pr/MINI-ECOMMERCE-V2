@@ -98,7 +98,7 @@
                                 </div>
                                 <div class="flex flex-wrap items-center gap-x-3 gap-y-1">
                                     <span class="text-xs font-bold text-gray-900 uppercase">Pesanan</span>
-                                    <span class="text-xs font-bold text-gray-400">{{ $trx->created_at->translatedFormat('d M Y') }} � {{ $trx->created_at->format('H:i') }} WIB</span>
+                                    <span class="text-xs font-bold text-gray-400">{{ $trx->created_at->translatedFormat('d M Y') }} | {{ $trx->created_at->format('H:i') }} WIB</span>
                                     <span class="px-3 py-1 rounded-lg {{ $clientStatusColor }} text-[11px] font-semibold border border-current/10">
                                         {{ $clientStatusLabel }}
                                     </span>
