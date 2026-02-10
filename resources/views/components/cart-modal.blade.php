@@ -130,7 +130,9 @@
                             <p class="text-[11px] text-gray-400 font-bold mt-2 leading-relaxed">Wah belum ada belanjaan nih bolo. Yuk cari barang keren atau cek produk hot di bawah!</p>
                             
                             {{-- Trending Sneak Peek inside Empty Cart --}}
-                            @php $trending = \App\Models\ItemShop::orderBy('total_terjual', 'desc')->take(2)->get(); @endphp
+                            @php 
+                                $trending = \App\Models\ItemShop::orderBy('total_terjual', 'desc')->take(2)->get(); 
+                            @endphp
                             @if($trending->count() > 0)
                             <div class="mt-10 w-full space-y-3">
                                 <p class="text-[10px] font-bold text-slate-300 uppercase tracking-[0.2em] mb-4">Lagi Hot Banget</p>

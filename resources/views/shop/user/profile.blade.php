@@ -14,7 +14,7 @@
 
     <x-slot name="header">
         <div class="flex items-center gap-3" data-aos="fade-right">
-            <div class="w-10 h-10 bg-emerald-600 rounded-xl flex items-center justify-center shadow-lg shadow-emerald-200">
+            <div class="w-10 h-10 bg-emerald-600 rounded-xl flex items-center justify-center shadow-lg shadow-emerald-500/20">
                 <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                 </svg>
@@ -36,9 +36,7 @@
                         <div class="relative inline-block group">
                             <div class="w-44 h-44 rounded-full p-2 border-2 border-dashed border-emerald-200 group-hover:border-emerald-500 transition-all duration-500">
                                 <div class="w-full h-full rounded-full overflow-hidden border-4 border-white shadow-lg bg-gray-50">
-                                    <img id="avatar-preview" 
-                                         src="{{ auth()->user()->avatar ? asset(auth()->user()->avatar) : 'https://ui-avatars.com/api/?name='.urlencode(auth()->user()->name).'&background=059669&color=fff&size=200' }}" 
-                                         class="w-full h-full object-cover transition-transform group-hover:scale-110">
+                                    <x-user-avatar :user="auth()->user()" size="w-full h-full" shape="rounded-full" textSize="text-5xl" id="avatar-preview" />
                                 </div>
                             </div>
                             
@@ -96,8 +94,8 @@
                                     @foreach($followedSellers as $followed)
                                         <div class="flex items-center justify-between p-4 bg-gray-50 rounded-2xl border border-gray-100 hover:border-emerald-200 transition-all group">
                                             <div class="flex items-center gap-3">
-                                                <div class="w-10 h-10 rounded-full overflow-hidden border-2 border-white shadow-sm">
-                                                    <img src="{{ $followed->avatar ? asset($followed->avatar) : 'https://ui-avatars.com/api/?name='.urlencode($followed->nama_toko ?? $followed->name).'&background=059669&color=fff' }}" class="w-full h-full object-cover">
+                                                <div class="w-10 h-10 rounded-full overflow-hidden border-2 border-white shadow-sm flex items-center justify-center">
+                                                    <x-user-avatar :user="$followed" size="w-10 h-10" shape="rounded-full" textSize="text-[10px]" />
                                                 </div>
                                                 <div>
                                                     <h4 class="text-xs font-bold text-gray-900 line-clamp-1">{{ $followed->nama_toko ?? $followed->name }}</h4>

@@ -383,7 +383,7 @@
                             @forelse($recentTransactions as $tx)
                             <tr class="hover:bg-slate-50/50 transition-colors group">
                                 <td class="px-8 py-6">
-                                    <div class="text-xs font-bold text-slate-700 group-hover:text-emerald-600 transition-colors">#{{ strtoupper(substr($tx->invoice_number, 0, 10)) }}</div>
+                                    <div class="text-xs font-bold text-slate-700 group-hover:text-emerald-600 transition-colors">{{ $tx->invoice_number }}</div>
                                 </td>
                                 <td class="px-8 py-6">
                                     <div class="text-xs font-bold text-slate-900 leading-none">RP {{ number_format($tx->total_price, 0, ',', '.') }}</div>

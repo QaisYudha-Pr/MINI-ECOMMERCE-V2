@@ -148,13 +148,13 @@
     {{-- HEADER INFO --}}
     @if(isset($seller) && $seller)
         {{-- Seller Profile Card - Premium Design --}}
-        <div class="mb-10 overflow-hidden relative">
+        <div class="mb-10 relative">
             {{-- Banner --}}
             <div class="relative h-40 sm:h-52 rounded-t-3xl overflow-hidden">
                 @if($seller->banner)
                 <img src="{{ Str::startsWith($seller->banner, ['http://', 'https://']) ? $seller->banner : asset($seller->banner) }}" class="w-full h-full object-cover" alt="Store Banner">
                 @else
-                <div class="w-full h-full bg-gradient-to-br from-emerald-600 via-emerald-400 to-teal-500"></div>
+                <div class="w-full h-full bg-gradient-to-br from-emerald-600 via-emerald-400 to-emerald-700"></div>
                 @endif
                 <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent"></div>
 
@@ -163,7 +163,13 @@
                     {{-- Avatar --}}
                     <div class="relative shrink-0">
                         <div class="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl overflow-hidden border-[3px] border-white shadow-lg bg-white">
-                            <img src="{{ $seller->avatar ? (Str::startsWith($seller->avatar, ['http://', 'https://']) ? $seller->avatar : asset('storage/' . $seller->avatar)) : 'https://ui-avatars.com/api/?name=' . urlencode($seller->nama_toko ?? $seller->name) . '&color=7F9CF5&background=EBF4FF&bold=true&size=128' }}" class="w-full h-full object-cover">
+                            @if($seller->avatar)
+                                <img src="{{ Str::startsWith($seller->avatar, ['http://', 'https://']) ? $seller->avatar : asset('storage/' . $seller->avatar) }}" class="w-full h-full object-cover">
+                            @else
+                                <div class="w-full h-full bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center text-white text-2xl sm:text-3xl font-black">
+                                    {{ strtoupper(substr($seller->nama_toko ?? $seller->name, 0, 1)) }}
+                                </div>
+                            @endif
                         </div>
                         <div class="absolute -bottom-1 -right-1 w-6 h-6 bg-emerald-600 rounded-lg border-2 border-white flex items-center justify-center text-white shadow-lg">
                             <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"></path></svg>
@@ -190,8 +196,9 @@
                 <div class="px-6 py-5">
                     <div class="flex flex-col lg:flex-row items-center gap-6">
                         {{-- Stats Row --}}
-                        <div class="flex items-center gap-6 lg:gap-8 flex-1">
-                            <div class="text-center">
+                        <div class="flex items-center gap-6 lg:gap-10 mt-1">
+                            {{-- Unified Rating --}}
+                            <div class="text-center group relative cursor-help">
                                 <div class="flex flex-col items-center">
                                     <div class="flex items-center justify-center gap-0.5 mb-1">
                                         @php $rating = (float)($seller->avg_rating ?? 0); @endphp
@@ -205,20 +212,51 @@
                                         <span class="text-sm font-bold text-gray-900">{{ number_format($rating, 1) }}</span>
                                         <span class="text-[10px] text-gray-400 font-bold">({{ number_format($seller->total_reviews ?? 0) }})</span>
                                     </div>
+                                    <p class="text-[9px] text-gray-400 font-bold uppercase tracking-widest mt-1 group-hover:text-emerald-500 transition-colors">Rating Toko</p>
                                 </div>
-                                <p class="text-[11px] font-bold text-gray-400 mt-1">Rating</p>
+                                
+                                {{-- Tooltip Breakdown --}}
+                                <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-3 w-52 bg-white rounded-2xl shadow-[0_10px_40px_rgba(0,0,0,0.1)] border border-gray-100 p-4 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-[100] text-left">
+                                    <div class="space-y-3">
+                                        <div>
+                                            <div class="flex justify-between items-center mb-1">
+                                                <span class="text-[10px] font-bold text-gray-400 uppercase">Kepuasan Produk</span>
+                                                <span class="text-[10px] font-bold text-emerald-600">{{ number_format($seller->product_avg ?? 0, 1) }}</span>
+                                            </div>
+                                            <div class="w-full h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                                                <div class="h-full bg-amber-400 rounded-full" style="width: {{ ($seller->product_avg ?? 0) * 20 }}%"></div>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <div class="flex justify-between items-center mb-1">
+                                                <span class="text-[10px] font-bold text-gray-400 uppercase">Kualitas Layanan</span>
+                                                <span class="text-[10px] font-bold text-emerald-600">{{ number_format($seller->service_avg ?? 0, 1) }}</span>
+                                            </div>
+                                            <div class="w-full h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                                                <div class="h-full bg-emerald-500 rounded-full" style="width: {{ ($seller->service_avg ?? 0) * 20 }}%"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="absolute bottom-[-6px] left-1/2 -translate-x-1/2 w-3 h-3 bg-white border-r border-b border-gray-100 rotate-45"></div>
+                                </div>
                             </div>
+
                             <div class="w-px h-8 bg-gray-100"></div>
+
                             <div class="text-center">
                                 <p class="text-lg font-bold text-gray-900" x-text="followerCount">0</p>
                                 <p class="text-[11px] font-bold text-gray-400">Pengikut</p>
                             </div>
+
                             <div class="w-px h-8 bg-gray-100"></div>
+
                             <div class="text-center">
                                 <p class="text-lg font-bold text-gray-900">{{ $seller->item_shops_count }}</p>
                                 <p class="text-[11px] font-bold text-gray-400">Produk</p>
                             </div>
+
                             <div class="w-px h-8 bg-gray-100"></div>
+
                             <div class="text-center">
                                 <p class="text-lg font-bold text-gray-900">{{ ($seller->total_sold ?? 0) > 1000 ? number_format(($seller->total_sold ?? 0)/1000, 1) . 'rb' : ($seller->total_sold ?? 0) }}+</p>
                                 <p class="text-[11px] font-bold text-gray-400">Terjual</p>
@@ -307,13 +345,16 @@
                     <div class="space-y-6">
                         @foreach($sellerReviews as $review)
                             <div class="pb-6 border-b border-gray-50 last:border-0 last:pb-0">
+                                @php
+                                    $reviewer = $review->user ?? $review->buyer;
+                                @endphp
                                 <div class="flex items-start gap-4">
                                     <div class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center font-bold text-gray-400 flex-shrink-0">
-                                        {{ substr($review->user->name, 0, 1) }}
+                                        {{ substr($reviewer->name ?? 'U', 0, 1) }}
                                     </div>
                                     <div class="flex-grow">
                                         <div class="flex items-center justify-between mb-1">
-                                            <h4 class="text-sm font-bold text-gray-800">{{ $review->user->name }}</h4>
+                                            <h4 class="text-sm font-bold text-gray-800">{{ $reviewer->name ?? 'Pembeli' }}</h4>
                                             <span class="text-xs text-gray-400">{{ $review->created_at->diffForHumans() }}</span>
                                         </div>
                                         <div class="flex items-center gap-1 mb-2">
@@ -323,8 +364,14 @@
                                         </div>
                                         <p class="text-gray-600 text-sm mb-2">"{{ $review->comment }}"</p>
                                         <div class="flex items-center gap-2">
-                                            <span class="text-xs text-gray-400">Membeli:</span>
-                                            <span class="text-xs font-bold text-emerald-600">{{ $review->itemShop->nama_barang }}</span>
+                                            @if($review->itemShop)
+                                                <span class="text-xs text-gray-400">Membeli:</span>
+                                                <span class="text-xs font-bold text-emerald-600">{{ $review->itemShop->nama_barang }}</span>
+                                            @else
+                                                <span class="text-[10px] font-bold text-amber-600 bg-amber-50 px-2 py-0.5 rounded border border-amber-100 flex items-center gap-1">
+                                                    <i class="fa-solid fa-store"></i> Ulasan Toko
+                                                </span>
+                                            @endif
                                         </div>
                                     </div>
                                 </div>

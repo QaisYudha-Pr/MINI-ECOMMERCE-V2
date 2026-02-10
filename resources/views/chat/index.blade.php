@@ -111,8 +111,7 @@
                    class="flex items-center gap-3 px-4 py-3 hover:bg-[#f5f6f6] transition-all border-b border-[#f0f2f5] cursor-pointer
                           {{ $activeConversation && $activeConversation->id === $conversation->id ? 'bg-[#ebebeb]' : '' }}">
                     <div class="relative shrink-0">
-                        <img src="{{ $other->avatar ? (Str::startsWith($other->avatar, ['http://', 'https://']) ? $other->avatar : asset($other->avatar)) : 'https://ui-avatars.com/api/?name='.urlencode($other->name).'&background=00a884&color=fff&bold=true' }}" 
-                             class="w-12 h-12 rounded-full object-cover">
+                        <x-user-avatar :user="$other" size="w-12 h-12" shape="rounded-full" textSize="text-[12px]" />
                         @if($other->isOnline())
                         <span class="absolute bottom-0 right-0 w-3 h-3 bg-[#00a884] border-2 border-white rounded-full"></span>
                         @endif
@@ -158,8 +157,9 @@
             <a href="{{ route('chat.index') }}" class="md:hidden p-2 hover:bg-black/5 rounded-full transition-colors shrink-0">
                 <svg class="w-5 h-5 text-[#54656f]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
             </a>
-            <img src="{{ $otherUser->avatar ? (Str::startsWith($otherUser->avatar, ['http://', 'https://']) ? $otherUser->avatar : asset($otherUser->avatar)) : 'https://ui-avatars.com/api/?name='.urlencode($otherUser->name).'&background=00a884&color=fff&bold=true' }}" 
-                 class="w-10 h-10 rounded-full object-cover shrink-0">
+            <div class="shrink-0">
+                <x-user-avatar :user="$otherUser" size="w-10 h-10" shape="rounded-full" textSize="text-[10px]" />
+            </div>
             <div class="flex-1 min-w-0">
                 <h2 class="text-sm font-medium text-[#111b21] truncate">{{ $otherUser->nama_toko ?? $otherUser->name }}</h2>
                 <span class="text-[11px] {{ $otherUser->isOnline() ? 'text-[#00a884]' : 'text-[#667781]' }}">

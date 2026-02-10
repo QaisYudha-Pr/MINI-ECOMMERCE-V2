@@ -148,24 +148,16 @@
 
                                 {{-- Review Button --}}
                                 @if($trx->status == "completed")
-                                    <button onclick="showReviewModal('{{ $trx->invoice_number }}', {{ json_encode($trx->items_details) }})" class="px-6 py-3 bg-white border-2 border-amber-500 text-amber-500 rounded-xl text-xs font-semibold hover:bg-amber-50 transition-all">
-                                        Beri Ulasan
-                                    </button>
+                                    @php 
+                                        $hasSellerReview = \App\Models\SellerReview::where('transaction_id', $trx->id)->where('buyer_id', auth()->id())->exists();
+                                    @endphp
+                                    <a href="{{ route('transactions.show', $trx->id) }}" class="px-6 py-3 bg-white border-2 border-amber-500 text-amber-500 rounded-xl text-xs font-semibold hover:bg-amber-50 transition-all">
+                                        {{ $hasSellerReview ? 'Ulas Produk' : 'Beri Ulasan' }}
+                                    </a>
 
-                                    {{-- Seller Review Button --}}
-                                    @php $hasSellerReview = \App\Models\SellerReview::where('transaction_id', $trx->id)->where('buyer_id', auth()->id())->exists(); @endphp
-                                    @if(!$hasSellerReview)
-                                        <button onclick="showSellerReviewModal({{ $trx->id }}, '{{ $seller->nama_toko ?? $seller->name ?? 'Toko' }}', '{{ $seller->avatar ? asset($seller->avatar) : 'https://ui-avatars.com/api/?name='.urlencode($seller->nama_toko ?? $seller->name).'&background=059669&color=fff' }}')" 
-                                            class="px-6 py-3 bg-white border-2 border-emerald-500 text-emerald-500 rounded-xl text-xs font-semibold hover:bg-emerald-50 transition-all flex items-center gap-2">
-                                            <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
-                                            Rating Seller
-                                        </button>
-                                    @else
-                                        <span class="px-6 py-3 bg-emerald-50 text-emerald-400 rounded-xl text-xs font-semibold flex items-center gap-2 border border-emerald-100">
-                                            <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
-                                            Sudah Dirating
-                                        </span>
-                                    @endif
+
+
+
                                 @endif
                                 
                                 {{-- Buy Again (Mockup for now) --}}
@@ -213,179 +205,6 @@
                 onPending: function(result) { window.location.reload(); },
                 onError: function(result) { alert("Pembayaran gagal bolo!"); }
             });
-        }
-
-        function showReviewModal(invoice, items) {
-            let itemsHtml = items.map(item => {
-                let img = item.gambar ? "/" + item.gambar : "/image/default-product.jpg";
-                return `
-                <div class="flex items-center gap-4 p-4 bg-slate-50 rounded-2xl mb-3 border border-slate-100 group hover:border-emerald-300 transition-all">
-                    <img src="${img}" class="w-12 h-12 rounded-xl object-cover shadow-sm bg-gray-50">
-                    <div class="flex-1 text-left">
-                        <p class="text-[11px] font-bold text-gray-900 uppercase line-clamp-1">${item.nama_barang || item.name}</p>
-                        <p class="text-[11px] text-gray-400 font-bold">Beri rating produk bolo</p>
-                    </div>
-                    <button onclick="openProductRateModal(${item.id}, '${item.nama_barang || item.name}', '${img}')" class="bg-emerald-600 text-white px-4 py-2.5 rounded-xl text-[11px] font-semibold hover:bg-slate-900 transition-all">
-                        Ulas
-                    </button>
-                </div>
-            `}).join("");
-
-            Swal.fire({
-                title: '<span class="text-xl font-semibold">Beri <span class="text-emerald-600">Ulasan</span> Bolo!</span>',
-                html: `
-                    <div class="mt-4">
-                        <p class="text-xs text-gray-500 mb-6 font-bold">Pilih produk dari invoice <span class="text-emerald-600 font-bold">${invoice}</span>:</p>
-                        <div class="max-h-[350px] overflow-y-auto px-1 scrollbar-hide">
-                            ${itemsHtml}
-                        </div>
-                    </div>
-                `,
-                showConfirmButton: false,
-                showCloseButton: true,
-                customClass: {
-                    popup: 'rounded-2xl border-none shadow-lg',
-                }
-            });
-        }
-
-        function showSellerReviewModal(transactionId, sellerName, sellerAvatar) {
-            let selectedRating = 0;
-
-            function starHtml(count) {
-                let html = '';
-                for (let i = 1; i <= 5; i++) {
-                    html += `<button type="button" onclick="setSellerRating(${i})" class="seller-star transition-all hover:scale-125 focus:outline-none" data-star="${i}">
-                        <svg class="w-10 h-10 ${i <= count ? 'text-amber-400' : 'text-gray-200'}" fill="currentColor" viewBox="0 0 20 20">
-                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
-                        </svg>
-                    </button>`;
-                }
-                return html;
-            }
-
-            const ratingLabels = ['', 'Sangat Buruk', 'Buruk', 'Cukup', 'Baik', 'Sangat Baik'];
-
-            Swal.fire({
-                html: `
-                    <div class="text-center">
-                        <img src="${sellerAvatar}" class="w-16 h-16 rounded-full mx-auto border-2 border-emerald-100 shadow-sm object-cover">
-                        <h3 class="text-lg font-bold text-gray-900 mt-4">${sellerName}</h3>
-                        <p class="text-xs text-gray-400 font-bold mt-1">Beri rating untuk seller ini bolo!</p>
-                        
-                        <form id="seller-review-form" action="/transactions/${transactionId}/seller-review" method="POST" class="mt-6">
-                            <input type="hidden" name="_token" value="${document.querySelector('meta[name=csrf-token]')?.content || '{{ csrf_token() }}'}">
-                            <input type="hidden" name="rating" id="seller-rating-input" value="0">
-                            
-                            <div class="flex items-center justify-center gap-2 mb-2" id="seller-stars-container">
-                                ${starHtml(0)}
-                            </div>
-                            <p id="seller-rating-label" class="text-xs font-semibold text-emerald-600 h-4 mb-4"></p>
-
-                            <textarea name="comment" rows="3" maxlength="500" placeholder="Tulis komentar untuk seller (opsional)..." 
-                                class="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl p-4 text-xs font-bold text-gray-600 focus:border-emerald-300 focus:ring-0 transition-all resize-none"></textarea>
-                            
-                            <button type="submit" id="seller-review-submit" disabled
-                                class="w-full mt-4 bg-emerald-600 text-white py-3.5 rounded-xl text-xs font-semibold hover:bg-slate-900 transition-all disabled:opacity-40 disabled:cursor-not-allowed shadow-lg shadow-emerald-100">
-                                Kirim Rating
-                            </button>
-                        </form>
-                    </div>
-                `,
-                showConfirmButton: false,
-                showCloseButton: true,
-                customClass: {
-                    popup: 'rounded-2xl border-none shadow-lg',
-                }
-            });
-
-            // Expose rating setter globally for onclick
-            window.setSellerRating = function(rating) {
-                selectedRating = rating;
-                document.getElementById('seller-rating-input').value = rating;
-                document.getElementById('seller-review-submit').disabled = false;
-                document.getElementById('seller-rating-label').textContent = ratingLabels[rating];
-
-                // Update stars visually
-                document.querySelectorAll('.seller-star svg').forEach((svg, idx) => {
-                    if (idx < rating) {
-                        svg.classList.remove('text-gray-200');
-                        svg.classList.add('text-amber-400');
-                    } else {
-                        svg.classList.remove('text-amber-400');
-                        svg.classList.add('text-gray-200');
-                    }
-                });
-            };
-        }
-
-        function openProductRateModal(itemId, itemName, itemImage) {
-            let selectedRating = 0;
-
-            function productStarHtml(count) {
-                let html = '';
-                for (let i = 1; i <= 5; i++) {
-                    html += `<button type="button" onclick="setProductRating(${i})" class="product-star transition-all hover:scale-125 focus:outline-none" data-star="${i}">
-                        <svg class="w-10 h-10 ${i <= count ? 'text-amber-400' : 'text-gray-200'}" fill="currentColor" viewBox="0 0 20 20">
-                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
-                        </svg>
-                    </button>`;
-                }
-                return html;
-            }
-
-            const ratingLabels = ['', 'Mengecewakan', 'Kurang Baik', 'Biasa Saja', 'Sangat Baik', 'Sempurna Bolo!'];
-
-            Swal.fire({
-                html: `
-                    <div class="text-center">
-                        <img src="${itemImage}" class="w-20 h-20 rounded-2xl mx-auto border-2 border-emerald-100 shadow-sm object-cover">
-                        <h3 class="text-md font-bold text-gray-900 mt-4 line-clamp-2 uppercase tracking-tighter">${itemName}</h3>
-                        <p class="text-[11px] text-gray-400 font-bold mt-1">Gimana produknya bolo? Kasih rating yuk!</p>
-                        
-                        <form id="product-review-form" action="/item-shop/${itemId}/review" method="POST" class="mt-6 text-left">
-                            <input type="hidden" name="_token" value="${document.querySelector('meta[name=csrf-token]')?.content || '{{ csrf_token() }}'}">
-                            <input type="hidden" name="rating" id="product-rating-input" value="0">
-                            
-                            <div class="flex items-center justify-center gap-2 mb-2" id="product-stars-container">
-                                ${productStarHtml(0)}
-                            </div>
-                            <p id="product-rating-label" class="text-center text-xs font-semibold text-emerald-600 h-4 mb-4"></p>
-
-                            <label class="text-[10px] font-bold text-gray-400 uppercase mb-2 block">Komentar Bolo</label>
-                            <textarea name="comment" rows="3" required placeholder="Tulis review jujurmu di sini bolo..." 
-                                class="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl p-4 text-xs font-bold text-gray-600 focus:border-emerald-300 focus:ring-0 transition-all resize-none"></textarea>
-                            
-                            <button type="submit" id="product-review-submit" disabled
-                                class="w-full mt-4 bg-emerald-600 text-white py-4 rounded-xl text-xs font-bold hover:bg-slate-900 transition-all disabled:opacity-40 disabled:cursor-not-allowed shadow-lg shadow-emerald-100">
-                                Submit Review Produk
-                            </button>
-                        </form>
-                    </div>
-                `,
-                showConfirmButton: false,
-                showCloseButton: true,
-                customClass: {
-                    popup: 'rounded-2xl border-none shadow-lg',
-                }
-            });
-
-            window.setProductRating = function(rating) {
-                selectedRating = rating;
-                document.getElementById('product-rating-input').value = rating;
-                document.getElementById('product-review-submit').disabled = false;
-                document.getElementById('product-rating-label').textContent = ratingLabels[rating];
-
-                document.querySelectorAll('.product-star svg').forEach((svg, idx) => {
-                    if (idx < rating) {
-                        svg.classList.remove('text-gray-200');
-                        svg.classList.add('text-amber-400');
-                    } else {
-                        svg.classList.remove('text-amber-400');
-                        svg.classList.add('text-gray-200');
-                    }
-                });
-            };
         }
     </script>
 </x-admin-layout>

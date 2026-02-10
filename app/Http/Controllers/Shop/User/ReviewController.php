@@ -86,20 +86,6 @@ class ReviewController extends Controller
             'photo' => $photoPath,
         ]);
 
-        // Recalculate Seller Stats (Cached values for performance)
-        $seller = $itemShop->user;
-        if ($seller) {
-            $itemIds = $seller->itemShops()->pluck('id');
-            $avgRating = Review::whereIn('item_shop_id', $itemIds)->avg('rating') ?: 0;
-            $countRating = Review::whereIn('item_shop_id', $itemIds)->count();
-            
-            $seller->update([
-                'seller_rating' => $avgRating,
-                'seller_rating_count' => $countRating,
-                'is_top_seller' => ($avgRating >= 4.5 && $countRating >= 5) ? 1 : 0
-            ]);
-        }
-
         return back()->with('success', 'Review berhasil ditambahkan!');
     }
 

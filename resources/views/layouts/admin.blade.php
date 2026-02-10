@@ -71,6 +71,7 @@
 
             <div class="flex items-center gap-4">
                 {{-- Global Cart --}}
+                @unlessrole('courier')
                 <button @click="$store.cart.show = true" class="relative p-2.5 text-slate-500 hover:text-emerald-600 hover:bg-emerald-50 rounded-xl transition-all duration-300 group">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
@@ -79,6 +80,7 @@
                         <span class="absolute top-2 right-2 bg-rose-500 text-white text-[11px] font-bold w-4 h-4 rounded-full flex items-center justify-center border-2 border-white animate-bounce" x-text="$store.cart.items.length"></span>
                     </template>
                 </button>
+                @endunlessrole
 
                 {{-- Global Notifications --}}
                 <div x-data="{ unreadCount: {{ auth()->user()->notifications()->where('is_read', false)->count() }} }">
@@ -138,12 +140,8 @@
                                     {{ Auth::user()->nama_toko ?? Auth::user()->getRoleNames()->first() }}
                                 </div>
                             </div>
-                            <div class="w-10 h-10 rounded-full overflow-hidden border-2 border-white shadow-sm ring-1 ring-slate-100 group-hover:ring-emerald-100 transition-all">
-                                @if (Auth::user()->avatar)
-                                <img src="{{ asset(Auth::user()->avatar) }}" class="w-full h-full object-cover">
-                                @else
-                                <img src="https://ui-avatars.com/api/?name={{ urlencode(Auth::user()->name) }}&color=059669&background=ECFDF5" class="w-full h-full object-cover">
-                                @endif
+                            <div class="w-10 h-10">
+                                <x-user-avatar :user="Auth::user()" size="w-10 h-10" shape="rounded-full" textSize="text-[10px]" />
                             </div>
                         </button>
                     </x-slot>

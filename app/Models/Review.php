@@ -18,4 +18,27 @@ class Review extends Model
     {
         return $this->belongsTo(ItemShop::class, 'item_shop_id');
     }
+
+    protected static function booted()
+    {
+        static::created(function ($review) {
+            $review->syncSellerRating();
+        });
+
+        static::updated(function ($review) {
+            $review->syncSellerRating();
+        });
+
+        static::deleted(function ($review) {
+            $review->syncSellerRating();
+        });
+    }
+
+    public function syncSellerRating()
+    {
+        $seller = $this->itemShop->user;
+        if ($seller) {
+            $seller->recalculateSellerRating();
+        }
+    }
 }

@@ -58,9 +58,15 @@
 
         {{-- Store Info --}}
         <div class="flex items-center gap-2 mb-3">
-            <img src="{{ $item->user->avatar ? asset($item->user->avatar) : 'https://ui-avatars.com/api/?name=' . urlencode($item->user->nama_toko ?? $item->user->name ?? 'OS') . '&color=F43F5E&background=FFF1F2&bold=true' }}" 
-                 class="w-5 h-5 rounded-md object-cover border border-gray-100" 
-                 alt="Store Avatar">
+            @if($item->user->avatar)
+                <img src="{{ asset($item->user->avatar) }}" 
+                     class="w-5 h-5 rounded-md object-cover border border-gray-100" 
+                     alt="Store Avatar">
+            @else
+                <div class="w-5 h-5 bg-emerald-600 rounded-md flex items-center justify-center text-[10px] font-bold text-white uppercase">
+                    {{ substr($item->user->nama_toko ?? $item->user->name ?? 'OS', 0, 1) }}
+                </div>
+            @endif
             <span class="text-xs text-gray-500 truncate">{{ $item->user->nama_toko ?? $item->user->name ?? 'Official Store' }}</span>
         </div>
 

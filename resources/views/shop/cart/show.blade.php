@@ -90,8 +90,26 @@
                                             </span>
                                         </div>
                                     </div>
-                                    <div class="text-right">
+                                    <div class="text-right flex flex-col items-end gap-2">
                                         <p class="text-sm font-bold text-slate-900">Rp{{ number_format(($item['harga'] ?? ($item['price'] ?? 0)) * ($item['quantity'] ?? 1), 0, ',', '.') }}</p>
+                                        
+                                        @if($transaction->status === 'completed')
+                                            @php 
+                                                $hasProductReview = \App\Models\Review::where('item_shop_id', $item['id'] ?? $item['item_id'])
+                                                    ->where('user_id', auth()->id())
+                                                    ->exists();
+                                            @endphp
+                                            @if(!$hasProductReview)
+                                                <button onclick="openProductRateModal({{ $item['id'] ?? $item['item_id'] }}, '{{ $item['nama_barang'] ?? $item['name'] }}', '{{ isset($item['gambar']) ? asset($item['gambar']) : asset('image/default-product.jpg') }}')" 
+                                                    class="px-4 py-1.5 bg-amber-500 text-white rounded-lg text-[10px] font-bold uppercase tracking-wider hover:bg-amber-600 transition-all shadow-lg shadow-amber-100">
+                                                    Beri Ulasan
+                                                </button>
+                                            @else
+                                                <span class="px-4 py-1.5 bg-slate-50 text-slate-400 rounded-lg text-[10px] font-bold uppercase border border-slate-100">
+                                                    Sudah Diulas
+                                                </span>
+                                            @endif
+                                        @endif
                                     </div>
                                 </div>
                             @endforeach
@@ -282,7 +300,7 @@
                     <div class="max-w-xs ml-auto space-y-4">
                         <div class="flex justify-between text-xs font-bold text-slate-400">
                             <span>Subtotal</span>
-                            <span>Rp{{ number_format($transaction->total_price - ($transaction->shipping_fee ?? 0) - 2500, 0, ',', '.') }}</span>
+                            <span>Rp{{ number_format($transaction->total_price - ($transaction->shipping_fee ?? 0) - ($transaction->admin_fee ?? 0), 0, ',', '.') }}</span>
                         </div>
                         <div class="flex justify-between text-xs font-bold text-slate-400">
                             <span>Ongkir</span>
@@ -290,7 +308,7 @@
                         </div>
                         <div class="flex justify-between text-xs font-bold text-slate-400">
                             <span>Biaya Layanan</span>
-                            <span>Rp2.500</span>
+                            <span>Rp{{ number_format($transaction->admin_fee ?? 0, 0, ',', '.') }}</span>
                         </div>
                         <div class="pt-4 border-t border-white/10 flex justify-between items-end">
                             <div>
@@ -342,6 +360,76 @@
                 }, 500);
             });
         @endif
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script type="text/javascript">
+        function openProductRateModal(itemId, itemName, itemImage) {
+            let selectedRating = 0;
+
+            function productStarHtml(count) {
+                let html = '';
+                for (let i = 1; i <= 5; i++) {
+                    html += `<button type="button" onclick="setProductRating(${i})" class="product-star transition-all hover:scale-125 focus:outline-none" data-star="${i}">
+                        <svg class="w-10 h-10 ${i <= count ? 'text-amber-400' : 'text-gray-200'}" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                        </svg>
+                    </button>`;
+                }
+                return html;
+            }
+
+            const ratingLabels = ['', 'Mengecewakan', 'Kurang Baik', 'Biasa Saja', 'Sangat Baik', 'Sempurna Bolo!'];
+
+            Swal.fire({
+                html: `
+                    <div class="text-center">
+                        <img src="${itemImage}" class="w-20 h-20 rounded-2xl mx-auto border-2 border-emerald-100 shadow-sm object-cover bg-white">
+                        <h3 class="text-md font-bold text-gray-900 mt-4 line-clamp-2 uppercase tracking-tighter">${itemName}</h3>
+                        <p class="text-[11px] text-gray-400 font-bold mt-1">Gimana produknya bolo? Kasih rating yuk!</p>
+                        
+                        <form id="product-review-form" action="/item-shop/${itemId}/review" method="POST" class="mt-6 text-left">
+                            <input type="hidden" name="_token" value="${document.querySelector('meta[name=csrf-token]')?.content || '{{ csrf_token() }}'}">
+                            <input type="hidden" name="rating" id="product-rating-input" value="0">
+                            
+                            <div class="flex items-center justify-center gap-2 mb-2" id="product-stars-container">
+                                ${productStarHtml(0)}
+                            </div>
+                            <p id="product-rating-label" class="text-center text-xs font-semibold text-emerald-600 h-4 mb-4"></p>
+
+                            <label class="text-[10px] font-bold text-gray-400 uppercase mb-2 block">Komentar Bolo</label>
+                            <textarea name="comment" rows="3" required placeholder="Tulis review jujurmu di sini bolo..." 
+                                class="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl p-4 text-xs font-bold text-gray-600 focus:border-emerald-300 focus:ring-0 transition-all resize-none"></textarea>
+                            
+                            <button type="submit" id="product-review-submit" disabled
+                                class="w-full mt-4 bg-emerald-600 text-white py-4 rounded-xl text-xs font-bold hover:bg-slate-900 transition-all disabled:opacity-40 disabled:cursor-not-allowed shadow-lg shadow-emerald-100 uppercase tracking-widest">
+                                Submit Review Produk
+                            </button>
+                        </form>
+                    </div>
+                `,
+                showConfirmButton: false,
+                showCloseButton: true,
+                customClass: {
+                    popup: 'rounded-2xl border-none shadow-lg',
+                }
+            });
+
+            window.setProductRating = function(rating) {
+                document.getElementById('product-rating-input').value = rating;
+                document.getElementById('product-review-submit').disabled = false;
+                document.getElementById('product-rating-label').textContent = ratingLabels[rating];
+
+                document.querySelectorAll('.product-star svg').forEach((svg, idx) => {
+                    if (idx < rating) {
+                        svg.classList.remove('text-gray-200');
+                        svg.classList.add('text-amber-400');
+                    } else {
+                        svg.classList.remove('text-amber-400');
+                        svg.classList.add('text-gray-200');
+                    }
+                });
+            };
+        }
 
         function toggleChangePayment() {
             const form = document.getElementById('change-payment-form');

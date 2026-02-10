@@ -33,16 +33,20 @@ class ItemShopController extends Controller
                 $seller->loadCount('itemShops');
                 $seller->total_sold = $seller->itemShops()->sum('total_terjual');
                 
-                // Get Seller Rating - Use the cached value from user table or calculate from reviews
+                // Get Detailed Rating Breakdown
+                $itemIds = $seller->itemShops()->pluck('id');
+                $productRatingData = \App\Models\Review::whereIn('item_shop_id', $itemIds);
+                $sellerRatingData = \App\Models\SellerReview::where('seller_id', $seller->id);
+
+                $seller->product_avg = $productRatingData->avg('rating') ?: 0;
+                $seller->product_count = $productRatingData->count();
+                
+                $seller->service_avg = $sellerRatingData->avg('rating') ?: 0;
+                $seller->service_count = $sellerRatingData->count();
+
+                // Unified average for compatibility
                 $seller->avg_rating = $seller->seller_rating ?? 0;
                 $seller->total_reviews = $seller->seller_rating_count ?? 0;
-                
-                // If no seller reviews yet, fallback to products average for a better look
-                if ($seller->total_reviews == 0) {
-                    $itemIds = $seller->itemShops()->pluck('id');
-                    $seller->avg_rating = \App\Models\Review::whereIn('item_shop_id', $itemIds)->avg('rating') ?: 0;
-                    $seller->total_reviews = \App\Models\Review::whereIn('item_shop_id', $itemIds)->count();
-                }
             }
         }
 
@@ -66,6 +70,9 @@ class ItemShopController extends Controller
             $query->where('kategori', $request->category);
         }
 
+        // Hide out of stock items
+        $query->where('stok', '>', 0);
+
         if ($request->filled('sort') && $request->sort === 'nearest' && Auth::check() && Auth::user()->latitude) {
             $query->orderBy('distance', 'asc');
         } else {
@@ -82,12 +89,23 @@ class ItemShopController extends Controller
         
         $sellerReviews = collect();
         if ($seller) {
-            $itemIds = $seller->itemShops()->pluck('id');
-            $sellerReviews = \App\Models\Review::whereIn('item_shop_id', $itemIds)
-                ->with('user', 'itemShop')
+            // Get combined or specific seller reviews
+            // User requested that reviews from transaction "masuk ke toko"
+            $sellerReviews = \App\Models\SellerReview::where('seller_id', $seller->id)
+                ->with('buyer')
                 ->latest()
-                ->take(10)
+                ->take(15)
                 ->get();
+                
+            // If empty, maybe show some product reviews as fallback
+            if ($sellerReviews->isEmpty()) {
+                $itemIds = $seller->itemShops()->pluck('id');
+                $sellerReviews = \App\Models\Review::whereIn('item_shop_id', $itemIds)
+                    ->with('user', 'itemShop')
+                    ->latest()
+                    ->take(10)
+                    ->get();
+            }
         }
 
         $isFollowing = false;

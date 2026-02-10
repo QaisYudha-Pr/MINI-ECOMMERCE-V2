@@ -71,11 +71,13 @@
                 </a>
             </div>
             <div class="flex items-center gap-6">
+                @unlessrole('courier')
                 <a href="{{ route('shop.public') }}" class="hover:text-emerald-600">Belanja Sekarang</a>
+                @endunlessrole
                 @guest
                     <a href="{{ route('seller.create') }}" class="hover:text-emerald-600">Mulai Berjualan</a>
                 @else
-                    @unlessrole('seller|admin')
+                    @unlessrole('seller|admin|courier')
                         <a href="{{ route('seller.create') }}" class="hover:text-emerald-600">Mulai Berjualan</a>
                     @endunlessrole
                 @endguest
@@ -174,10 +176,18 @@
                             
                             <template x-for="item in results" :key="item.id">
                                 <a :href="item.url" class="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors group">
-                                    <div class="relative shrink-0">
-                                        <img :src="item.seller_avatar" class="w-10 h-10 rounded-full border border-gray-100 object-cover">
+                                    <div class="relative shrink-0 w-12 h-12">
+                                        <template x-if="item.image">
+                                            <img :src="item.image" class="w-full h-full rounded-xl border border-gray-100 object-cover shadow-sm">
+                                        </template>
+                                        <template x-if="!item.image">
+                                            <div class="w-full h-full rounded-xl border border-emerald-100 flex items-center justify-center bg-emerald-50 text-emerald-600 font-bold text-sm uppercase">
+                                                <span x-text="item.initials"></span>
+                                            </div>
+                                        </template>
+
                                         <template x-if="item.is_verified">
-                                            <div class="absolute -bottom-1 -right-1 bg-white rounded-full p-0.5 shadow-sm">
+                                            <div class="absolute -bottom-1 -right-1 bg-white rounded-full p-0.5 shadow-sm border border-emerald-50">
                                                 <svg class="w-3 h-3 text-emerald-600" fill="currentColor" viewBox="0 0 24 24">
                                                     <path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
                                                 </svg>
@@ -185,13 +195,19 @@
                                         </template>
                                     </div>
                                     <div class="flex-grow min-w-0">
-                                        <div class="flex items-center gap-1">
+                                        <div class="flex flex-col">
                                             <span class="text-xs font-bold text-gray-800 line-clamp-1" x-text="item.name"></span>
-                                            <template x-if="item.is_verified">
-                                                <span class="text-[11px] font-semibold text-emerald-600">Official</span>
-                                            </template>
+                                            <div class="flex items-center gap-2 mt-0.5">
+                                                <span class="text-[10px] text-gray-400 font-bold uppercase tracking-tight" x-text="item.seller_name"></span>
+                                                <template x-if="item.is_verified">
+                                                    <span class="text-[9px] px-1.5 py-0.5 bg-emerald-100 text-emerald-700 rounded-md font-bold uppercase tracking-tighter">Official</span>
+                                                </template>
+                                            </div>
                                         </div>
-                                        <div class="text-xs text-gray-500 font-medium" x-text="item.location"></div>
+                                        <div class="text-[10px] text-gray-400 font-medium mt-1 flex items-center gap-1">
+                                            <svg class="w-3 h-3 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                                            <span x-text="item.location"></span>
+                                        </div>
                                     </div>
                                     <svg class="w-4 h-4 text-gray-300 group-hover:text-emerald-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7" />
@@ -209,6 +225,7 @@
 
             {{-- RIGHT ICONS --}}
             <div class="flex items-center gap-2 md:gap-5">
+                @unlessrole('courier')
                 <button @click="$store.cart.show = true" class="relative p-2 text-gray-600 hover:bg-gray-50 rounded-lg transition-colors">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
@@ -217,6 +234,7 @@
                         <span class="absolute top-1 right-1 bg-red-500 text-white text-[11px] font-bold w-4 h-4 rounded-full flex items-center justify-center" x-text="$store.cart.items.length"></span>
                     </template>
                 </button>
+                @endunlessrole
 
                 @auth
                 {{-- CHAT ICON --}}
@@ -347,12 +365,8 @@
                     <x-dropdown align="right" width="48">
                         <x-slot name="trigger">
                             <button class="flex items-center gap-2 px-2 py-1 hover:bg-gray-50 rounded-lg transition-colors">
-                                <div class="w-8 h-8 rounded-full overflow-hidden border border-gray-200">
-                                    @if (Auth::user()->avatar)
-                                        <img src="{{ asset(Auth::user()->avatar) }}" class="w-full h-full object-cover">
-                                    @else
-                                        <img src="https://ui-avatars.com/api/?name={{ urlencode(Auth::user()->name) }}&color=059669&background=ECFDF5" class="w-full h-full object-cover">
-                                    @endif
+                                <div class="w-8 h-8">
+                                    <x-user-avatar :user="Auth::user()" size="w-8 h-8" textSize="text-[8px]" />
                                 </div>
                                 <span class="text-xs font-semibold text-gray-600 truncate max-w-[100px]">{{ Auth::user()->name }}</span>
                             </button>
@@ -360,53 +374,70 @@
 
                         <x-slot name="content">
                             <div class="px-4 py-3 bg-gray-50 border-b border-gray-100 mb-1 rounded-t-xl">
-                                <p class="text-xs font-semibold text-gray-400 mb-1">Akun Saya</p>
+                                <p class="text-xs font-semibold text-gray-400 mb-1">
+                                    @if(Auth::user()->hasRole('admin'))
+                                        Administrator
+                                    @elseif(Auth::user()->hasRole('courier'))
+                                        Kurir / Driver
+                                    @elseif(Auth::user()->hasRole('seller'))
+                                        Penjual / Seller
+                                    @else
+                                        Akun Saya
+                                    @endif
+                                </p>
                                 <p class="text-xs font-bold text-gray-900 truncate">{{ Auth::user()->name }}</p>
                             </div>
 
-                            {{-- SHOPPING GROUP --}}
+                            {{-- ROLE SPECIFIC: COURIER --}}
+                            @if(Auth::user()->hasRole('courier'))
                             <div class="px-2 pb-1">
-                                <div class="px-3 py-1 text-[11px] font-semibold text-emerald-600">Belanja</div>
-                                <x-dropdown-link :href="route('transactions.index')" class="text-xs font-bold py-2 hover:bg-emerald-50 rounded-lg">
+                                <div class="px-3 py-1 text-[11px] font-semibold text-blue-600">Pekerjaan</div>
+                                <x-dropdown-link :href="route('courier.deliveries.index')" class="text-xs font-bold py-2 hover:bg-blue-50 rounded-lg">
+                                    <div class="flex items-center gap-2">
+                                        <svg class="w-4 h-4 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V14a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1" /></svg>
+                                        Pusat Antaran
+                                    </div>
+                                </x-dropdown-link>
+                            </div>
+                            @endif
+
+                            {{-- ROLE SPECIFIC: SELLER / ADMIN --}}
+                            @if(auth()->user()->hasRole('seller') || auth()->user()->hasRole('admin'))
+                            <div class="px-2 pb-1">
+                                <div class="px-3 py-1 text-[11px] font-semibold text-emerald-600">Manajemen</div>
+                                <x-dropdown-link :href="route('dashboard')" class="text-xs font-bold py-2 hover:bg-emerald-50 rounded-lg">
+                                    <div class="flex items-center gap-2">
+                                        <svg class="w-4 h-4 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.5 6h9.75M10.5 6a1.5 1.5 0 1 1-3 0m3 0a1.5 1.5 0 1 0-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-9.75 0h9.75" /></svg>
+                                        {{ auth()->user()->hasRole('admin') ? 'Panel Admin' : 'Dashboard Toko' }}
+                                    </div>
+                                </x-dropdown-link>
+                            </div>
+                            @endif
+
+                            {{-- SHOPPING GROUP: Sembunyikan buat Kurir bolo --}}
+                            @unlessrole('courier')
+                            <div class="px-2 pb-1 border-t border-gray-50 mt-1">
+                                <div class="px-3 py-1 text-[11px] font-semibold text-gray-500">Belanja</div>
+                                <x-dropdown-link :href="route('transactions.index')" class="text-xs font-bold py-2 hover:bg-gray-50 rounded-lg">
                                     <div class="flex items-center gap-2">
                                         <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" /></svg>
                                         Riwayat Pesanan
                                     </div>
                                 </x-dropdown-link>
-                                <x-dropdown-link :href="route('wishlist.index')" class="text-xs font-bold py-2 hover:bg-emerald-50 rounded-lg">
+                                <x-dropdown-link :href="route('wishlist.index')" class="text-xs font-bold py-2 hover:bg-gray-50 rounded-lg">
                                     <div class="flex items-center gap-2">
                                         <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" /></svg>
                                         Daftar Suka
                                     </div>
                                 </x-dropdown-link>
-                                <x-dropdown-link :href="route('reviews.index')" class="text-xs font-bold py-2 hover:bg-emerald-50 rounded-lg">
+                                <x-dropdown-link :href="route('reviews.index')" class="text-xs font-bold py-2 hover:bg-gray-50 rounded-lg">
                                     <div class="flex items-center gap-2">
                                         <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.382-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" /></svg>
                                         Ulasan Saya
                                     </div>
                                 </x-dropdown-link>
                             </div>
-
-                            {{-- SELLER / ADMIN GROUP --}}
-                            @if(auth()->user()->hasRole('seller') || auth()->user()->hasRole('admin'))
-                            <div class="px-2 py-1 border-t border-gray-50">
-                                <div class="px-3 py-1 text-[11px] font-semibold text-emerald-600">Manajemen</div>
-                                <x-dropdown-link :href="route('dashboard')" class="text-xs font-bold py-2 hover:bg-emerald-50 rounded-lg">
-                                    <div class="flex items-center gap-2">
-                                        <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.5 6h9.75M10.5 6a1.5 1.5 0 1 1-3 0m3 0a1.5 1.5 0 1 0-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-9.75 0h9.75" /></svg>
-                                        Panel Kontrol
-                                    </div>
-                                </x-dropdown-link>
-                                @role('admin')
-                                <x-dropdown-link :href="route('admin.cms.index')" class="text-xs font-bold py-2 hover:bg-emerald-50 rounded-lg">
-                                    <div class="flex items-center gap-2">
-                                        <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
-                                        Konfigurasi Situs
-                                    </div>
-                                </x-dropdown-link>
-                                @endrole
-                            </div>
-                            @endif
+                            @endunlessrole
 
                             <div class="px-2 py-1 border-t border-gray-50">
                                 <div class="px-3 py-1 text-[11px] font-semibold text-gray-400">Pengaturan</div>
@@ -481,6 +512,7 @@
                 {{ __('Home') }}
             </x-responsive-nav-link>
             
+            @unlessrole('courier')
             <div class="pt-2 pb-1 px-4">
                 <span class="text-xs font-semibold text-emerald-600">Aktivitas Belanja</span>
             </div>
@@ -496,14 +528,24 @@
             <x-responsive-nav-link :href="route('reviews.index')" :active="request()->routeIs('reviews.index')" class="rounded-2xl">
                 {{ __('Ulasan Saya') }}
             </x-responsive-nav-link>
+            @endunlessrole
 
             @auth
+                @if(Auth::user()->hasRole('courier'))
+                    <div class="pt-2 pb-1 px-4 border-t border-gray-50 mt-2">
+                        <span class="text-xs font-semibold text-blue-600">Pekerjaan Kurir</span>
+                    </div>
+                    <x-responsive-nav-link :href="route('courier.deliveries.index')" :active="request()->routeIs('courier.deliveries.*')" class="rounded-2xl !bg-blue-50 !text-blue-600">
+                        {{ __('Pusat Antaran') }}
+                    </x-responsive-nav-link>
+                @endif
+
                 @if(auth()->user()->hasRole('seller') || auth()->user()->hasRole('admin'))
                     <div class="pt-2 pb-1 px-4 border-t border-gray-50 mt-2">
-                        <span class="text-xs font-semibold text-emerald-600">Pusat Seller</span>
+                        <span class="text-xs font-semibold text-emerald-600">{{ auth()->user()->hasRole('admin') ? 'Administrasi' : 'Pusat Seller' }}</span>
                     </div>
                     <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')" class="rounded-2xl">
-                        {{ __('Dashboard Seller') }}
+                        {{ auth()->user()->hasRole('admin') ? __('Panel Admin') : __('Dashboard Seller') }}
                     </x-responsive-nav-link>
                 @endif
             @endauth
@@ -513,7 +555,7 @@
                     {{ __('Mulai Berjualan') }}
                 </x-responsive-nav-link>
             @else
-                @unlessrole('seller|admin')
+                @unlessrole('seller|admin|courier')
                     <x-responsive-nav-link :href="route('seller.create')" class="rounded-2xl text-emerald-600 font-bold border-2 border-dashed border-emerald-100 mt-4">
                         {{ __('Mulai Berjualan') }}
                     </x-responsive-nav-link>
@@ -529,7 +571,7 @@
                         @if (Auth::user()->avatar)
                             <img src="{{ asset(Auth::user()->avatar) }}" class="w-full h-full object-cover">
                         @else
-                                <img src="https://ui-avatars.com/api/?name={{ urlencode(Auth::user()->name) }}&color=059669&background=ECFDF5" class="w-full h-full object-cover">
+                            <x-user-avatar :user="Auth::user()" size="w-full h-full" textSize="text-lg" />
                         @endif
                     </div>
                     <div>

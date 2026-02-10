@@ -41,19 +41,23 @@ class SearchController extends Controller
             ->get();
 
         $results = $items->map(function($item) {
-            $avatar = $item->user->avatar ?? null;
-            $sellerAvatar = $avatar 
-                ? (str_starts_with($avatar, 'http') ? $avatar : asset($avatar))
-                : 'https://ui-avatars.com/api/?name=' . urlencode($item->user->nama_toko ?? $item->user->name ?? 'OS') . '&color=00AA5B&background=D1FAE5';
+            $itemImage = $item->gambar ?? null;
+            
+            // Get initials for fallback
+            $initials = collect(explode(' ', $item->nama_barang))
+                ->map(fn($n) => mb_substr($n, 0, 1))
+                ->take(1)
+                ->join('');
 
             return [
                 'id' => $item->id,
                 'name' => $item->nama_barang,
                 'location' => $item->lokasi ?? 'Mojokerto',
                 'seller_name' => $item->user->nama_toko ?? $item->user->name ?? 'Official Store',
-                'seller_avatar' => $sellerAvatar,
+                'image' => $itemImage ? (str_starts_with($itemImage, 'http') ? $itemImage : asset($itemImage)) : null,
+                'initials' => $initials,
                 'url' => route('shop.show', $item->id),
-                'is_verified' => true
+                'is_verified' => (bool)$item->user->is_top_seller
             ];
         });
 

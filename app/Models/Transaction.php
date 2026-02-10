@@ -53,6 +53,17 @@ class Transaction extends Model
                 'completed_at' => now(),
             ]);
 
+            // Increment total_terjual for each item
+            if (is_array($this->items_details)) {
+                foreach ($this->items_details as $itemDetail) {
+                    $item = \App\Models\ItemShop::find($itemDetail['id'] ?? null);
+                    if ($item) {
+                        $qty = $itemDetail['quantity'] ?? 1;
+                        $item->increment('total_terjual', $qty);
+                    }
+                }
+            }
+
             // --- HITUNG KOMISI SELLER (OPSI B) ---
             // Kita ambil persentase dari setting (Default 5%)
             $commissionPercent = (float)(\App\Models\SiteSetting::where('key', 'seller_commission_pct')->value('value') ?? 5);

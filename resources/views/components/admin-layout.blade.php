@@ -78,12 +78,8 @@
                                     {{ Auth::user()->nama_toko ?? Auth::user()->getRoleNames()->first() }}
                                 </div>
                             </div>
-                            <div class="w-10 h-10 rounded-full overflow-hidden border-2 border-white shadow-sm ring-1 ring-slate-100 group-hover:ring-emerald-100 transition-all">
-                                @if (Auth::user()->avatar)
-                                <img src="{{ asset(Auth::user()->avatar) }}" class="w-full h-full object-cover">
-                                @else
-                                <img src="https://ui-avatars.com/api/?name={{ urlencode(Auth::user()->name) }}&color=7F9CF5&background=EBF4FF" class="w-full h-full object-cover">
-                                @endif
+                            <div class="w-10 h-10">
+                                <x-user-avatar :user="Auth::user()" size="w-10 h-10" shape="rounded-full" textSize="text-[10px]" />
                             </div>
                         </button>
                     </x-slot>

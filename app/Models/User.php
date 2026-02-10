@@ -96,6 +96,42 @@ class User extends Authenticatable
         return $this->hasMany(Cart::class);
     }
 
+    /**
+     * Recalculate seller rating based on both Product Reviews and Seller Reviews.
+     */
+    public function recalculateSellerRating(): void
+    {
+        if (!$this->hasRole('seller')) return;
+
+        // 1. Get Product Reviews (Review model)
+        $itemIds = $this->itemShops()->pluck('id');
+        $productReviews = Review::whereIn('item_shop_id', $itemIds);
+        
+        $productAvg = $productReviews->avg('rating') ?: 0;
+        $productCount = $productReviews->count();
+
+        // 2. Get Seller Reviews (SellerReview model)
+        $sellerReviews = SellerReview::where('seller_id', $this->id);
+        
+        $sellerAvg = $sellerReviews->avg('rating') ?: 0;
+        $sellerCount = $sellerReviews->count();
+
+        // 3. Calculate Weighted Average or just Total Average
+        $totalCount = $productCount + $sellerCount;
+        if ($totalCount > 0) {
+            $totalSum = ($productAvg * $productCount) + ($sellerAvg * $sellerCount);
+            $finalAvg = $totalSum / $totalCount;
+        } else {
+            $finalAvg = 0;
+        }
+
+        $this->update([
+            'seller_rating' => round($finalAvg, 1),
+            'seller_rating_count' => $totalCount,
+            'is_top_seller' => ($finalAvg >= 4.5 && $totalCount >= 5) ? 1 : 0
+        ]);
+    }
+
     public function sellerReviews()
     {
         return $this->hasMany(SellerReview::class, 'seller_id');

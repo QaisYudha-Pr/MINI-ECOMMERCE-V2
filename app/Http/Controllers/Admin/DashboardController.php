@@ -33,16 +33,22 @@ class DashboardController extends Controller
         // 1. Basic Stats (Admin/Seller) - Each user sees only their own items
         $totalItems = ItemShop::where('user_id', $user->id)->count();
         $totalUsers = User::count();
-        $totalReviews = Review::when(!$isAdmin, function($q) use ($user) {
-            $q->whereHas('itemShop', fn($iq) => $iq->where('user_id', $user->id));
-        })->count();
+        
+        // Count both Product Reviews and Seller Reviews
+        if ($isAdmin) {
+             $totalReviews = Review::count() + \App\Models\SellerReview::count();
+        } else {
+             $productReviewsCount = Review::whereHas('itemShop', fn($iq) => $iq->where('user_id', $user->id))->count();
+             $sellerReviewsCount = \App\Models\SellerReview::where('seller_id', $user->id)->count();
+             $totalReviews = $productReviewsCount + $sellerReviewsCount;
+        }
 
         // 2. Role-Aware Detailed Stats
         $platformBalance = $isAdmin ? ($user->balance ?? 0) : 0;
         $userFavoritesCount = $user->favoriteItems()->count();
-        $userReviewsCount = Review::where('user_id', $user->id)->count();
+        $userReviewsCount = Review::where('user_id', $user->id)->count() + \App\Models\SellerReview::where('buyer_id', $user->id)->count();
         $outOfStockItems = 0;
-        $storeRating = 0;
+        $storeRating = $user->seller_rating ?? 0;
         $pendingDeliveries = 0;
         $totalDeliveries = 0;
         $salesTransactions = collect();
@@ -55,7 +61,6 @@ class DashboardController extends Controller
                 ->take(5)
                 ->get();
             $pendingOrders = Transaction::where('status', 'paid')->count();
-            $storeRating = Review::avg('rating') ?: 0;
             $sellerTotalItems = 0; 
         } elseif ($isSeller) {
             $salesTransactions = Transaction::with('user')
@@ -72,7 +77,6 @@ class DashboardController extends Controller
                     });
                 })->count();
             $outOfStockItems = ItemShop::where('user_id', $user->id)->where('stok', '<=', 0)->count();
-            $storeRating = Review::whereHas('itemShop', fn($q) => $q->where('user_id', $user->id))->avg('rating') ?: 0;
             $sellerTotalItems = ItemShop::where('user_id', $user->id)->count();
         } elseif ($isCourier) {
             $salesTransactions = Transaction::with('user')

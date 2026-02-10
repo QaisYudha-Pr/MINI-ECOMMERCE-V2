@@ -39,7 +39,7 @@
                         <h1 class="text-2xl lg:text-3xl font-bold text-gray-900 leading-tight mb-2">{{ $itemShop->nama_barang }}</h1>
                         
                         <div class="flex items-center gap-3 text-sm">
-                            <span class="text-gray-500">Terjual <span class="text-gray-900 font-bold">{{ $itemShop->stok > 100 ? '1 rb+' : $itemShop->stok . ' terjual' }}</span></span>
+                            <span class="text-gray-500">Terjual <span class="text-gray-900 font-bold">{{ $itemShop->total_terjual > 1000 ? number_format($itemShop->total_terjual/1000, 1) . ' rb+' : $itemShop->total_terjual . ' terjual' }}</span></span>
                             <div class="w-1 h-1 bg-gray-300 rounded-full"></div>
                             <div class="flex items-center gap-1.5">
                                 <div class="flex items-center gap-0.5">
@@ -64,8 +64,7 @@
                     <div class="border-y border-gray-100 py-6 group/seller">
                         <a href="{{ route('shop.public', ['seller_id' => $itemShop->user_id]) }}" class="flex items-center justify-between hover:bg-gray-50 p-2 -m-2 rounded-2xl transition-all">
                             <div class="flex items-center gap-4">
-                                <img src="{{ $itemShop->user->avatar ? (Str::startsWith($itemShop->user->avatar, ['http://', 'https://']) ? $itemShop->user->avatar : asset($itemShop->user->avatar)) : 'https://ui-avatars.com/api/?name='.urlencode($itemShop->user->nama_toko ?? $itemShop->user->name ?? 'Admin').'&background=EBF4FF&color=7F9CF5' }}" 
-                                     class="w-12 h-12 rounded-full border border-gray-100 object-cover">
+                                <x-user-avatar :user="$itemShop->user" size="w-12 h-12" shape="rounded-full" textSize="text-[12px]" />
                                 <div>
                                     <h3 class="font-bold text-gray-900 group-hover/seller:text-emerald-600 transition-colors uppercase text-sm tracking-tight">{{ $itemShop->user->nama_toko ?? $itemShop->user->name ?? 'Official Store' }}</h3>
                                     <div class="flex items-center gap-2">
@@ -91,14 +90,12 @@
                                 Kunjungi Toko
                             </div>
                         </a>
-                        @auth
-                        @if(auth()->id() !== $itemShop->user_id)
-                        <a href="{{ route('chat.start', $itemShop->user) }}" class="px-4 py-2 bg-emerald-600 text-white rounded-lg text-xs font-semibold hover:bg-[#008f4d] transition-all flex items-center gap-2">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+                        @if(!auth()->check() || auth()->id() !== $itemShop->user_id)
+                        <a href="{{ route('chat.start', $itemShop->user) }}" class="mt-4 w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl font-bold text-sm transition-all flex items-center justify-center gap-2 shadow-lg shadow-emerald-100">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
                             Chat Penjual
                         </a>
                         @endif
-                        @endauth
                     </div>
 
                     <div class="space-y-4" x-data="{ tab: 'detail' }">
@@ -598,8 +595,7 @@
                                 </div>
 
                                 <div class="flex items-center gap-3 mb-4">
-                                    <img src="{{ $review->user->avatar ? asset($review->user->avatar) : 'https://ui-avatars.com/api/?name=' . urlencode($review->user->name) . '&background=random' }}"
-                                         class="w-10 h-10 rounded-full object-cover">
+                                    <x-user-avatar :user="$review->user" size="w-10 h-10" shape="rounded-full" textSize="text-[10px]" />
                                     <span class="font-bold text-gray-900 text-sm tracking-tight">{{ $review->user->name }}</span>
                                 </div>
 

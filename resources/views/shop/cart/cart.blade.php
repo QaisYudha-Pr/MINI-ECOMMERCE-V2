@@ -28,8 +28,7 @@
                     <div class="bg-white rounded-2xl border border-slate-100 shadow-xl overflow-hidden" id="seller-group-{{ $sellerId }}">
                         {{-- Seller Header --}}
                         <div class="p-5 bg-slate-50 border-b border-slate-100 flex items-center gap-3">
-                            <img src="{{ $seller->avatar ? (Str::startsWith($seller->avatar, ['http://', 'https://']) ? $seller->avatar : asset($seller->avatar)) : 'https://ui-avatars.com/api/?name='.urlencode($seller->name).'&background=6366f1&color=fff&bold=true' }}" 
-                                 class="w-9 h-9 rounded-full object-cover border border-slate-200">
+                            <x-user-avatar :user="$seller" size="w-9 h-9" shape="rounded-full" textSize="text-[10px]" />
                             <div class="flex-1">
                                 <h3 class="text-sm font-bold text-slate-900">{{ $seller->nama_toko ?? $seller->name }}</h3>
                                 @if($seller->is_top_seller)

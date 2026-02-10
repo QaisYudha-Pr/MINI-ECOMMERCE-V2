@@ -248,6 +248,7 @@
                             </div>
                             <svg class="w-4 h-4 text-slate-300 group-hover:text-emerald-500 group-hover:translate-x-1 transition-all" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
                         </a>
+                        @unlessrole('courier')
                         <a href="{{ route('home') }}" class="flex items-center gap-4 p-5 bg-emerald-50 rounded-2xl border border-emerald-100 hover:border-emerald-200 hover:shadow-xl hover:shadow-emerald-500/5 transition-all duration-300 group">
                             <div class="w-10 h-10 bg-emerald-600 rounded-xl flex items-center justify-center text-white group-hover:scale-105 transition-all shadow-sm">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
@@ -258,6 +259,7 @@
                             </div>
                             <svg class="w-4 h-4 text-slate-300 group-hover:text-emerald-500 group-hover:translate-x-1 transition-all" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
                         </a>
+                        @endunlessrole
                     </div>
                 </div>
             @else
@@ -449,7 +451,7 @@
                                         Waduh bolo! Alamat atau titik maps kamu belum lengkap. Nanti kurir bingung nganternya.
                                     </p>
                                 </div>
-                                <a href="{{ route('profile.edit') }}" class="block w-full py-3 bg-amber-500 text-white text-center rounded-xl text-[10px] font-bold hover:bg-amber-600 transition-all active:scale-95 shadow-lg shadow-amber-100 uppercase tracking-widest">
+                                <a href="{{ route('profile.edit') }}" class="block w-full py-3 bg-emerald-600 text-white text-center rounded-xl text-[10px] font-bold hover:bg-emerald-700 transition-all active:scale-95 shadow-lg shadow-emerald-100 uppercase tracking-widest">
                                     Lengkapi Maps
                                 </a>
                             @else
@@ -474,18 +476,20 @@
                             <h4 class="text-slate-900 font-bold text-sm mb-4">Butuh Bantuan, Bolo?</h4>
                             <div class="space-y-3">
                                 @php $admin = \App\Models\User::role('admin')->first(); @endphp
-                                <a href="{{ $admin ? route('chat.start', ['seller' => $admin->id]) : route('chat.index') }}" class="flex items-center gap-3 p-3 bg-slate-50 rounded-xl border border-slate-200 hover:bg-slate-100 transition-all">
-                                    <div class="w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-600 flex items-center justify-center">
+                                <a href="{{ $admin ? route('chat.start', ['seller' => $admin->id]) : route('chat.index') }}" class="flex items-center gap-3 p-3 bg-white rounded-xl border border-slate-100 hover:border-emerald-200 hover:bg-emerald-50/30 transition-all group">
+                                    <div class="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center border border-emerald-100">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
                                     </div>
-                                    <div class="text-[10px] font-bold text-slate-700">Tanya Admin</div>
+                                    <div class="text-[10px] font-bold text-slate-700 group-hover:text-emerald-700">Tanya Admin</div>
                                 </a>
-                                <div class="flex items-center gap-3 p-3 bg-slate-50 rounded-xl border border-slate-200">
-                                    <div class="w-8 h-8 rounded-lg bg-blue-500/20 text-blue-600 flex items-center justify-center">
+                                @unlessrole('courier')
+                                <div class="flex items-center gap-3 p-3 bg-white rounded-xl border border-slate-100">
+                                    <div class="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center border border-emerald-100">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                                     </div>
                                     <div class="text-[10px] font-bold text-slate-700 italic">Panduan Belanja</div>
                                 </div>
+                                @endunlessrole
                             </div>
                         </div>
                     </div>
@@ -529,7 +533,7 @@
                                 @forelse($salesTransactions as $tx)
                                 <tr class="bg-slate-50/50 hover:bg-white transition-all group">
                                     <td class="px-4 py-4 rounded-l-2xl border-y border-l border-transparent group-hover:border-slate-100">
-                                        <span class="text-xs font-bold text-slate-900 uppercase">#{{ strtoupper(substr($tx->invoice_number ?? $tx->id, -8)) }}</span>
+                                        <span class="text-xs font-bold text-slate-900 uppercase">{{ $tx->invoice_number ?? '#'.$tx->id }}</span>
                                     </td>
                                     <td class="px-4 py-4 border-y border-transparent group-hover:border-slate-100">
                                         @php
@@ -586,6 +590,7 @@
                 </div>
                 @endif
 
+                @unlessrole('courier')
                 <div class="bg-white rounded-2xl border border-slate-100 shadow-[0_20px_50px_rgba(0,0,0,0.02)] overflow-hidden transition-all hover:shadow-[0_20px_50px_rgba(0,0,0,0.04)]">
                     <div class="p-8 border-b border-slate-50 flex justify-between items-center bg-white/50 backdrop-blur-md sticky top-0 z-10">
                         <div class="flex items-center gap-3">
@@ -621,7 +626,7 @@
                                         <div>
                                             <div class="flex items-center gap-2 mb-1">
                                                 <h5 class="text-xs font-semibold text-slate-900">{{ $txUser->name ?? 'Guest User' }}</h5>
-                                                <span class="text-xs font-bold px-2 py-0.5 bg-white border border-slate-100 text-slate-400 rounded-full shadow-sm">#{{ strtoupper(substr($tx->invoice_number ?? $tx->id, -8)) }}</span>
+                                                <span class="text-xs font-bold px-2 py-0.5 bg-white border border-slate-100 text-slate-400 rounded-full shadow-sm">{{ $tx->invoice_number ?? '#'.$tx->id }}</span>
                                             </div>
                                             <div class="flex items-center gap-3">
                                                 <span class="text-[11px] font-bold text-slate-400">{{ $tx->created_at->diffForHumans() }}</span>
@@ -690,6 +695,7 @@
                     </div>
                     @endif
                 </div>
+                @endunlessrole
             </div>
 
             <div class="space-y-8">
@@ -814,7 +820,7 @@
                 </div>
                 @endif
 
-                @if($notifications->count() > 0 || (!Auth::user()->hasRole('seller') && !Auth::user()->hasRole('admin')))
+                @if($notifications->count() > 0 || (!Auth::user()->hasRole('seller') && !Auth::user()->hasRole('admin') && !Auth::user()->hasRole('courier')))
                 <div class="bg-white rounded-2xl p-8 border border-slate-100 shadow-[0_20px_50px_rgba(0,0,0,0.02)] relative overflow-hidden group transition-all duration-500 hover:shadow-emerald-500/10">
                     <div class="relative z-10 h-full flex flex-col">
                         <div class="flex items-center justify-between mb-8">
@@ -842,7 +848,7 @@
                                 </div>
                             @empty
                                 {{-- If no notifications and is Buyer (Bolo) --}}
-                                @if(!Auth::user()->hasRole('seller') && !Auth::user()->hasRole('admin'))
+                                @if(!Auth::user()->hasRole('seller') && !Auth::user()->hasRole('admin') && !Auth::user()->hasRole('courier'))
                                 <div class="text-center py-6">
                                     <div class="w-16 h-16 bg-emerald-50 rounded-full flex items-center justify-center mx-auto mb-4 text-emerald-600 shadow-inner">
                                         <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>

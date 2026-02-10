@@ -52,15 +52,8 @@ class SellerReview extends Model
     public function updateSellerRating(): void
     {
         $seller = $this->seller;
-        $reviews = self::where('seller_id', $seller->id);
-        
-        $avgRating = $reviews->avg('rating') ?? 0;
-        $count = $reviews->count();
-        
-        $seller->update([
-            'seller_rating' => round($avgRating, 1),
-            'seller_rating_count' => $count,
-            'is_top_seller' => $avgRating >= 4.5 && $count >= 10, // Top seller: 4.5+ rating with 10+ reviews
-        ]);
+        if ($seller) {
+            $seller->recalculateSellerRating();
+        }
     }
 }
